@@ -22,6 +22,12 @@
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
+                @if (session('success'))
+                    <div class="mb-4 rounded-2xl border border-orange-200 bg-white p-4 text-sm font-bold text-[#C96504] shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 <header class="mb-4">
                     <a href="{{ route('client.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                         Retour vers les résultats
@@ -162,12 +168,12 @@
                         </dl>
                     </section>
 
-                    <button
-                        type="button"
+                    <a
+                        href="{{ route('pieces.request', $part) }}"
                         class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
                     >
                         Demander une mise de côté
-                    </button>
+                    </a>
                 </div>
             </div>
         </main>
