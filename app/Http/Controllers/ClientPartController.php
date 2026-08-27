@@ -15,6 +15,10 @@ class ClientPartController extends Controller
 {
     public function index(Request $request): View
     {
+        $licensePlate = (string) $request->string('license_plate')->trim();
+        $normalizedLicensePlate = strtoupper(preg_replace('/[\s-]+/', '', $licensePlate) ?? '');
+        $hasLicensePlate = $normalizedLicensePlate !== '';
+
         $parts = Part::query()
             ->with(['vehicle.scrapyard'])
             ->where('status', 'available')
@@ -58,6 +62,8 @@ class ClientPartController extends Controller
             ->get();
 
         return view('client.parts.index', [
+            'hasLicensePlate' => $hasLicensePlate,
+            'normalizedLicensePlate' => $normalizedLicensePlate,
             'parts' => $parts,
         ]);
     }

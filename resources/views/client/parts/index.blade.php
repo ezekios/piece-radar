@@ -39,6 +39,18 @@
                             >
                         </div>
 
+                        <div class="sm:col-span-2">
+                            <label for="license_plate" class="text-xs font-black text-zinc-700">Plaque d’immatriculation</label>
+                            <input
+                                id="license_plate"
+                                name="license_plate"
+                                type="text"
+                                value="{{ request('license_plate') }}"
+                                placeholder="Ex. AB-123-CD"
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium uppercase text-zinc-700 placeholder:normal-case placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
+                        </div>
+
                         <div>
                             <label for="category" class="text-xs font-black text-zinc-700">Catégorie</label>
                             <input
@@ -101,6 +113,17 @@
                         </a>
                     </div>
                 </form>
+
+                @if ($hasLicensePlate)
+                    <section class="mt-3 rounded-2xl border border-orange-100 bg-[#FC8505]/5 p-4 text-sm leading-6 text-zinc-700">
+                        <p class="font-bold text-zinc-900">
+                            Recherche par plaque préparée : la plaque sera utilisée pour identifier automatiquement le véhicule lorsque l’API d’immatriculation sera connectée.
+                        </p>
+                        <p class="mt-1 font-black text-[#C96504]">
+                            Plaque saisie : {{ $normalizedLicensePlate }}
+                        </p>
+                    </section>
+                @endif
 
                 <section class="mt-4 flex gap-2 overflow-x-auto pb-1">
                     <button type="button" class="shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-800">
