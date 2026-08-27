@@ -140,9 +140,9 @@
 
                                         <div class="mt-3 flex items-center justify-between border-t border-zinc-100 pt-2">
                                             <span class="text-xs font-medium text-zinc-400">Pièce publiée</span>
-                                            <button type="button" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                            <a href="{{ route('pieces.show', $part) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                                 Voir détail
-                                            </button>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

@@ -9,3 +9,6 @@ Route::get('/', function () {
 
 Route::get('/pieces', [ClientPartController::class, 'index'])
     ->name('client.parts.index');
+
+Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
+    ->name('pieces.show');

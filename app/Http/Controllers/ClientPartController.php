@@ -20,4 +20,15 @@ class ClientPartController extends Controller
             'parts' => $parts,
         ]);
     }
+
+    public function show(Part $part): View
+    {
+        abort_unless($part->is_published && $part->status === 'available', 404);
+
+        $part->load(['vehicle.scrapyard']);
+
+        return view('client.parts.show', [
+            'part' => $part,
+        ]);
+    }
 }
