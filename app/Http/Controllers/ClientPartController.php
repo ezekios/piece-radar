@@ -80,6 +80,8 @@ class ClientPartController extends Controller
             $user->save();
         }
 
+        session(['client_email' => $user->email]);
+
         PartHoldRequest::query()->create([
             'user_id' => $user->id,
             'part_id' => $part->id,

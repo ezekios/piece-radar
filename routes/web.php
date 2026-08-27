@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientPartController;
+use App\Http\Controllers\ClientRequestController;
 use App\Http\Controllers\ScrapyardRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,9 @@ Route::post('/pieces/{part}/demande', [ClientPartController::class, 'storeReques
 
 Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
     ->name('pieces.show');
+
+Route::get('/mes-demandes', [ClientRequestController::class, 'index'])
+    ->name('client.requests.index');
 
 Route::get('/casse/demandes', [ScrapyardRequestController::class, 'index'])
     ->name('scrapyard.requests.index');
