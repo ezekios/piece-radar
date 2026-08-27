@@ -131,6 +131,12 @@
                                 <p class="mt-3 text-xs font-medium text-zinc-400">
                                     Reçue le {{ $holdRequest->created_at?->format('d/m/Y à H:i') }}
                                 </p>
+
+                                <div class="mt-3 flex justify-end border-t border-zinc-100 pt-3">
+                                    <a href="{{ route('scrapyard.requests.show', $holdRequest) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Voir la demande
+                                    </a>
+                                </div>
                             </article>
                         @endforeach
                     </section>

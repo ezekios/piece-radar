@@ -35,4 +35,23 @@ class ScrapyardRequestController extends Controller
             'pendingRequestsCount' => $pendingRequestsCount,
         ]);
     }
+
+    public function show(PartHoldRequest $partHoldRequest): View
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $partHoldRequest->load(['user', 'part.vehicle.scrapyard']);
+
+        abort_unless(
+            (int) ($partHoldRequest->part?->vehicle?->scrapyard_id) === (int) $scrapyard->id,
+            404,
+        );
+
+        return view('scrapyard.requests.show', [
+            'scrapyard' => $scrapyard,
+            'partHoldRequest' => $partHoldRequest,
+        ]);
+    }
 }
