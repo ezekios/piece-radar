@@ -119,8 +119,11 @@
                         <p class="font-bold text-zinc-900">
                             Recherche par plaque préparée : la plaque sera utilisée pour identifier automatiquement le véhicule lorsque l’API d’immatriculation sera connectée.
                         </p>
+                        <p class="mt-1 text-zinc-600">
+                            {{ $licensePlateLookup['message'] }}
+                        </p>
                         <p class="mt-1 font-black text-[#C96504]">
-                            Plaque saisie : {{ $normalizedLicensePlate }}
+                            Plaque saisie : {{ $licensePlateLookup['normalized_plate'] }}
                         </p>
                     </section>
                 @endif

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Models\PartHoldRequest;
 use App\Models\User;
+use App\Services\LicensePlateLookupService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,11 +14,12 @@ use Illuminate\Support\Str;
 
 class ClientPartController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, LicensePlateLookupService $licensePlateLookupService): View
     {
         $licensePlate = (string) $request->string('license_plate')->trim();
-        $normalizedLicensePlate = strtoupper(preg_replace('/[\s-]+/', '', $licensePlate) ?? '');
-        $hasLicensePlate = $normalizedLicensePlate !== '';
+        $licensePlateLookup = $licensePlate !== ''
+            ? $licensePlateLookupService->lookup($licensePlate)
+            : null;
 
         $parts = Part::query()
             ->with(['vehicle.scrapyard'])
@@ -62,8 +64,8 @@ class ClientPartController extends Controller
             ->get();
 
         return view('client.parts.index', [
-            'hasLicensePlate' => $hasLicensePlate,
-            'normalizedLicensePlate' => $normalizedLicensePlate,
+            'hasLicensePlate' => $licensePlateLookup !== null,
+            'licensePlateLookup' => $licensePlateLookup,
             'parts' => $parts,
         ]);
     }
