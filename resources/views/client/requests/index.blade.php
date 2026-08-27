@@ -150,6 +150,12 @@
                                         @endif
                                     </div>
                                 @endif
+
+                                <div class="mt-3 flex justify-end border-t border-zinc-100 pt-3">
+                                    <a href="{{ route('client.requests.show', $holdRequest) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Voir la demande
+                                    </a>
+                                </div>
                             </article>
                         @endforeach
                     </section>

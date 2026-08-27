@@ -24,6 +24,9 @@ Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
 Route::get('/mes-demandes', [ClientRequestController::class, 'index'])
     ->name('client.requests.index');
 
+Route::get('/mes-demandes/{partHoldRequest}', [ClientRequestController::class, 'show'])
+    ->name('client.requests.show');
+
 Route::get('/casse/demandes', [ScrapyardRequestController::class, 'index'])
     ->name('scrapyard.requests.index');
 
