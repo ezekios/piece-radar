@@ -23,6 +23,13 @@
                 'completed' => 'Terminée',
             ];
 
+            $partStatusLabels = [
+                'available' => 'Disponible',
+                'reserved' => 'Mise de côté',
+                'sold' => 'Vendue',
+                'unavailable' => 'Non disponible',
+            ];
+
             $statusClasses = [
                 'pending' => 'bg-[#FC8505]/10 text-[#C96504]',
                 'accepted' => 'bg-emerald-50 text-emerald-700',
@@ -41,6 +48,18 @@
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
+                @if (session('success'))
+                    <div class="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-700 shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="mb-4 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-bold text-red-700 shadow-sm">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <header class="border-b border-zinc-200/80 pb-4">
                     <a href="{{ route('scrapyard.requests.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                         Retour vers les demandes
@@ -104,11 +123,41 @@
                                     @endif
                                 </p>
                                 <p class="mt-1 text-xs font-black text-zinc-500">
-                                    Statut pièce : {{ $part?->status ?? 'Non renseigné' }}
+                                    Statut pièce : {{ $partStatusLabels[$part?->status] ?? $part?->status ?? 'Non renseigné' }}
                                 </p>
                             </div>
                         </div>
                     </section>
+
+                    @if ($partHoldRequest->status === 'pending')
+                        <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                            <h2 class="text-base font-black text-zinc-950">Traiter la demande</h2>
+
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                <form method="POST" action="{{ route('scrapyard.requests.accept', $partHoldRequest) }}">
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+                                    >
+                                        Accepter la demande
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="{{ route('scrapyard.requests.refuse', $partHoldRequest) }}">
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-black text-zinc-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2"
+                                    >
+                                        Refuser la demande
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+                    @endif
 
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Véhicule associé</h2>

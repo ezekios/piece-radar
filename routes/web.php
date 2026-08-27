@@ -23,5 +23,11 @@ Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
 Route::get('/casse/demandes', [ScrapyardRequestController::class, 'index'])
     ->name('scrapyard.requests.index');
 
+Route::post('/casse/demandes/{partHoldRequest}/accepter', [ScrapyardRequestController::class, 'accept'])
+    ->name('scrapyard.requests.accept');
+
+Route::post('/casse/demandes/{partHoldRequest}/refuser', [ScrapyardRequestController::class, 'refuse'])
+    ->name('scrapyard.requests.refuse');
+
 Route::get('/casse/demandes/{partHoldRequest}', [ScrapyardRequestController::class, 'show'])
     ->name('scrapyard.requests.show');
