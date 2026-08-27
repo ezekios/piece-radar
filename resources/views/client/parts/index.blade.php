@@ -25,29 +25,82 @@
                     </p>
                 </header>
 
-                <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
-                    <label for="parts-search" class="sr-only">Rechercher une pièce</label>
-                    <div class="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-                        <input
-                            id="parts-search"
-                            type="search"
-                            readonly
-                            placeholder="Rechercher une pièce"
-                            class="h-11 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#FC8505]/30"
-                        >
-
-                        <div class="flex h-11 items-center rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-bold text-zinc-700">
-                            Renault Clio IV · 2017
+                <form method="GET" action="{{ route('client.parts.index') }}" class="mt-4 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <label for="q" class="text-xs font-black text-zinc-700">Rechercher une pièce</label>
+                            <input
+                                id="q"
+                                name="q"
+                                type="search"
+                                value="{{ request('q') }}"
+                                placeholder="Ex. phare, alternateur, référence"
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
                         </div>
 
+                        <div>
+                            <label for="category" class="text-xs font-black text-zinc-700">Catégorie</label>
+                            <input
+                                id="category"
+                                name="category"
+                                type="text"
+                                value="{{ request('category') }}"
+                                placeholder="Optique, moteur..."
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="brand" class="text-xs font-black text-zinc-700">Marque</label>
+                            <input
+                                id="brand"
+                                name="brand"
+                                type="text"
+                                value="{{ request('brand') }}"
+                                placeholder="Renault"
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="model" class="text-xs font-black text-zinc-700">Modèle</label>
+                            <input
+                                id="model"
+                                name="model"
+                                type="text"
+                                value="{{ request('model') }}"
+                                placeholder="Clio IV"
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="city" class="text-xs font-black text-zinc-700">Ville</label>
+                            <input
+                                id="city"
+                                name="city"
+                                type="text"
+                                value="{{ request('city') }}"
+                                placeholder="Fort-de-France"
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <button
-                            type="button"
+                            type="submit"
                             class="inline-flex h-11 items-center justify-center rounded-xl bg-[#FC8505] px-5 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
                         >
                             Rechercher
                         </button>
+
+                        <a href="{{ route('client.parts.index') }}" class="inline-flex h-11 items-center justify-center text-sm font-bold text-zinc-500 hover:text-zinc-800">
+                            Réinitialiser
+                        </a>
                     </div>
-                </section>
+                </form>
 
                 <section class="mt-4 flex gap-2 overflow-x-auto pb-1">
                     <button type="button" class="shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-800">
@@ -69,9 +122,9 @@
 
                 @if ($parts->isEmpty())
                     <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Aucune pièce disponible</h2>
+                        <h2 class="text-base font-black text-zinc-950">Aucune pièce ne correspond à votre recherche.</h2>
                         <p class="mt-1.5 text-sm leading-6 text-zinc-600">
-                            Les pièces publiées et disponibles apparaîtront ici.
+                            Essayez avec une autre pièce, marque, catégorie ou ville.
                         </p>
                     </section>
                 @else
