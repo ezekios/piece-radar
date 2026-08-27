@@ -60,15 +60,26 @@ class ScrapyardRequestController extends Controller
         }
 
         DB::transaction(function () use ($partHoldRequest): void {
+            $handledAt = now();
+
             $partHoldRequest->update([
                 'status' => 'accepted',
-                'handled_at' => now(),
-                'reserved_until' => now()->addHours(48),
+                'handled_at' => $handledAt,
+                'reserved_until' => $handledAt->copy()->addHours(48),
             ]);
 
             $partHoldRequest->part->update([
                 'status' => 'reserved',
             ]);
+
+            PartHoldRequest::query()
+                ->where('part_id', $partHoldRequest->part_id)
+                ->whereKeyNot($partHoldRequest->id)
+                ->where('status', 'pending')
+                ->update([
+                    'status' => 'refused',
+                    'handled_at' => $handledAt,
+                ]);
         });
 
         return redirect()
