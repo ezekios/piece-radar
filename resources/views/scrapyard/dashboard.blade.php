@@ -66,9 +66,14 @@
                             </p>
                         </div>
 
-                        <a href="{{ route('scrapyard.requests.index') }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
-                            Voir les demandes reçues
-                        </a>
+                        <div class="flex flex-col gap-2 sm:flex-row">
+                            <a href="{{ route('scrapyard.requests.index') }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                Voir les demandes reçues
+                            </a>
+                            <a href="{{ route('scrapyard.vehicles.index') }}" class="inline-flex items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                Voir les véhicules
+                            </a>
+                        </div>
                     </div>
                 </header>
 

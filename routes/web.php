@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientRequestController;
 use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
 use App\Http\Controllers\ScrapyardRequestController;
+use App\Http\Controllers\ScrapyardVehicleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,6 +32,9 @@ Route::get('/mes-demandes/{partHoldRequest}', [ClientRequestController::class, '
 
 Route::get('/casse', [ScrapyardDashboardController::class, 'index'])
     ->name('scrapyard.dashboard');
+
+Route::get('/casse/vehicules', [ScrapyardVehicleController::class, 'index'])
+    ->name('scrapyard.vehicles.index');
 
 Route::get('/casse/pieces', [ScrapyardPartController::class, 'index'])
     ->name('scrapyard.parts.index');
