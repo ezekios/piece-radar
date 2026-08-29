@@ -28,9 +28,17 @@
                             </p>
                         </div>
 
-                        <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
-                            {{ $vehicles->count() }} véhicule{{ $vehicles->count() > 1 ? 's' : '' }} affiché{{ $vehicles->count() > 1 ? 's' : '' }}
-                        </span>
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
+                                {{ $vehicles->count() }} véhicule{{ $vehicles->count() > 1 ? 's' : '' }} affiché{{ $vehicles->count() > 1 ? 's' : '' }}
+                            </span>
+
+                            @if ($scrapyard)
+                                <a href="{{ route('scrapyard.vehicles.create') }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                    Ajouter un véhicule
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </header>
 

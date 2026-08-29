@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Scrapyard;
 use App\Models\Vehicle;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ScrapyardVehicleController extends Controller
@@ -39,6 +40,45 @@ class ScrapyardVehicleController extends Controller
             'scrapyard' => $scrapyard,
             'vehicles' => $vehicles,
         ]);
+    }
+
+    public function create(): View
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        return view('scrapyard.vehicles.create', [
+            'scrapyard' => $scrapyard,
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $validated = $request->validate([
+            'brand' => ['required', 'string', 'max:255'],
+            'model' => ['required', 'string', 'max:255'],
+            'year' => ['nullable', 'integer', 'min:1900', 'max:' . ((int) date('Y') + 1)],
+            'license_plate' => ['nullable', 'string', 'max:255'],
+            'fuel' => ['nullable', 'string', 'max:255'],
+            'engine' => ['nullable', 'string', 'max:255'],
+            'mileage' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        if (! empty($validated['license_plate'])) {
+            $validated['license_plate'] = strtoupper(preg_replace('/[\s-]+/', '', $validated['license_plate']) ?? '');
+        }
+
+        $vehicle = Vehicle::query()->create([
+            ...$validated,
+            'scrapyard_id' => $scrapyard->id,
+        ]);
+
+        return redirect()
+            ->route('scrapyard.vehicles.show', $vehicle)
+            ->with('success', 'Le véhicule a été ajouté.');
     }
 
     public function show(Vehicle $vehicle): View

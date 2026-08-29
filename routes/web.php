@@ -36,6 +36,12 @@ Route::get('/casse', [ScrapyardDashboardController::class, 'index'])
 Route::get('/casse/vehicules', [ScrapyardVehicleController::class, 'index'])
     ->name('scrapyard.vehicles.index');
 
+Route::get('/casse/vehicules/ajouter', [ScrapyardVehicleController::class, 'create'])
+    ->name('scrapyard.vehicles.create');
+
+Route::post('/casse/vehicules', [ScrapyardVehicleController::class, 'store'])
+    ->name('scrapyard.vehicles.store');
+
 Route::get('/casse/vehicules/{vehicle}', [ScrapyardVehicleController::class, 'show'])
     ->name('scrapyard.vehicles.show');
 
