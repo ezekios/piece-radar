@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Models\Scrapyard;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ScrapyardPartController extends Controller
@@ -70,5 +71,39 @@ class ScrapyardPartController extends Controller
             'part' => $part,
             'scrapyard' => $scrapyard,
         ]);
+    }
+
+    public function updateStatus(Request $request, Part $part): RedirectResponse
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $part->load('vehicle');
+
+        abort_unless(
+            (int) ($part->vehicle?->scrapyard_id) === (int) $scrapyard->id,
+            404,
+        );
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:available,preparing,reserved,sold,unavailable'],
+        ]);
+
+        $part->status = $validated['status'];
+
+        if ($validated['status'] === 'available') {
+            $part->is_published = true;
+        }
+
+        if (in_array($validated['status'], ['sold', 'unavailable'], true)) {
+            $part->is_published = false;
+        }
+
+        $part->save();
+
+        return redirect()
+            ->route('scrapyard.parts.show', $part)
+            ->with('success', 'Le statut de la pièce a été mis à jour.');
     }
 }

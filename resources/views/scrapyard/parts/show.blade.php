@@ -39,6 +39,12 @@
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
+                @if (session('success'))
+                    <div class="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-700 shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 <header class="border-b border-zinc-200/80 pb-4">
                     <a href="{{ route('scrapyard.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                         Retour vers les pièces
@@ -185,9 +191,40 @@
                         </dl>
                     </section>
 
-                    <div class="rounded-2xl border border-zinc-200 bg-white p-4 text-sm font-black text-zinc-500 shadow-sm">
-                        Mise à jour du statut à venir
-                    </div>
+                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <h2 class="text-base font-black text-zinc-950">Mise à jour du statut</h2>
+
+                        <form method="POST" action="{{ route('scrapyard.parts.updateStatus', $part) }}" class="mt-4 space-y-3">
+                            @csrf
+
+                            <div>
+                                <label for="status" class="text-sm font-black text-zinc-900">Nouveau statut</label>
+                                <select
+                                    id="status"
+                                    name="status"
+                                    required
+                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                                >
+                                    @foreach ($statusLabels as $status => $label)
+                                        <option value="{{ $status }}" @selected(old('status', $part->status) === $status)>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                @error('status')
+                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+                            >
+                                Mettre à jour le statut
+                            </button>
+                        </form>
+                    </section>
                 </div>
             </div>
         </main>
