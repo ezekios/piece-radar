@@ -126,9 +126,9 @@
                                             Ajouté le {{ $vehicle->created_at?->format('d/m/Y à H:i') }}
                                         </p>
 
-                                        <span class="text-sm font-black text-zinc-400">
-                                            Détail à venir
-                                        </span>
+                                        <a href="{{ route('scrapyard.vehicles.show', $vehicle) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                            Voir le véhicule
+                                        </a>
                                     </div>
                                 </article>
                             @endforeach

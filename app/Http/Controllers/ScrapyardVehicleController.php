@@ -40,4 +40,24 @@ class ScrapyardVehicleController extends Controller
             'vehicles' => $vehicles,
         ]);
     }
+
+    public function show(Vehicle $vehicle): View
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+
+        $vehicle->load([
+            'parts' => function ($query) {
+                $query->latest();
+            },
+        ]);
+
+        return view('scrapyard.vehicles.show', [
+            'scrapyard' => $scrapyard,
+            'vehicle' => $vehicle,
+        ]);
+    }
 }
