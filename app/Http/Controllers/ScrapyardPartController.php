@@ -52,4 +52,23 @@ class ScrapyardPartController extends Controller
             'scrapyard' => $scrapyard,
         ]);
     }
+
+    public function show(Part $part): View
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $part->load(['vehicle.scrapyard']);
+
+        abort_unless(
+            (int) ($part->vehicle?->scrapyard_id) === (int) $scrapyard->id,
+            404,
+        );
+
+        return view('scrapyard.parts.show', [
+            'part' => $part,
+            'scrapyard' => $scrapyard,
+        ]);
+    }
 }

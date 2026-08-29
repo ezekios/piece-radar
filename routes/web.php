@@ -35,6 +35,9 @@ Route::get('/casse', [ScrapyardDashboardController::class, 'index'])
 Route::get('/casse/pieces', [ScrapyardPartController::class, 'index'])
     ->name('scrapyard.parts.index');
 
+Route::get('/casse/pieces/{part}', [ScrapyardPartController::class, 'show'])
+    ->name('scrapyard.parts.show');
+
 Route::get('/casse/demandes', [ScrapyardRequestController::class, 'index'])
     ->name('scrapyard.requests.index');
 
