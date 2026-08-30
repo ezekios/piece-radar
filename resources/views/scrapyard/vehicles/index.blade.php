@@ -126,14 +126,30 @@
                                         </div>
                                     </div>
 
-                                    <div class="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+                                    <div class="mt-3 border-t border-zinc-100 pt-3">
                                         <p class="text-xs font-medium text-zinc-400">
                                             Ajouté le {{ $vehicle->created_at?->format('d/m/Y à H:i') }}
                                         </p>
 
-                                        <a href="{{ route('scrapyard.vehicles.show', $vehicle) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                                            Voir le véhicule
-                                        </a>
+                                        <div class="mt-3">
+                                            <p class="text-xs font-black uppercase text-zinc-500">Actions rapides</p>
+
+                                            <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                                                <a href="{{ route('scrapyard.vehicles.show', $vehicle) }}" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#FC8505]/30 bg-white px-4 text-sm font-black text-[#FC8505] transition hover:bg-[#FC8505]/10 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                                    Voir le véhicule
+                                                </a>
+
+                                                <a href="{{ route('scrapyard.vehicles.parts.create', $vehicle) }}" class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FC8505] px-4 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                                    Ajouter une pièce
+                                                </a>
+
+                                                @if ($vehicle->parts_count > 0)
+                                                    <a href="{{ route('scrapyard.vehicles.show', $vehicle) }}" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-black text-zinc-700 transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                                        Voir les pièces associées
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </article>
                             @endforeach
