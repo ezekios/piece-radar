@@ -37,7 +37,9 @@
                         </span>
                     </div>
 
-                    <h1 class="text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Demandes reçues</h1>
+                    @include('scrapyard.partials.navigation')
+
+                    <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Demandes reçues</h1>
                     <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
                         {{ $requests->count() }} demande{{ $requests->count() > 1 ? 's' : '' }} reçue{{ $requests->count() > 1 ? 's' : '' }}
                     </p>

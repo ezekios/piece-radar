@@ -98,7 +98,9 @@
                         </span>
                     </div>
 
-                    <div class="flex flex-wrap items-end justify-between gap-4">
+                    @include('scrapyard.partials.navigation')
+
+                    <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
                         <div>
                             <h1 class="text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Tableau de bord casse</h1>
                             <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">

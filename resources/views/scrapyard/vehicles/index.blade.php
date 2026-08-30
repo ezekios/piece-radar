@@ -19,7 +19,8 @@
                     <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
                         <div>
                             <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
-                            <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Véhicules de la casse</h1>
+                            @include('scrapyard.partials.navigation')
+                            <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Véhicules de la casse</h1>
                             <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
                                 {{ $scrapyard?->name ?? 'Aucune casse disponible' }}
                                 @if ($scrapyard?->city)

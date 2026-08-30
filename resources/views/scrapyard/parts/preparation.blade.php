@@ -38,7 +38,8 @@
 
                     <div class="mt-4">
                         <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Préparer la pièce</h1>
+                        @include('scrapyard.partials.navigation')
+                        <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Préparer la pièce</h1>
                         <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
                             {{ $requestScrapyard?->name ?? $scrapyard?->name ?? 'Casse non renseignée' }}
                             @if ($requestScrapyard?->city ?? $scrapyard?->city)
