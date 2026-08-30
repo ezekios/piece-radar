@@ -25,6 +25,14 @@
                 'cancelled' => 'bg-zinc-100 text-zinc-600',
                 'completed' => 'bg-blue-50 text-blue-700',
             ];
+
+            $statusTreatmentLabels = [
+                'pending' => 'En attente de traitement',
+                'accepted' => 'Demande acceptée',
+                'refused' => 'Demande refusée',
+                'cancelled' => 'Demande annulée',
+                'completed' => 'Demande terminée',
+            ];
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
@@ -130,14 +138,50 @@
                                     </div>
                                 @endif
 
-                                <p class="mt-3 text-xs font-medium text-zinc-400">
-                                    Reçue le {{ $holdRequest->created_at?->format('d/m/Y à H:i') }}
-                                </p>
+                                <div class="mt-3 border-t border-zinc-100 pt-3">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <p class="text-xs font-medium text-zinc-400">
+                                            Reçue le {{ $holdRequest->created_at?->format('d/m/Y à H:i') }}
+                                        </p>
 
-                                <div class="mt-3 flex justify-end border-t border-zinc-100 pt-3">
-                                    <a href="{{ route('scrapyard.requests.show', $holdRequest) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                                        Voir la demande
-                                    </a>
+                                        <span class="inline-flex w-fit rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">
+                                            {{ $statusTreatmentLabels[$status] ?? $status }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <p class="text-xs font-black uppercase text-zinc-500">Actions rapides</p>
+
+                                        <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                                            <a href="{{ route('scrapyard.requests.show', $holdRequest) }}" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#FC8505]/30 bg-white px-4 text-sm font-black text-[#FC8505] transition hover:bg-[#FC8505]/10 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                                Voir la demande
+                                            </a>
+
+                                            @if ($status === 'pending')
+                                                <form method="POST" action="{{ route('scrapyard.requests.accept', $holdRequest) }}" class="sm:inline-flex">
+                                                    @csrf
+
+                                                    <button
+                                                        type="submit"
+                                                        class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FC8505] px-4 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                                    >
+                                                        Accepter
+                                                    </button>
+                                                </form>
+
+                                                <form method="POST" action="{{ route('scrapyard.requests.refuse', $holdRequest) }}" class="sm:inline-flex">
+                                                    @csrf
+
+                                                    <button
+                                                        type="submit"
+                                                        class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-black text-zinc-700 transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                                    >
+                                                        Refuser
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
