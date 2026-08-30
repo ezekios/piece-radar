@@ -36,6 +36,12 @@
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-4xl">
+                @if (session('success'))
+                    <div class="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-700 shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 <header class="border-b border-zinc-200/80 pb-4">
                     <a href="{{ route('scrapyard.vehicles.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                         Retour vers les véhicules
@@ -55,9 +61,15 @@
                             </p>
                         </div>
 
-                        <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
-                            {{ $vehicle->parts->count() }} pièce{{ $vehicle->parts->count() > 1 ? 's' : '' }}
-                        </span>
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
+                                {{ $vehicle->parts->count() }} pièce{{ $vehicle->parts->count() > 1 ? 's' : '' }}
+                            </span>
+
+                            <a href="{{ route('scrapyard.vehicles.parts.create', $vehicle) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                Ajouter une pièce
+                            </a>
+                        </div>
                     </div>
                 </header>
 

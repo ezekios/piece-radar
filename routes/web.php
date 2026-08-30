@@ -6,6 +6,7 @@ use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
 use App\Http\Controllers\ScrapyardRequestController;
 use App\Http\Controllers\ScrapyardVehicleController;
+use App\Http\Controllers\ScrapyardVehiclePartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -41,6 +42,12 @@ Route::get('/casse/vehicules/ajouter', [ScrapyardVehicleController::class, 'crea
 
 Route::post('/casse/vehicules', [ScrapyardVehicleController::class, 'store'])
     ->name('scrapyard.vehicles.store');
+
+Route::get('/casse/vehicules/{vehicle}/pieces/ajouter', [ScrapyardVehiclePartController::class, 'create'])
+    ->name('scrapyard.vehicles.parts.create');
+
+Route::post('/casse/vehicules/{vehicle}/pieces', [ScrapyardVehiclePartController::class, 'store'])
+    ->name('scrapyard.vehicles.parts.store');
 
 Route::get('/casse/vehicules/{vehicle}', [ScrapyardVehicleController::class, 'show'])
     ->name('scrapyard.vehicles.show');
