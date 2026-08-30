@@ -19,6 +19,7 @@
             ];
 
             $partStatusLabels = [
+                'preparing' => 'En préparation',
                 'available' => 'Disponible',
                 'reserved' => 'Mise de côté',
                 'sold' => 'Vendue',
@@ -38,10 +39,52 @@
                 ['label' => 'Pièces', 'value' => $stats['parts_total']],
                 ['label' => 'Pièces disponibles', 'value' => $stats['available_parts']],
                 ['label' => 'Pièces mises de côté', 'value' => $stats['reserved_parts']],
+                ['label' => 'Pièces en préparation', 'value' => $stats['preparingPartsCount']],
+                ['label' => 'Pièces publiées', 'value' => $stats['publishedPartsCount']],
+                ['label' => 'Pièces non publiées', 'value' => $stats['unpublishedPartsCount']],
                 ['label' => 'Demandes reçues', 'value' => $stats['requests_total']],
                 ['label' => 'En attente', 'value' => $stats['pending_requests']],
                 ['label' => 'Acceptées', 'value' => $stats['accepted_requests']],
                 ['label' => 'Refusées', 'value' => $stats['refused_requests']],
+            ];
+
+            $quickActions = [
+                [
+                    'label' => 'Voir les véhicules',
+                    'description' => 'Parcourir le parc enregistré.',
+                    'url' => route('scrapyard.vehicles.index'),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Ajouter un véhicule',
+                    'description' => 'Créer une nouvelle fiche véhicule.',
+                    'url' => route('scrapyard.vehicles.create'),
+                    'primary' => true,
+                ],
+                [
+                    'label' => 'Voir les pièces',
+                    'description' => 'Consulter toutes les pièces.',
+                    'url' => route('scrapyard.parts.index'),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Pièces à préparer',
+                    'description' => 'Filtrer les pièces en préparation.',
+                    'url' => route('scrapyard.parts.index', ['status' => 'preparing']),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Voir les demandes reçues',
+                    'description' => 'Traiter les demandes client.',
+                    'url' => route('scrapyard.requests.index'),
+                    'primary' => true,
+                ],
+            ];
+
+            $toTreatCards = [
+                ['label' => 'Demandes en attente', 'value' => $stats['pending_requests']],
+                ['label' => 'Pièces en préparation', 'value' => $stats['preparingPartsCount']],
+                ['label' => 'Pièces non publiées', 'value' => $stats['unpublishedPartsCount']],
             ];
         @endphp
 
@@ -92,6 +135,44 @@
                                 <p class="mt-1 text-xs font-bold leading-5 text-zinc-500">{{ $stat['label'] }}</p>
                             </article>
                         @endforeach
+                    </section>
+
+                    <section class="mt-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h2 class="text-lg font-black text-zinc-950">Actions rapides</h2>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                    Accéder aux écrans principaux de gestion casse.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                            @foreach ($quickActions as $action)
+                                <a
+                                    href="{{ $action['url'] }}"
+                                    class="block rounded-2xl border p-4 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $action['primary'] ? 'border-[#FC8505] bg-[#FC8505] text-white hover:bg-[#E87804]' : 'border-zinc-200 bg-white text-zinc-900 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                                >
+                                    <span class="block text-sm font-black">{{ $action['label'] }}</span>
+                                    <span class="mt-1 block text-xs font-medium leading-5 {{ $action['primary'] ? 'text-white/85' : 'text-zinc-500' }}">
+                                        {{ $action['description'] }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </section>
+
+                    <section class="mt-6 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <h2 class="text-lg font-black text-zinc-950">À traiter</h2>
+
+                        <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                            @foreach ($toTreatCards as $item)
+                                <article class="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                                    <p class="text-2xl font-black text-[#FC8505]">{{ $item['value'] }}</p>
+                                    <p class="mt-1 text-xs font-bold leading-5 text-zinc-600">{{ $item['label'] }}</p>
+                                </article>
+                            @endforeach
+                        </div>
                     </section>
 
                     <section class="mt-6">
