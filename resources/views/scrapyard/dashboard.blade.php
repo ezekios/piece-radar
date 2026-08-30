@@ -277,6 +277,7 @@
                                         $part = $holdRequest->part;
                                         $vehicle = $part?->vehicle;
                                         $status = $holdRequest->status;
+                                        $canShowClientContact = in_array($status, ['accepted', 'completed'], true);
                                     @endphp
 
                                     <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -292,7 +293,7 @@
                                                     @endif
                                                 </p>
                                                 <p class="mt-1 truncate text-xs text-zinc-500">
-                                                    {{ $holdRequest->user?->name ?? 'Client non renseigné' }}
+                                                    {{ $canShowClientContact ? ($holdRequest->user?->name ?? 'Client non renseigné') : 'Demande client' }}
                                                 </p>
                                             </div>
 

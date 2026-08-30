@@ -82,6 +82,9 @@ Route::get('/casse/pieces/{part}', [ScrapyardPartController::class, 'show'])
 Route::get('/casse/demandes', [ScrapyardRequestController::class, 'index'])
     ->name('scrapyard.requests.index');
 
+Route::get('/casse/demandes/{partHoldRequest}/acceptation', [ScrapyardRequestController::class, 'confirmAccept'])
+    ->name('scrapyard.requests.accept.confirm');
+
 Route::post('/casse/demandes/{partHoldRequest}/accepter', [ScrapyardRequestController::class, 'accept'])
     ->name('scrapyard.requests.accept');
 

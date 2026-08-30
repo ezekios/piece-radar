@@ -14,6 +14,7 @@
             $vehicle = $part?->vehicle;
             $requestScrapyard = $vehicle?->scrapyard;
             $client = $partHoldRequest->user;
+            $canShowClientContact = in_array($partHoldRequest->status, ['accepted', 'completed'], true);
 
             $statusLabels = [
                 'pending' => 'En attente',
@@ -86,22 +87,30 @@
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Client</h2>
 
-                        <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-                            <div>
-                                <dt class="font-medium text-zinc-500">Nom</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $client?->name ?? 'Non renseigné' }}</dd>
-                            </div>
+                        @if ($canShowClientContact)
+                            <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+                                <div>
+                                    <dt class="font-medium text-zinc-500">Nom</dt>
+                                    <dd class="mt-1 font-black text-zinc-900">{{ $client?->name ?? 'Non renseigné' }}</dd>
+                                </div>
 
-                            <div>
-                                <dt class="font-medium text-zinc-500">Téléphone</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $client?->phone ?? 'Non renseigné' }}</dd>
-                            </div>
+                                <div>
+                                    <dt class="font-medium text-zinc-500">Téléphone</dt>
+                                    <dd class="mt-1 font-black text-zinc-900">{{ $client?->phone ?? 'Non renseigné' }}</dd>
+                                </div>
 
-                            <div>
-                                <dt class="font-medium text-zinc-500">Email</dt>
-                                <dd class="mt-1 break-words font-black text-zinc-900">{{ $client?->email ?? 'Non renseigné' }}</dd>
+                                <div>
+                                    <dt class="font-medium text-zinc-500">Email</dt>
+                                    <dd class="mt-1 break-words font-black text-zinc-900">{{ $client?->email ?? 'Non renseigné' }}</dd>
+                                </div>
+                            </dl>
+                        @else
+                            <div class="mt-3 rounded-xl bg-zinc-50 p-3">
+                                <p class="text-sm font-medium leading-6 text-zinc-600">
+                                    Les coordonnées du client seront disponibles après acceptation de la demande.
+                                </p>
                             </div>
-                        </dl>
+                        @endif
                     </section>
 
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -134,16 +143,12 @@
                             <h2 class="text-base font-black text-zinc-950">Traiter la demande</h2>
 
                             <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                                <form method="POST" action="{{ route('scrapyard.requests.accept', $partHoldRequest) }}">
-                                    @csrf
-
-                                    <button
-                                        type="submit"
-                                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
-                                    >
-                                        Accepter la demande
-                                    </button>
-                                </form>
+                                <a
+                                    href="{{ route('scrapyard.requests.accept.confirm', $partHoldRequest) }}"
+                                    class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+                                >
+                                    Accepter la demande
+                                </a>
 
                                 <form method="POST" action="{{ route('scrapyard.requests.refuse', $partHoldRequest) }}">
                                     @csrf

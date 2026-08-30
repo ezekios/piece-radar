@@ -118,6 +118,7 @@
                                 $vehicle = $part?->vehicle;
                                 $requestScrapyard = $vehicle?->scrapyard;
                                 $status = $holdRequest->status;
+                                $canShowClientContact = in_array($status, ['accepted', 'completed'], true);
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -148,17 +149,23 @@
                                 <div class="mt-4 grid gap-3 rounded-xl bg-zinc-50 p-3 text-sm sm:grid-cols-3">
                                     <div>
                                         <p class="text-xs font-bold text-zinc-500">Client</p>
-                                        <p class="mt-1 font-black text-zinc-950">{{ $holdRequest->user?->name ?? 'Non renseigné' }}</p>
+                                        <p class="mt-1 font-black text-zinc-950">
+                                            {{ $canShowClientContact ? ($holdRequest->user?->name ?? 'Non renseigné') : 'Demande client' }}
+                                        </p>
                                     </div>
 
                                     <div>
                                         <p class="text-xs font-bold text-zinc-500">Téléphone</p>
-                                        <p class="mt-1 font-black text-zinc-950">{{ $holdRequest->user?->phone ?? 'Non renseigné' }}</p>
+                                        <p class="mt-1 font-black text-zinc-950">
+                                            {{ $canShowClientContact ? ($holdRequest->user?->phone ?? 'Non renseigné') : 'Masqué avant acceptation' }}
+                                        </p>
                                     </div>
 
                                     <div>
                                         <p class="text-xs font-bold text-zinc-500">Email</p>
-                                        <p class="mt-1 break-words font-black text-zinc-950">{{ $holdRequest->user?->email ?? 'Non renseigné' }}</p>
+                                        <p class="mt-1 break-words font-black text-zinc-950">
+                                            {{ $canShowClientContact ? ($holdRequest->user?->email ?? 'Non renseigné') : 'Masqué avant acceptation' }}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -189,16 +196,12 @@
                                             </a>
 
                                             @if ($status === 'pending')
-                                                <form method="POST" action="{{ route('scrapyard.requests.accept', $holdRequest) }}" class="sm:inline-flex">
-                                                    @csrf
-
-                                                    <button
-                                                        type="submit"
-                                                        class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FC8505] px-4 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
-                                                    >
-                                                        Accepter
-                                                    </button>
-                                                </form>
+                                                <a
+                                                    href="{{ route('scrapyard.requests.accept.confirm', $holdRequest) }}"
+                                                    class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FC8505] px-4 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                                >
+                                                    Accepter
+                                                </a>
 
                                                 <form method="POST" action="{{ route('scrapyard.requests.refuse', $holdRequest) }}" class="sm:inline-flex">
                                                     @csrf

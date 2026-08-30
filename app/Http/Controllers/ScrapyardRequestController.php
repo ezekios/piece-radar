@@ -60,6 +60,24 @@ class ScrapyardRequestController extends Controller
         ]);
     }
 
+    public function confirmAccept(PartHoldRequest $partHoldRequest): View|RedirectResponse
+    {
+        $scrapyard = $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+
+        if ($partHoldRequest->status !== 'pending') {
+            return redirect()
+                ->route('scrapyard.requests.show', $partHoldRequest)
+                ->with('error', 'Cette demande ne peut plus être acceptée.');
+        }
+
+        $partHoldRequest->load(['part.vehicle.scrapyard']);
+
+        return view('scrapyard.requests.confirm-accept', [
+            'scrapyard' => $scrapyard,
+            'partHoldRequest' => $partHoldRequest,
+        ]);
+    }
+
     public function accept(PartHoldRequest $partHoldRequest): RedirectResponse
     {
         $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
