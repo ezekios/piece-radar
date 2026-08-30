@@ -81,6 +81,52 @@
                 ],
             ];
 
+            $partShortcuts = [
+                [
+                    'label' => 'Toutes les pièces',
+                    'url' => route('scrapyard.parts.index'),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Pièces publiées',
+                    'url' => route('scrapyard.parts.index', ['publication' => 'published']),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Pièces non publiées',
+                    'url' => route('scrapyard.parts.index', ['publication' => 'unpublished']),
+                    'primary' => true,
+                ],
+                [
+                    'label' => 'Pièces à préparer',
+                    'url' => route('scrapyard.parts.index', ['status' => 'preparing']),
+                    'primary' => true,
+                ],
+            ];
+
+            $requestShortcuts = [
+                [
+                    'label' => 'Toutes les demandes',
+                    'url' => route('scrapyard.requests.index'),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Demandes en attente',
+                    'url' => route('scrapyard.requests.index', ['status' => 'pending']),
+                    'primary' => true,
+                ],
+                [
+                    'label' => 'Demandes acceptées',
+                    'url' => route('scrapyard.requests.index', ['status' => 'accepted']),
+                    'primary' => false,
+                ],
+                [
+                    'label' => 'Demandes refusées',
+                    'url' => route('scrapyard.requests.index', ['status' => 'refused']),
+                    'primary' => false,
+                ],
+            ];
+
             $toTreatCards = [
                 ['label' => 'Demandes en attente', 'value' => $stats['pending_requests']],
                 ['label' => 'Pièces en préparation', 'value' => $stats['preparingPartsCount']],
@@ -161,6 +207,38 @@
                                     </span>
                                 </a>
                             @endforeach
+                        </div>
+
+                        <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                            <div class="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                                <h3 class="text-sm font-black text-zinc-950">Raccourcis pièces</h3>
+
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach ($partShortcuts as $shortcut)
+                                        <a
+                                            href="{{ $shortcut['url'] }}"
+                                            class="inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $shortcut['primary'] ? 'border-[#FC8505] bg-[#FC8505] text-white hover:bg-[#E87804]' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                                        >
+                                            {{ $shortcut['label'] }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                                <h3 class="text-sm font-black text-zinc-950">Raccourcis demandes</h3>
+
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach ($requestShortcuts as $shortcut)
+                                        <a
+                                            href="{{ $shortcut['url'] }}"
+                                            class="inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $shortcut['primary'] ? 'border-[#FC8505] bg-[#FC8505] text-white hover:bg-[#E87804]' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                                        >
+                                            {{ $shortcut['label'] }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
                     </section>
 
