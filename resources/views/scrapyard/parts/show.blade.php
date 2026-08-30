@@ -215,6 +215,30 @@
                         </section>
                     @endif
 
+                    @if ($part->is_published)
+                        <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 class="text-base font-black text-zinc-950">Visibilité client</h2>
+                                    <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                        Retirer la publication masque la pièce des résultats client sans changer son statut.
+                                    </p>
+                                </div>
+
+                                <form method="POST" action="{{ route('scrapyard.parts.unpublish', $part) }}">
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-black text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                    >
+                                        Retirer de la publication
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+                    @endif
+
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Mise à jour du statut</h2>
 

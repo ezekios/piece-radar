@@ -61,6 +61,9 @@ Route::post('/casse/pieces/{part}/statut', [ScrapyardPartController::class, 'upd
 Route::post('/casse/pieces/{part}/publier', [ScrapyardPartController::class, 'publish'])
     ->name('scrapyard.parts.publish');
 
+Route::post('/casse/pieces/{part}/retirer-publication', [ScrapyardPartController::class, 'unpublish'])
+    ->name('scrapyard.parts.unpublish');
+
 Route::get('/casse/pieces/{part}', [ScrapyardPartController::class, 'show'])
     ->name('scrapyard.parts.show');
 
