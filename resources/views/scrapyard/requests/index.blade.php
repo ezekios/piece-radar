@@ -33,6 +33,15 @@
                 'cancelled' => 'Demande annulée',
                 'completed' => 'Demande terminée',
             ];
+
+            $filterItems = [
+                ['label' => 'Toutes', 'status' => null],
+                ['label' => 'En attente', 'status' => 'pending'],
+                ['label' => 'Acceptées', 'status' => 'accepted'],
+                ['label' => 'Refusées', 'status' => 'refused'],
+                ['label' => 'Annulées', 'status' => 'cancelled'],
+                ['label' => 'Terminées', 'status' => 'completed'],
+            ];
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
@@ -69,6 +78,28 @@
                             <p class="text-2xl font-black text-[#FC8505]">{{ $pendingRequestsCount }}</p>
                             <p class="text-xs font-black text-[#C96504]">En attente</p>
                         </div>
+                    </div>
+                </section>
+
+                <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                    <p class="text-xs font-black uppercase text-[#FC8505]">Filtres</p>
+
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        @foreach ($filterItems as $filter)
+                            @php
+                                $isActive = $activeStatus === $filter['status'];
+                                $filterUrl = $filter['status']
+                                    ? route('scrapyard.requests.index', ['status' => $filter['status']])
+                                    : route('scrapyard.requests.index');
+                            @endphp
+
+                            <a
+                                href="{{ $filterUrl }}"
+                                class="inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                            >
+                                {{ $filter['label'] }}
+                            </a>
+                        @endforeach
                     </div>
                 </section>
 

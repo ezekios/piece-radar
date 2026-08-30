@@ -6,32 +6,43 @@ use App\Models\PartHoldRequest;
 use App\Models\Scrapyard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ScrapyardRequestController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $scrapyard = Scrapyard::query()->first();
 
         $requests = collect();
         $pendingRequestsCount = 0;
+        $allowedStatuses = ['pending', 'accepted', 'refused', 'cancelled', 'completed'];
+        $activeStatus = in_array($request->string('status')->toString(), $allowedStatuses, true)
+            ? $request->string('status')->toString()
+            : null;
 
         if ($scrapyard) {
-            $requests = PartHoldRequest::query()
+            $requestsQuery = PartHoldRequest::query()
                 ->with(['user', 'part.vehicle.scrapyard'])
                 ->whereHas('part.vehicle', function ($query) use ($scrapyard) {
                     $query->where('scrapyard_id', $scrapyard->id);
+                });
+
+            $pendingRequestsCount = (clone $requestsQuery)
+                ->where('status', 'pending')
+                ->count();
+
+            $requests = $requestsQuery
+                ->when($activeStatus, function ($query) use ($activeStatus) {
+                    $query->where('status', $activeStatus);
                 })
                 ->latest()
                 ->get();
-
-            $pendingRequestsCount = $requests
-                ->where('status', 'pending')
-                ->count();
         }
 
         return view('scrapyard.requests.index', [
+            'activeStatus' => $activeStatus,
             'scrapyard' => $scrapyard,
             'requests' => $requests,
             'pendingRequestsCount' => $pendingRequestsCount,
