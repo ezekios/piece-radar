@@ -49,6 +49,12 @@ Route::get('/casse/vehicules/{vehicle}/pieces/ajouter', [ScrapyardVehiclePartCon
 Route::post('/casse/vehicules/{vehicle}/pieces', [ScrapyardVehiclePartController::class, 'store'])
     ->name('scrapyard.vehicles.parts.store');
 
+Route::get('/casse/vehicules/{vehicle}/modifier', [ScrapyardVehicleController::class, 'edit'])
+    ->name('scrapyard.vehicles.edit');
+
+Route::post('/casse/vehicules/{vehicle}/modifier', [ScrapyardVehicleController::class, 'update'])
+    ->name('scrapyard.vehicles.update');
+
 Route::get('/casse/vehicules/{vehicle}', [ScrapyardVehicleController::class, 'show'])
     ->name('scrapyard.vehicles.show');
 

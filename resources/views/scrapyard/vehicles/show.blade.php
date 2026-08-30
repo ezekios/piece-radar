@@ -66,6 +66,10 @@
                                 {{ $vehicle->parts->count() }} pièce{{ $vehicle->parts->count() > 1 ? 's' : '' }}
                             </span>
 
+                            <a href="{{ route('scrapyard.vehicles.edit', $vehicle) }}" class="inline-flex items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                Modifier le véhicule
+                            </a>
+
                             <a href="{{ route('scrapyard.vehicles.parts.create', $vehicle) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
                                 Ajouter une pièce
                             </a>

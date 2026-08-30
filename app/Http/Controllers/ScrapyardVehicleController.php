@@ -100,4 +100,47 @@ class ScrapyardVehicleController extends Controller
             'vehicle' => $vehicle,
         ]);
     }
+
+    public function edit(Vehicle $vehicle): View
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+
+        return view('scrapyard.vehicles.edit', [
+            'scrapyard' => $scrapyard,
+            'vehicle' => $vehicle,
+        ]);
+    }
+
+    public function update(Request $request, Vehicle $vehicle): RedirectResponse
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+
+        $validated = $request->validate([
+            'brand' => ['required', 'string', 'max:255'],
+            'model' => ['required', 'string', 'max:255'],
+            'year' => ['nullable', 'integer', 'min:1900', 'max:' . ((int) date('Y') + 1)],
+            'license_plate' => ['nullable', 'string', 'max:255'],
+            'fuel' => ['nullable', 'string', 'max:255'],
+            'engine' => ['nullable', 'string', 'max:255'],
+            'mileage' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        if (! empty($validated['license_plate'])) {
+            $validated['license_plate'] = strtoupper(preg_replace('/[\s-]+/', '', $validated['license_plate']) ?? '');
+        }
+
+        $vehicle->update($validated);
+
+        return redirect()
+            ->route('scrapyard.vehicles.show', $vehicle)
+            ->with('success', 'Le véhicule a été mis à jour.');
+    }
 }
