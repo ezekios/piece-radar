@@ -106,4 +106,26 @@ class ScrapyardPartController extends Controller
             ->route('scrapyard.parts.show', $part)
             ->with('success', 'Le statut de la pièce a été mis à jour.');
     }
+
+    public function publish(Part $part): RedirectResponse
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $part->load('vehicle');
+
+        abort_unless(
+            (int) ($part->vehicle?->scrapyard_id) === (int) $scrapyard->id,
+            404,
+        );
+
+        $part->status = 'available';
+        $part->is_published = true;
+        $part->save();
+
+        return redirect()
+            ->route('scrapyard.parts.show', $part)
+            ->with('success', 'La pièce a été publiée et est maintenant disponible côté client.');
+    }
 }

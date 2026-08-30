@@ -191,6 +191,30 @@
                         </dl>
                     </section>
 
+                    @if (! $part->is_published || $part->status !== 'available')
+                        <section class="rounded-2xl border border-[#FC8505]/20 bg-white p-4 shadow-sm">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 class="text-base font-black text-zinc-950">Publication côté client</h2>
+                                    <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                        Publier la pièce la rendra disponible dans les résultats client.
+                                    </p>
+                                </div>
+
+                                <form method="POST" action="{{ route('scrapyard.parts.publish', $part) }}">
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                    >
+                                        Publier la pièce
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+                    @endif
+
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Mise à jour du statut</h2>
 

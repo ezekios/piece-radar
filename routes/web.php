@@ -58,6 +58,9 @@ Route::get('/casse/pieces', [ScrapyardPartController::class, 'index'])
 Route::post('/casse/pieces/{part}/statut', [ScrapyardPartController::class, 'updateStatus'])
     ->name('scrapyard.parts.updateStatus');
 
+Route::post('/casse/pieces/{part}/publier', [ScrapyardPartController::class, 'publish'])
+    ->name('scrapyard.parts.publish');
+
 Route::get('/casse/pieces/{part}', [ScrapyardPartController::class, 'show'])
     ->name('scrapyard.parts.show');
 
