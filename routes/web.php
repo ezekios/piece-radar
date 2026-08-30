@@ -55,6 +55,12 @@ Route::get('/casse/vehicules/{vehicle}', [ScrapyardVehicleController::class, 'sh
 Route::get('/casse/pieces', [ScrapyardPartController::class, 'index'])
     ->name('scrapyard.parts.index');
 
+Route::get('/casse/pieces/{part}/preparation', [ScrapyardPartController::class, 'preparation'])
+    ->name('scrapyard.parts.preparation.edit');
+
+Route::post('/casse/pieces/{part}/preparation', [ScrapyardPartController::class, 'updatePreparation'])
+    ->name('scrapyard.parts.preparation.update');
+
 Route::post('/casse/pieces/{part}/statut', [ScrapyardPartController::class, 'updateStatus'])
     ->name('scrapyard.parts.updateStatus');
 

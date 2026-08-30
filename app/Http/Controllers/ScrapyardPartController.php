@@ -73,6 +73,63 @@ class ScrapyardPartController extends Controller
         ]);
     }
 
+    public function preparation(Part $part): View
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $part->load(['vehicle.scrapyard']);
+
+        abort_unless(
+            (int) ($part->vehicle?->scrapyard_id) === (int) $scrapyard->id,
+            404,
+        );
+
+        return view('scrapyard.parts.preparation', [
+            'part' => $part,
+            'scrapyard' => $scrapyard,
+        ]);
+    }
+
+    public function updatePreparation(Request $request, Part $part): RedirectResponse
+    {
+        $scrapyard = Scrapyard::query()->first();
+
+        abort_unless($scrapyard, 404);
+
+        $part->load('vehicle');
+
+        abort_unless(
+            (int) ($part->vehicle?->scrapyard_id) === (int) $scrapyard->id,
+            404,
+        );
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'price' => ['nullable', 'numeric', 'min:0'],
+            'condition' => ['nullable', 'string', 'max:255'],
+            'reference' => ['nullable', 'string', 'max:255'],
+            'oem_reference' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status' => ['nullable', 'in:preparing,available,reserved,sold,unavailable'],
+        ]);
+
+        foreach (['condition', 'status'] as $requiredEnumField) {
+            if (($validated[$requiredEnumField] ?? null) === null) {
+                unset($validated[$requiredEnumField]);
+            }
+        }
+
+        $part->fill($validated);
+        $part->save();
+
+        return redirect()
+            ->route('scrapyard.parts.show', $part)
+            ->with('success', 'Les informations de préparation de la pièce ont été mises à jour.');
+    }
+
     public function updateStatus(Request $request, Part $part): RedirectResponse
     {
         $scrapyard = Scrapyard::query()->first();

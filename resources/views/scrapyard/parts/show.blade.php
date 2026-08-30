@@ -191,6 +191,24 @@
                         </dl>
                     </section>
 
+                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="text-base font-black text-zinc-950">Préparation</h2>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                    Vérifier les informations principales avant publication.
+                                </p>
+                            </div>
+
+                            <a
+                                href="{{ route('scrapyard.parts.preparation.edit', $part) }}"
+                                class="inline-flex w-full items-center justify-center rounded-2xl border border-[#FC8505]/30 bg-white px-5 py-4 text-sm font-black text-[#C96504] shadow-sm transition hover:bg-[#FC8505]/10 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                            >
+                                Préparer / vérifier la pièce
+                            </a>
+                        </div>
+                    </section>
+
                     @if (! $part->is_published || $part->status !== 'available')
                         <section class="rounded-2xl border border-[#FC8505]/20 bg-white p-4 shadow-sm">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
