@@ -15,6 +15,10 @@ class ScrapyardPartController extends Controller
         $scrapyard = Scrapyard::query()->first();
         $parts = collect();
         $allowedStatuses = ['available', 'reserved', 'sold', 'unavailable', 'preparing'];
+        $allowedPublications = ['published', 'unpublished'];
+        $activePublication = in_array($request->string('publication')->toString(), $allowedPublications, true)
+            ? $request->string('publication')->toString()
+            : null;
 
         if ($scrapyard) {
             $parts = Part::query()
@@ -28,6 +32,12 @@ class ScrapyardPartController extends Controller
                         $query->where('status', $request->string('status')->toString());
                     },
                 )
+                ->when($activePublication === 'published', function ($query) {
+                    $query->where('is_published', true);
+                })
+                ->when($activePublication === 'unpublished', function ($query) {
+                    $query->where('is_published', false);
+                })
                 ->when($request->filled('q'), function ($query) use ($request) {
                     $search = '%' . (string) $request->string('q')->trim() . '%';
 
@@ -49,6 +59,7 @@ class ScrapyardPartController extends Controller
         }
 
         return view('scrapyard.parts.index', [
+            'activePublication' => $activePublication,
             'parts' => $parts,
             'scrapyard' => $scrapyard,
         ]);

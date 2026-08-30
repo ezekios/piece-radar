@@ -32,6 +32,12 @@
                 'used_average' => 'Occasion état moyen',
                 'damaged' => 'Endommagée',
             ];
+
+            $publicationFilters = [
+                ['label' => 'Toutes les pièces', 'value' => null],
+                ['label' => 'Publiées', 'value' => 'published'],
+                ['label' => 'Non publiées', 'value' => 'unpublished'],
+            ];
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
@@ -108,6 +114,28 @@
                             </a>
                         </div>
                     </form>
+
+                    <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <p class="text-xs font-black uppercase text-[#FC8505]">Publication</p>
+
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            @foreach ($publicationFilters as $filter)
+                                @php
+                                    $isActive = $activePublication === $filter['value'];
+                                    $filterParameters = request()
+                                        ->only(['q', 'status'])
+                                        + ($filter['value'] ? ['publication' => $filter['value']] : []);
+                                @endphp
+
+                                <a
+                                    href="{{ route('scrapyard.parts.index', $filterParameters) }}"
+                                    class="inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                                >
+                                    {{ $filter['label'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </section>
 
                     @if ($parts->isEmpty())
                         <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
