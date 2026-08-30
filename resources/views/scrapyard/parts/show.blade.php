@@ -46,14 +46,13 @@
                 @endif
 
                 <header class="border-b border-zinc-200/80 pb-4">
-                    <a href="{{ route('scrapyard.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                        Retour vers les pièces
-                    </a>
-
-                    <div class="mt-4 flex flex-wrap items-start justify-between gap-4">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
                             @include('scrapyard.partials.navigation')
+                            <a href="{{ route('scrapyard.parts.index') }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                Retour vers les pièces
+                            </a>
                             <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">
                                 Détail de la pièce
                             </h1>

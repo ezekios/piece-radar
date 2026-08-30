@@ -32,13 +32,12 @@
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
-                    <a href="{{ route('scrapyard.parts.show', $part) }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                        Retour vers la pièce
-                    </a>
-
-                    <div class="mt-4">
+                    <div>
                         <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
                         @include('scrapyard.partials.navigation')
+                        <a href="{{ route('scrapyard.parts.show', $part) }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                            Retour vers la pièce
+                        </a>
                         <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Préparer la pièce</h1>
                         <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
                             {{ $requestScrapyard?->name ?? $scrapyard?->name ?? 'Casse non renseignée' }}

@@ -37,11 +37,7 @@
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-4xl">
                 <header class="border-b border-zinc-200/80 pb-4">
-                    <a href="{{ route('scrapyard.dashboard') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                        Retour au tableau de bord
-                    </a>
-
-                    <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+                    <div class="flex flex-wrap items-end justify-between gap-4">
                         <div>
                             <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
                             @include('scrapyard.partials.navigation')
