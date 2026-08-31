@@ -129,6 +129,27 @@
                     </section>
 
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <h2 class="text-base font-black text-zinc-950">Photos de la pièce</h2>
+                            <span class="rounded-full bg-zinc-50 px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
+                                {{ $part->images->count() }}/5
+                            </span>
+                        </div>
+
+                        @if ($part->images->isEmpty())
+                            <div class="mt-3 flex aspect-[4/3] w-full items-center justify-center rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                <div class="h-16 w-24 rounded-lg border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                            </div>
+                        @else
+                            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                @foreach ($part->images as $image)
+                                    <img src="{{ $image->url }}" alt="Photo pièce {{ $loop->iteration }}" class="aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-zinc-200">
+                                @endforeach
+                            </div>
+                        @endif
+                    </section>
+
+                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Véhicule associé</h2>
 
                         <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">

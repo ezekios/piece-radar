@@ -12,6 +12,7 @@
         @php
             $vehicle = $part->vehicle;
             $scrapyard = $vehicle?->scrapyard;
+            $mainImage = $part->images->first();
             $conditionLabels = [
                 'unknown' => 'État non précisé',
                 'used_good' => 'Occasion bon état',
@@ -53,8 +54,12 @@
 
                     <div class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <div class="flex gap-4">
-                            <div class="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-32 sm:w-32">
-                                <div class="h-12 w-16 rounded-md border border-[#FC8505]/50 bg-white shadow-inner sm:h-16 sm:w-20"></div>
+                            <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-32 sm:w-32">
+                                @if ($mainImage)
+                                    <img src="{{ $mainImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
+                                @else
+                                    <div class="h-12 w-16 rounded-md border border-[#FC8505]/50 bg-white shadow-inner sm:h-16 sm:w-20"></div>
+                                @endif
                             </div>
 
                             <div class="min-w-0 flex-1">
@@ -88,6 +93,22 @@
                 </header>
 
                 <div class="space-y-3">
+                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <h2 class="text-base font-black text-zinc-950">Photos</h2>
+
+                        @if ($part->images->isEmpty())
+                            <div class="mt-3 flex aspect-[4/3] w-full items-center justify-center rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                <div class="h-16 w-24 rounded-lg border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                            </div>
+                        @else
+                            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                @foreach ($part->images as $image)
+                                    <img src="{{ $image->url }}" alt="Photo pièce {{ $loop->iteration }}" class="aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-zinc-200">
+                                @endforeach
+                            </div>
+                        @endif
+                    </section>
+
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Informations pièce</h2>
 

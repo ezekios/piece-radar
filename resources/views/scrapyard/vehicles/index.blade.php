@@ -79,25 +79,39 @@
                     @else
                         <section class="mt-5 space-y-3">
                             @foreach ($vehicles as $vehicle)
+                                @php
+                                    $vehicleImage = $vehicle->images->first();
+                                @endphp
+
                                 <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                    <div class="flex flex-wrap items-start justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <h2 class="truncate text-base font-black text-zinc-950">
-                                                {{ $vehicle->brand }} {{ $vehicle->model }}
-                                            </h2>
-                                            <p class="mt-1 text-xs font-semibold text-zinc-700">
-                                                @if ($vehicle->year)
-                                                    {{ $vehicle->year }}
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div class="flex min-w-0 gap-3">
+                                            <div class="flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                                @if ($vehicleImage)
+                                                    <img src="{{ $vehicleImage->url }}" alt="Photo {{ $vehicle->brand }} {{ $vehicle->model }}" class="h-full w-full object-cover">
                                                 @else
-                                                    Année non renseignée
+                                                    <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
                                                 @endif
-                                            </p>
-                                            <p class="mt-1 text-xs font-medium text-zinc-500">
-                                                {{ $vehicle->license_plate ?: 'Immatriculation non renseignée' }}
-                                            </p>
+                                            </div>
+
+                                            <div class="min-w-0">
+                                                <h2 class="truncate text-base font-black text-zinc-950">
+                                                    {{ $vehicle->brand }} {{ $vehicle->model }}
+                                                </h2>
+                                                <p class="mt-1 text-xs font-semibold text-zinc-700">
+                                                    @if ($vehicle->year)
+                                                        {{ $vehicle->year }}
+                                                    @else
+                                                        Année non renseignée
+                                                    @endif
+                                                </p>
+                                                <p class="mt-1 text-xs font-medium text-zinc-500">
+                                                    {{ $vehicle->license_plate ?: 'Immatriculation non renseignée' }}
+                                                </p>
+                                            </div>
                                         </div>
 
-                                        <div class="shrink-0 rounded-2xl bg-[#FC8505]/10 px-4 py-3 text-center">
+                                        <div class="shrink-0 rounded-2xl bg-[#FC8505]/10 px-4 py-3 text-center sm:self-start">
                                             <p class="text-2xl font-black text-[#FC8505]">{{ $vehicle->parts_count }}</p>
                                             <p class="text-xs font-black text-[#C96504]">Pièces</p>
                                         </div>

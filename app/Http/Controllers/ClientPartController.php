@@ -19,7 +19,7 @@ class ClientPartController extends Controller
             : null;
 
         $parts = Part::query()
-            ->with(['vehicle.scrapyard'])
+            ->with(['images', 'vehicle.scrapyard'])
             ->where('status', 'available')
             ->where('is_published', true)
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -71,7 +71,7 @@ class ClientPartController extends Controller
     {
         abort_unless($part->is_published && $part->status === 'available', 404);
 
-        $part->load(['vehicle.scrapyard']);
+        $part->load(['images', 'vehicle.scrapyard']);
 
         return view('client.parts.show', [
             'part' => $part,
@@ -82,7 +82,7 @@ class ClientPartController extends Controller
     {
         abort_unless($part->is_published && $part->status === 'available', 404);
 
-        $part->load(['vehicle.scrapyard']);
+        $part->load(['images', 'vehicle.scrapyard']);
 
         return view('client.parts.request', [
             'client' => $request->user(),

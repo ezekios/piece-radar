@@ -112,6 +112,9 @@ Route::middleware(['auth', 'scrapyard'])->group(function (): void {
     Route::post('/casse/vehicules/{vehicle}/modifier', [ScrapyardVehicleController::class, 'update'])
         ->name('scrapyard.vehicles.update');
 
+    Route::delete('/casse/vehicules/{vehicle}/photos/{image}', [ScrapyardVehicleController::class, 'destroyImage'])
+        ->name('scrapyard.vehicles.images.destroy');
+
     Route::get('/casse/vehicules/{vehicle}', [ScrapyardVehicleController::class, 'show'])
         ->name('scrapyard.vehicles.show');
 
@@ -132,6 +135,9 @@ Route::middleware(['auth', 'scrapyard'])->group(function (): void {
 
     Route::post('/casse/pieces/{part}/retirer-publication', [ScrapyardPartController::class, 'unpublish'])
         ->name('scrapyard.parts.unpublish');
+
+    Route::delete('/casse/pieces/{part}/photos/{image}', [ScrapyardPartController::class, 'destroyImage'])
+        ->name('scrapyard.parts.images.destroy');
 
     Route::get('/casse/pieces/{part}', [ScrapyardPartController::class, 'show'])
         ->name('scrapyard.parts.show');

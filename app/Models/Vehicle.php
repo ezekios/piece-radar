@@ -34,6 +34,11 @@ class Vehicle extends Model
         return $this->hasMany(Part::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(VehicleImage::class)->orderBy('position');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

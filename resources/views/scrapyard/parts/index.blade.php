@@ -147,26 +147,37 @@
                                 @php
                                     $vehicle = $part->vehicle;
                                     $status = $part->status;
+                                    $partImage = $part->images->first();
                                 @endphp
 
                                 <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                    <div class="flex flex-wrap items-start justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <h2 class="truncate text-base font-black text-zinc-950">
-                                                {{ $part->name }}
-                                            </h2>
-                                            <p class="mt-1 truncate text-xs font-semibold text-zinc-700">
-                                                {{ $vehicle?->brand ?? 'Marque inconnue' }} {{ $vehicle?->model ?? '' }}
-                                                @if ($vehicle?->year)
-                                                    · {{ $vehicle->year }}
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div class="flex min-w-0 gap-3">
+                                            <div class="flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                                @if ($partImage)
+                                                    <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
+                                                @else
+                                                    <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
                                                 @endif
-                                            </p>
-                                            <p class="mt-1 text-xs font-medium text-zinc-500">
-                                                {{ $conditionLabels[$part->condition] ?? $part->condition ?? 'État non précisé' }}
-                                            </p>
+                                            </div>
+
+                                            <div class="min-w-0">
+                                                <h2 class="truncate text-base font-black text-zinc-950">
+                                                    {{ $part->name }}
+                                                </h2>
+                                                <p class="mt-1 truncate text-xs font-semibold text-zinc-700">
+                                                    {{ $vehicle?->brand ?? 'Marque inconnue' }} {{ $vehicle?->model ?? '' }}
+                                                    @if ($vehicle?->year)
+                                                        · {{ $vehicle->year }}
+                                                    @endif
+                                                </p>
+                                                <p class="mt-1 text-xs font-medium text-zinc-500">
+                                                    {{ $conditionLabels[$part->condition] ?? $part->condition ?? 'État non précisé' }}
+                                                </p>
+                                            </div>
                                         </div>
 
-                                        <div class="text-right">
+                                        <div class="text-left sm:text-right">
                                             <p class="text-xl font-black text-[#FC8505]">
                                                 @if ($part->price !== null)
                                                     {{ number_format((float) $part->price, 2, ',', ' ') }} €

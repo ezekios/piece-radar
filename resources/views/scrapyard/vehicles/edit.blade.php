@@ -28,7 +28,7 @@
                     </div>
                 </header>
 
-                <form method="POST" action="{{ route('scrapyard.vehicles.update', $vehicle) }}" class="mt-5 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <form method="POST" action="{{ route('scrapyard.vehicles.update', $vehicle) }}" enctype="multipart/form-data" class="mt-5 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                     @csrf
 
                     <div class="grid gap-4 sm:grid-cols-2">
@@ -143,6 +143,56 @@
                         </div>
                     </div>
 
+                    <div class="rounded-2xl border border-zinc-200 bg-white p-4">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                                <label for="photos" class="text-sm font-black text-zinc-900">Photos du véhicule</label>
+                                <p class="mt-1 text-xs font-medium leading-5 text-zinc-500">
+                                    Maximum 5 photos au total — JPG, PNG ou WebP — 5 Mo maximum par photo.
+                                </p>
+                            </div>
+
+                            <span class="rounded-full bg-zinc-50 px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
+                                {{ $vehicle->images->count() }}/5
+                            </span>
+                        </div>
+
+                        @if ($vehicle->images->isNotEmpty())
+                            <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                @foreach ($vehicle->images as $image)
+                                    <div class="rounded-xl border border-zinc-200 bg-zinc-50 p-2">
+                                        <img src="{{ $image->url }}" alt="Photo véhicule {{ $loop->iteration }}" class="aspect-[4/3] w-full rounded-lg object-cover">
+                                        <button type="submit" form="delete-vehicle-image-{{ $image->id }}" class="mt-2 cursor-pointer text-xs font-black text-[#FC8505] hover:text-[#E87804]">
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if ($vehicle->images->count() < 5)
+                            <input
+                                id="photos"
+                                name="photos[]"
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                class="mt-4 block w-full cursor-pointer text-sm font-medium text-zinc-700 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-[#FC8505] file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-[#E87804]"
+                            >
+                        @else
+                            <p class="mt-4 rounded-xl bg-zinc-50 p-3 text-sm font-bold text-zinc-600">
+                                La limite de 5 photos est atteinte.
+                            </p>
+                        @endif
+
+                        @error('photos')
+                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('photos.*')
+                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <button
                         type="submit"
                         class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
@@ -150,6 +200,13 @@
                         Enregistrer les modifications
                     </button>
                 </form>
+
+                @foreach ($vehicle->images as $image)
+                    <form id="delete-vehicle-image-{{ $image->id }}" method="POST" action="{{ route('scrapyard.vehicles.images.destroy', [$vehicle, $image]) }}">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endforeach
             </div>
         </main>
     </body>

@@ -36,7 +36,7 @@
                         </p>
                     </section>
                 @else
-                    <form method="POST" action="{{ route('scrapyard.vehicles.store') }}" class="mt-5 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                    <form method="POST" action="{{ route('scrapyard.vehicles.store') }}" enctype="multipart/form-data" class="mt-5 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         @csrf
 
                         <div class="grid gap-4 sm:grid-cols-2">
@@ -149,6 +149,27 @@
                                     <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
+                        </div>
+
+                        <div class="rounded-2xl border border-zinc-200 bg-white p-4">
+                            <label for="photos" class="text-sm font-black text-zinc-900">Photos du véhicule</label>
+                            <p class="mt-1 text-xs font-medium leading-5 text-zinc-500">
+                                Maximum 5 photos — JPG, PNG ou WebP — 5 Mo maximum par photo.
+                            </p>
+                            <input
+                                id="photos"
+                                name="photos[]"
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                class="mt-3 block w-full cursor-pointer text-sm font-medium text-zinc-700 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-[#FC8505] file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-[#E87804]"
+                            >
+                            @error('photos')
+                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                            @enderror
+                            @error('photos.*')
+                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <button

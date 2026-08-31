@@ -145,6 +145,27 @@
                         </dl>
                     </section>
 
+                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <h2 class="text-base font-black text-zinc-950">Photos du véhicule</h2>
+                            <span class="rounded-full bg-zinc-50 px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
+                                {{ $vehicle->images->count() }}/5
+                            </span>
+                        </div>
+
+                        @if ($vehicle->images->isEmpty())
+                            <div class="mt-3 flex aspect-[4/3] w-full items-center justify-center rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                <div class="h-16 w-24 rounded-lg border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                            </div>
+                        @else
+                            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                @foreach ($vehicle->images as $image)
+                                    <img src="{{ $image->url }}" alt="Photo véhicule {{ $loop->iteration }}" class="aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-zinc-200">
+                                @endforeach
+                            </div>
+                        @endif
+                    </section>
+
                     <section>
                         <div class="mb-3 flex items-center justify-between gap-3">
                             <h2 class="text-lg font-black text-zinc-950">Pièces associées</h2>
@@ -162,20 +183,31 @@
                                 @foreach ($vehicle->parts as $part)
                                     @php
                                         $status = $part->status;
+                                        $partImage = $part->images->first();
                                     @endphp
 
                                     <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                        <div class="flex flex-wrap items-start justify-between gap-3">
-                                            <div class="min-w-0">
-                                                <h3 class="truncate text-base font-black text-zinc-950">
-                                                    {{ $part->name }}
-                                                </h3>
-                                                <p class="mt-1 text-xs font-medium text-zinc-500">
-                                                    {{ $conditionLabels[$part->condition] ?? $part->condition ?? 'État non précisé' }}
-                                                </p>
+                                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div class="flex min-w-0 gap-3">
+                                                <div class="flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                                    @if ($partImage)
+                                                        <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
+                                                    @else
+                                                        <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                                                    @endif
+                                                </div>
+
+                                                <div class="min-w-0">
+                                                    <h3 class="truncate text-base font-black text-zinc-950">
+                                                        {{ $part->name }}
+                                                    </h3>
+                                                    <p class="mt-1 text-xs font-medium text-zinc-500">
+                                                        {{ $conditionLabels[$part->condition] ?? $part->condition ?? 'État non précisé' }}
+                                                    </p>
+                                                </div>
                                             </div>
 
-                                            <div class="text-right">
+                                            <div class="text-left sm:text-right">
                                                 <p class="text-xl font-black text-[#FC8505]">
                                                     @if ($part->price !== null)
                                                         {{ number_format((float) $part->price, 2, ',', ' ') }} €

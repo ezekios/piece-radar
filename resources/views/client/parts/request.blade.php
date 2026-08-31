@@ -12,6 +12,7 @@
         @php
             $vehicle = $part->vehicle;
             $scrapyard = $vehicle?->scrapyard;
+            $partImage = $part->images->first();
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
@@ -34,8 +35,12 @@
 
                 <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                     <div class="flex gap-3">
-                        <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
-                            <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                        <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                            @if ($partImage)
+                                <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
+                            @else
+                                <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                            @endif
                         </div>
 
                         <div class="min-w-0 flex-1">

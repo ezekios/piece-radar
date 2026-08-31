@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Scrapyard;
 use App\Models\Vehicle;
+use App\Models\VehicleImage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ScrapyardVehicleController extends Controller
 {
@@ -14,6 +18,7 @@ class ScrapyardVehicleController extends Controller
     {
         $scrapyard = $this->scrapyard($request);
         $vehicles = Vehicle::query()
+            ->with('images')
             ->withCount('parts')
             ->where('scrapyard_id', $scrapyard->id)
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -59,16 +64,27 @@ class ScrapyardVehicleController extends Controller
             'fuel' => ['nullable', 'string', 'max:255'],
             'engine' => ['nullable', 'string', 'max:255'],
             'mileage' => ['nullable', 'integer', 'min:0'],
+            'photos' => ['nullable', 'array', 'max:5'],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         if (! empty($validated['license_plate'])) {
             $validated['license_plate'] = strtoupper(preg_replace('/[\s-]+/', '', $validated['license_plate']) ?? '');
         }
 
-        $vehicle = Vehicle::query()->create([
-            ...$validated,
-            'scrapyard_id' => $scrapyard->id,
-        ]);
+        $photos = $request->file('photos', []);
+        unset($validated['photos']);
+
+        $vehicle = DB::transaction(function () use ($validated, $scrapyard, $photos): Vehicle {
+            $vehicle = Vehicle::query()->create([
+                ...$validated,
+                'scrapyard_id' => $scrapyard->id,
+            ]);
+
+            $this->storeVehicleImages($vehicle, $photos);
+
+            return $vehicle;
+        });
 
         return redirect()
             ->route('scrapyard.vehicles.show', $vehicle)
@@ -81,8 +97,9 @@ class ScrapyardVehicleController extends Controller
         $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
 
         $vehicle->load([
+            'images',
             'parts' => function ($query) {
-                $query->latest();
+                $query->with('images')->latest();
             },
         ]);
 
@@ -96,6 +113,7 @@ class ScrapyardVehicleController extends Controller
     {
         $scrapyard = $this->scrapyard($request);
         $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
+        $vehicle->load('images');
 
         return view('scrapyard.vehicles.edit', [
             'scrapyard' => $scrapyard,
@@ -107,6 +125,7 @@ class ScrapyardVehicleController extends Controller
     {
         $scrapyard = $this->scrapyard($request);
         $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
+        $remainingPhotoSlots = max(0, 5 - $vehicle->images()->count());
 
         $validated = $request->validate([
             'brand' => ['required', 'string', 'max:255'],
@@ -116,17 +135,40 @@ class ScrapyardVehicleController extends Controller
             'fuel' => ['nullable', 'string', 'max:255'],
             'engine' => ['nullable', 'string', 'max:255'],
             'mileage' => ['nullable', 'integer', 'min:0'],
+            'photos' => ['nullable', 'array', 'max:' . $remainingPhotoSlots],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         if (! empty($validated['license_plate'])) {
             $validated['license_plate'] = strtoupper(preg_replace('/[\s-]+/', '', $validated['license_plate']) ?? '');
         }
 
-        $vehicle->update($validated);
+        $photos = $request->file('photos', []);
+        unset($validated['photos']);
+
+        DB::transaction(function () use ($vehicle, $validated, $photos): void {
+            $vehicle->update($validated);
+            $this->storeVehicleImages($vehicle, $photos);
+        });
 
         return redirect()
             ->route('scrapyard.vehicles.show', $vehicle)
             ->with('success', 'Le véhicule a été mis à jour.');
+    }
+
+    public function destroyImage(Request $request, Vehicle $vehicle, VehicleImage $image): RedirectResponse
+    {
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
+
+        abort_unless((int) $image->vehicle_id === (int) $vehicle->id, 404);
+
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
+
+        $this->reorderVehicleImages($vehicle);
+
+        return back()->with('success', 'La photo du véhicule a été supprimée.');
     }
 
     private function scrapyard(Request $request): Scrapyard
@@ -141,5 +183,42 @@ class ScrapyardVehicleController extends Controller
     private function ensureVehicleBelongsToScrapyard(Vehicle $vehicle, Scrapyard $scrapyard): void
     {
         abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+    }
+
+    /**
+     * @param  array<int, \Illuminate\Http\UploadedFile>  $photos
+     */
+    private function storeVehicleImages(Vehicle $vehicle, array $photos): void
+    {
+        $storedPaths = [];
+
+        try {
+            $position = ((int) $vehicle->images()->max('position')) + 1;
+
+            foreach ($photos as $photo) {
+                $path = $photo->store('vehicle-images', 'public');
+                $storedPaths[] = $path;
+
+                $vehicle->images()->create([
+                    'path' => $path,
+                    'position' => $position++,
+                ]);
+            }
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($storedPaths);
+
+            throw $exception;
+        }
+    }
+
+    private function reorderVehicleImages(Vehicle $vehicle): void
+    {
+        $vehicle->images()
+            ->orderBy('position')
+            ->get()
+            ->values()
+            ->each(function (VehicleImage $image, int $index): void {
+                $image->update(['position' => $index + 1]);
+            });
     }
 }

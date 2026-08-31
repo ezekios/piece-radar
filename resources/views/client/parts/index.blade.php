@@ -184,12 +184,17 @@
                             @php
                                 $vehicle = $part->vehicle;
                                 $scrapyard = $vehicle?->scrapyard;
+                                $partImage = $part->images->first();
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm transition hover:border-orange-200 hover:shadow-md">
                                 <div class="flex gap-3">
-                                    <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-24 sm:w-24">
-                                        <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner sm:h-12 sm:w-16"></div>
+                                    <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-24 sm:w-24">
+                                        @if ($partImage)
+                                            <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
+                                        @else
+                                            <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner sm:h-12 sm:w-16"></div>
+                                        @endif
                                     </div>
 
                                     <div class="min-w-0 flex-1">

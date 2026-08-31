@@ -31,6 +31,11 @@ class Part extends Model
         return $this->hasMany(PartHoldRequest::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(PartImage::class)->orderBy('position');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

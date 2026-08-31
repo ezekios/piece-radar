@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Part;
+use App\Models\PartImage;
 use App\Models\Scrapyard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ScrapyardPartController extends Controller
 {
@@ -20,7 +24,7 @@ class ScrapyardPartController extends Controller
             : null;
 
         $parts = Part::query()
-            ->with(['vehicle.scrapyard'])
+            ->with(['images', 'vehicle.scrapyard'])
             ->whereHas('vehicle', function ($query) use ($scrapyard) {
                 $query->where('scrapyard_id', $scrapyard->id);
             })
@@ -66,7 +70,7 @@ class ScrapyardPartController extends Controller
     {
         $scrapyard = $this->scrapyard($request);
 
-        $part->load(['vehicle.scrapyard']);
+        $part->load(['images', 'vehicle.scrapyard']);
         $this->ensurePartBelongsToScrapyard($part, $scrapyard);
 
         return view('scrapyard.parts.show', [
@@ -79,7 +83,7 @@ class ScrapyardPartController extends Controller
     {
         $scrapyard = $this->scrapyard($request);
 
-        $part->load(['vehicle.scrapyard']);
+        $part->load(['images', 'vehicle.scrapyard']);
         $this->ensurePartBelongsToScrapyard($part, $scrapyard);
 
         return view('scrapyard.parts.preparation', [
@@ -94,6 +98,7 @@ class ScrapyardPartController extends Controller
 
         $part->load('vehicle');
         $this->ensurePartBelongsToScrapyard($part, $scrapyard);
+        $remainingPhotoSlots = max(0, 5 - $part->images()->count());
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -104,6 +109,8 @@ class ScrapyardPartController extends Controller
             'oem_reference' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'status' => ['nullable', 'in:preparing,available,reserved,sold,unavailable'],
+            'photos' => ['nullable', 'array', 'max:' . $remainingPhotoSlots],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         foreach (['condition', 'status'] as $requiredEnumField) {
@@ -112,12 +119,36 @@ class ScrapyardPartController extends Controller
             }
         }
 
-        $part->fill($validated);
-        $part->save();
+        $photos = $request->file('photos', []);
+        unset($validated['photos']);
+
+        DB::transaction(function () use ($part, $validated, $photos): void {
+            $part->fill($validated);
+            $part->save();
+
+            $this->storePartImages($part, $photos);
+        });
 
         return redirect()
             ->route('scrapyard.parts.show', $part)
             ->with('success', 'Les informations de préparation de la pièce ont été mises à jour.');
+    }
+
+    public function destroyImage(Request $request, Part $part, PartImage $image): RedirectResponse
+    {
+        $scrapyard = $this->scrapyard($request);
+
+        $part->load('vehicle');
+        $this->ensurePartBelongsToScrapyard($part, $scrapyard);
+
+        abort_unless((int) $image->part_id === (int) $part->id, 404);
+
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
+
+        $this->reorderPartImages($part);
+
+        return back()->with('success', 'La photo de la pièce a été supprimée.');
     }
 
     public function updateStatus(Request $request, Part $part): RedirectResponse
@@ -193,5 +224,42 @@ class ScrapyardPartController extends Controller
         $part->loadMissing('vehicle');
 
         abort_unless((int) ($part->vehicle?->scrapyard_id) === (int) $scrapyard->id, 404);
+    }
+
+    /**
+     * @param  array<int, \Illuminate\Http\UploadedFile>  $photos
+     */
+    private function storePartImages(Part $part, array $photos): void
+    {
+        $storedPaths = [];
+
+        try {
+            $position = ((int) $part->images()->max('position')) + 1;
+
+            foreach ($photos as $photo) {
+                $path = $photo->store('part-images', 'public');
+                $storedPaths[] = $path;
+
+                $part->images()->create([
+                    'path' => $path,
+                    'position' => $position++,
+                ]);
+            }
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($storedPaths);
+
+            throw $exception;
+        }
+    }
+
+    private function reorderPartImages(Part $part): void
+    {
+        $part->images()
+            ->orderBy('position')
+            ->get()
+            ->values()
+            ->each(function (PartImage $image, int $index): void {
+                $image->update(['position' => $index + 1]);
+            });
     }
 }
