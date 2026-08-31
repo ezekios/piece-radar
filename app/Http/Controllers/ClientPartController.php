@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Models\PartHoldRequest;
 use App\Services\LicensePlateLookupService;
+use App\Services\PartHoldRequestNotifier;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -90,7 +91,7 @@ class ClientPartController extends Controller
         ]);
     }
 
-    public function storeRequest(Request $request, Part $part): RedirectResponse
+    public function storeRequest(Request $request, Part $part, PartHoldRequestNotifier $notifier): RedirectResponse
     {
         abort_unless($part->is_published && $part->status === 'available', 404);
 
@@ -98,12 +99,14 @@ class ClientPartController extends Controller
             'customer_message' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        PartHoldRequest::query()->create([
+        $partHoldRequest = PartHoldRequest::query()->create([
             'user_id' => $request->user()->id,
             'part_id' => $part->id,
             'status' => 'pending',
             'customer_message' => $validated['customer_message'] ?? null,
         ]);
+
+        $notifier->newRequest($partHoldRequest);
 
         return redirect()
             ->route('pieces.show', $part)

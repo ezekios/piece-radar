@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Models\PartHoldRequest;
 use App\Models\Scrapyard;
+use App\Services\PartHoldRequestNotifier;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -77,7 +78,7 @@ class ScrapyardRequestController extends Controller
         ]);
     }
 
-    public function accept(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
+    public function accept(Request $request, PartHoldRequest $partHoldRequest, PartHoldRequestNotifier $notifier): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
 
@@ -127,6 +128,12 @@ class ScrapyardRequestController extends Controller
             }
 
             $handledAt = now();
+            $refusedRequestIds = PartHoldRequest::query()
+                ->where('part_id', $lockedPart->id)
+                ->whereKeyNot($lockedRequest->id)
+                ->where('status', 'pending')
+                ->pluck('id')
+                ->all();
 
             $lockedRequest->update([
                 'status' => 'accepted',
@@ -139,15 +146,17 @@ class ScrapyardRequestController extends Controller
             ]);
 
             PartHoldRequest::query()
-                ->where('part_id', $lockedPart->id)
-                ->whereKeyNot($lockedRequest->id)
-                ->where('status', 'pending')
+                ->whereKey($refusedRequestIds)
                 ->update([
                     'status' => 'refused',
                     'handled_at' => $handledAt,
                 ]);
 
-            return ['accepted' => true];
+            return [
+                'accepted' => true,
+                'accepted_request_id' => $lockedRequest->id,
+                'refused_request_ids' => $refusedRequestIds,
+            ];
         });
 
         if (! $result['accepted']) {
@@ -156,12 +165,19 @@ class ScrapyardRequestController extends Controller
                 ->with('error', $result['message']);
         }
 
+        $notifier->accepted(PartHoldRequest::query()->findOrFail($result['accepted_request_id']));
+
+        PartHoldRequest::query()
+            ->whereKey($result['refused_request_ids'])
+            ->get()
+            ->each(fn (PartHoldRequest $refusedRequest) => $notifier->refused($refusedRequest));
+
         return redirect()
             ->route('scrapyard.requests.show', $partHoldRequest)
             ->with('success', 'La demande a été acceptée. La pièce est maintenant mise de côté.');
     }
 
-    public function refuse(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
+    public function refuse(Request $request, PartHoldRequest $partHoldRequest, PartHoldRequestNotifier $notifier): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
         $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
@@ -177,12 +193,14 @@ class ScrapyardRequestController extends Controller
             'handled_at' => now(),
         ]);
 
+        $notifier->refused($partHoldRequest->fresh());
+
         return redirect()
             ->route('scrapyard.requests.show', $partHoldRequest)
             ->with('success', 'La demande a été refusée.');
     }
 
-    public function complete(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
+    public function complete(Request $request, PartHoldRequest $partHoldRequest, PartHoldRequestNotifier $notifier): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
         $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
@@ -206,12 +224,14 @@ class ScrapyardRequestController extends Controller
             ]);
         });
 
+        $notifier->completed($partHoldRequest->fresh());
+
         return redirect()
             ->route('scrapyard.requests.show', $partHoldRequest)
             ->with('success', 'La demande a été terminée.');
     }
 
-    public function cancel(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
+    public function cancel(Request $request, PartHoldRequest $partHoldRequest, PartHoldRequestNotifier $notifier): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
         $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
@@ -233,6 +253,8 @@ class ScrapyardRequestController extends Controller
                 'status' => 'available',
             ]);
         });
+
+        $notifier->cancelled($partHoldRequest->fresh());
 
         return redirect()
             ->route('scrapyard.requests.show', $partHoldRequest)

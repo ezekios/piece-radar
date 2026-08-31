@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 #[Fillable([
     'user_id',
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Scrapyard extends Model
 {
+    use Notifiable;
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -35,6 +38,11 @@ class Scrapyard extends Model
     public function parts(): HasManyThrough
     {
         return $this->hasManyThrough(Part::class, Vehicle::class);
+    }
+
+    public function routeNotificationForMail(): ?string
+    {
+        return $this->email ?: $this->user?->email;
     }
 
     /**
