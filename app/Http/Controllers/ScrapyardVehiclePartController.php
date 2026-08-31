@@ -11,13 +11,10 @@ use Illuminate\Http\Request;
 
 class ScrapyardVehiclePartController extends Controller
 {
-    public function create(Vehicle $vehicle): View
+    public function create(Request $request, Vehicle $vehicle): View
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        if ($scrapyard) {
-            abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
-        }
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
 
         return view('scrapyard.vehicle-parts.create', [
             'scrapyard' => $scrapyard,
@@ -27,7 +24,8 @@ class ScrapyardVehiclePartController extends Controller
 
     public function store(Request $request, Vehicle $vehicle): RedirectResponse
     {
-        $this->ensureVehicleBelongsToFirstScrapyard($vehicle);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -53,14 +51,17 @@ class ScrapyardVehiclePartController extends Controller
             ->with('success', 'La pièce a été ajoutée au véhicule.');
     }
 
-    private function ensureVehicleBelongsToFirstScrapyard(Vehicle $vehicle): Scrapyard
+    private function scrapyard(Request $request): Scrapyard
     {
-        $scrapyard = Scrapyard::query()->first();
+        $scrapyard = $request->user()?->scrapyard;
 
-        abort_unless($scrapyard, 404);
-
-        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+        abort_unless($scrapyard, 403);
 
         return $scrapyard;
+    }
+
+    private function ensureVehicleBelongsToScrapyard(Vehicle $vehicle, Scrapyard $scrapyard): void
+    {
+        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
     }
 }

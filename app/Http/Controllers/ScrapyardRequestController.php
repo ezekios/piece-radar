@@ -14,33 +14,29 @@ class ScrapyardRequestController extends Controller
 {
     public function index(Request $request): View
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        $requests = collect();
+        $scrapyard = $this->scrapyard($request);
         $pendingRequestsCount = 0;
         $allowedStatuses = ['pending', 'accepted', 'refused', 'cancelled', 'completed', 'expired'];
         $activeStatus = in_array($request->string('status')->toString(), $allowedStatuses, true)
             ? $request->string('status')->toString()
             : null;
 
-        if ($scrapyard) {
-            $requestsQuery = PartHoldRequest::query()
-                ->with(['user', 'part.vehicle.scrapyard'])
-                ->whereHas('part.vehicle', function ($query) use ($scrapyard) {
-                    $query->where('scrapyard_id', $scrapyard->id);
-                });
+        $requestsQuery = PartHoldRequest::query()
+            ->with(['user', 'part.vehicle.scrapyard'])
+            ->whereHas('part.vehicle', function ($query) use ($scrapyard) {
+                $query->where('scrapyard_id', $scrapyard->id);
+            });
 
-            $pendingRequestsCount = (clone $requestsQuery)
-                ->where('status', 'pending')
-                ->count();
+        $pendingRequestsCount = (clone $requestsQuery)
+            ->where('status', 'pending')
+            ->count();
 
-            $requests = $requestsQuery
-                ->when($activeStatus, function ($query) use ($activeStatus) {
-                    $query->where('status', $activeStatus);
-                })
-                ->latest()
-                ->get();
-        }
+        $requests = $requestsQuery
+            ->when($activeStatus, function ($query) use ($activeStatus) {
+                $query->where('status', $activeStatus);
+            })
+            ->latest()
+            ->get();
 
         return view('scrapyard.requests.index', [
             'activeStatus' => $activeStatus,
@@ -50,9 +46,10 @@ class ScrapyardRequestController extends Controller
         ]);
     }
 
-    public function show(PartHoldRequest $partHoldRequest): View
+    public function show(Request $request, PartHoldRequest $partHoldRequest): View
     {
-        $scrapyard = $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
         $partHoldRequest->load(['user', 'part.vehicle.scrapyard']);
 
         return view('scrapyard.requests.show', [
@@ -61,9 +58,10 @@ class ScrapyardRequestController extends Controller
         ]);
     }
 
-    public function confirmAccept(PartHoldRequest $partHoldRequest): View|RedirectResponse
+    public function confirmAccept(Request $request, PartHoldRequest $partHoldRequest): View|RedirectResponse
     {
-        $scrapyard = $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
 
         if ($partHoldRequest->status !== 'pending') {
             return redirect()
@@ -79,11 +77,9 @@ class ScrapyardRequestController extends Controller
         ]);
     }
 
-    public function accept(PartHoldRequest $partHoldRequest): RedirectResponse
+    public function accept(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        abort_unless($scrapyard, 404);
+        $scrapyard = $this->scrapyard($request);
 
         $result = DB::transaction(function () use ($partHoldRequest, $scrapyard): array {
             $lockedPart = Part::query()
@@ -165,9 +161,10 @@ class ScrapyardRequestController extends Controller
             ->with('success', 'La demande a été acceptée. La pièce est maintenant mise de côté.');
     }
 
-    public function refuse(PartHoldRequest $partHoldRequest): RedirectResponse
+    public function refuse(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
     {
-        $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
 
         if ($partHoldRequest->status !== 'pending') {
             return redirect()
@@ -185,9 +182,10 @@ class ScrapyardRequestController extends Controller
             ->with('success', 'La demande a été refusée.');
     }
 
-    public function complete(PartHoldRequest $partHoldRequest): RedirectResponse
+    public function complete(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
     {
-        $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
 
         if ($partHoldRequest->status !== 'accepted') {
             return redirect()
@@ -213,9 +211,10 @@ class ScrapyardRequestController extends Controller
             ->with('success', 'La demande a été terminée.');
     }
 
-    public function cancel(PartHoldRequest $partHoldRequest): RedirectResponse
+    public function cancel(Request $request, PartHoldRequest $partHoldRequest): RedirectResponse
     {
-        $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureRequestBelongsToScrapyard($partHoldRequest, $scrapyard);
 
         if ($partHoldRequest->status !== 'accepted') {
             return redirect()
@@ -240,19 +239,22 @@ class ScrapyardRequestController extends Controller
             ->with('success', 'La mise de côté a été annulée.');
     }
 
-    private function ensureRequestBelongsToFirstScrapyard(PartHoldRequest $partHoldRequest): Scrapyard
+    private function scrapyard(Request $request): Scrapyard
     {
-        $scrapyard = Scrapyard::query()->first();
+        $scrapyard = $request->user()?->scrapyard;
 
-        abort_unless($scrapyard, 404);
+        abort_unless($scrapyard, 403);
 
+        return $scrapyard;
+    }
+
+    private function ensureRequestBelongsToScrapyard(PartHoldRequest $partHoldRequest, Scrapyard $scrapyard): void
+    {
         $partHoldRequest->loadMissing(['part.vehicle']);
 
         abort_unless(
             (int) ($partHoldRequest->part?->vehicle?->scrapyard_id) === (int) $scrapyard->id,
             404,
         );
-
-        return $scrapyard;
     }
 }

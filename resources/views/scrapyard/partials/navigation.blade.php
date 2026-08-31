@@ -32,4 +32,15 @@
             {{ $item['label'] }}
         </a>
     @endforeach
+
+    <form method="POST" action="{{ route('logout') }}" class="ml-auto">
+        @csrf
+
+        <button
+            type="submit"
+            class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+        >
+            Déconnexion
+        </button>
+    </form>
 </nav>

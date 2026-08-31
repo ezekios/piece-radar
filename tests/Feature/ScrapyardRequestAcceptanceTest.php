@@ -797,13 +797,22 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             'name' => 'Casse Test',
             'email' => 'scrapyard-' . uniqid() . '@example.com',
         ]);
+        $user->forceFill([
+            'role' => 'scrapyard',
+        ])->save();
 
-        return Scrapyard::query()->create([
+        $scrapyard = Scrapyard::query()->create([
             'user_id' => $user->id,
             'name' => 'Casse Martinique',
             'slug' => $slug ?? 'casse-' . uniqid(),
             'city' => 'Fort-de-France',
             'is_active' => true,
         ]);
+
+        if (! $this->app['auth']->guard()->check()) {
+            $this->actingAs($user);
+        }
+
+        return $scrapyard;
     }
 }

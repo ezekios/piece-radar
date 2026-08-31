@@ -12,29 +12,25 @@ class ScrapyardVehicleController extends Controller
 {
     public function index(Request $request): View
     {
-        $scrapyard = Scrapyard::query()->first();
-        $vehicles = collect();
+        $scrapyard = $this->scrapyard($request);
+        $vehicles = Vehicle::query()
+            ->withCount('parts')
+            ->where('scrapyard_id', $scrapyard->id)
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $search = '%' . (string) $request->string('q')->trim() . '%';
 
-        if ($scrapyard) {
-            $vehicles = Vehicle::query()
-                ->withCount('parts')
-                ->where('scrapyard_id', $scrapyard->id)
-                ->when($request->filled('q'), function ($query) use ($request) {
-                    $search = '%' . (string) $request->string('q')->trim() . '%';
-
-                    $query->where(function ($query) use ($search) {
-                        $query
-                            ->where('brand', 'like', $search)
-                            ->orWhere('model', 'like', $search)
-                            ->orWhere('year', 'like', $search)
-                            ->orWhere('license_plate', 'like', $search)
-                            ->orWhere('fuel', 'like', $search)
-                            ->orWhere('engine', 'like', $search);
-                    });
-                })
-                ->latest()
-                ->get();
-        }
+                $query->where(function ($query) use ($search) {
+                    $query
+                        ->where('brand', 'like', $search)
+                        ->orWhere('model', 'like', $search)
+                        ->orWhere('year', 'like', $search)
+                        ->orWhere('license_plate', 'like', $search)
+                        ->orWhere('fuel', 'like', $search)
+                        ->orWhere('engine', 'like', $search);
+                });
+            })
+            ->latest()
+            ->get();
 
         return view('scrapyard.vehicles.index', [
             'scrapyard' => $scrapyard,
@@ -42,9 +38,9 @@ class ScrapyardVehicleController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        $scrapyard = Scrapyard::query()->first();
+        $scrapyard = $this->scrapyard($request);
 
         return view('scrapyard.vehicles.create', [
             'scrapyard' => $scrapyard,
@@ -53,9 +49,7 @@ class ScrapyardVehicleController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        abort_unless($scrapyard, 404);
+        $scrapyard = $this->scrapyard($request);
 
         $validated = $request->validate([
             'brand' => ['required', 'string', 'max:255'],
@@ -81,13 +75,10 @@ class ScrapyardVehicleController extends Controller
             ->with('success', 'Le véhicule a été ajouté.');
     }
 
-    public function show(Vehicle $vehicle): View
+    public function show(Request $request, Vehicle $vehicle): View
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        abort_unless($scrapyard, 404);
-
-        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
 
         $vehicle->load([
             'parts' => function ($query) {
@@ -101,13 +92,10 @@ class ScrapyardVehicleController extends Controller
         ]);
     }
 
-    public function edit(Vehicle $vehicle): View
+    public function edit(Request $request, Vehicle $vehicle): View
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        abort_unless($scrapyard, 404);
-
-        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
 
         return view('scrapyard.vehicles.edit', [
             'scrapyard' => $scrapyard,
@@ -117,11 +105,8 @@ class ScrapyardVehicleController extends Controller
 
     public function update(Request $request, Vehicle $vehicle): RedirectResponse
     {
-        $scrapyard = Scrapyard::query()->first();
-
-        abort_unless($scrapyard, 404);
-
-        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
+        $scrapyard = $this->scrapyard($request);
+        $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
 
         $validated = $request->validate([
             'brand' => ['required', 'string', 'max:255'],
@@ -142,5 +127,19 @@ class ScrapyardVehicleController extends Controller
         return redirect()
             ->route('scrapyard.vehicles.show', $vehicle)
             ->with('success', 'Le véhicule a été mis à jour.');
+    }
+
+    private function scrapyard(Request $request): Scrapyard
+    {
+        $scrapyard = $request->user()?->scrapyard;
+
+        abort_unless($scrapyard, 403);
+
+        return $scrapyard;
+    }
+
+    private function ensureVehicleBelongsToScrapyard(Vehicle $vehicle, Scrapyard $scrapyard): void
+    {
+        abort_unless((int) $vehicle->scrapyard_id === (int) $scrapyard->id, 404);
     }
 }
