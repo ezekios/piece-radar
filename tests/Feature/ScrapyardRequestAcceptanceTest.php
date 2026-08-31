@@ -99,6 +99,157 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             ->assertDontSee('from now');
     }
 
+    public function test_multiple_pending_requests_can_exist_for_same_part_before_acceptance(): void
+    {
+        $firstRequest = $this->createHoldRequest();
+        $part = $firstRequest->part;
+
+        $secondRequest = $this->createHoldRequestForPart($part);
+        $thirdRequest = $this->createHoldRequestForPart($part);
+
+        $this->assertSame('pending', $firstRequest->fresh()->status);
+        $this->assertSame('pending', $secondRequest->fresh()->status);
+        $this->assertSame('pending', $thirdRequest->fresh()->status);
+        $this->assertSame(3, PartHoldRequest::query()
+            ->where('part_id', $part->id)
+            ->where('status', 'pending')
+            ->count());
+    }
+
+    public function test_accepting_one_request_refuses_other_pending_requests_for_same_part(): void
+    {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+        $acceptedClient = User::factory()->create([
+            'name' => 'Client Gagnant',
+            'email' => 'client-gagnant@example.com',
+            'phone' => '0696123456',
+        ]);
+        $refusedClient = User::factory()->create([
+            'name' => 'Client Refusé Auto',
+            'email' => 'client-refuse-auto@example.com',
+            'phone' => '0696654321',
+        ]);
+        $winningRequest = $this->createHoldRequest(client: $acceptedClient);
+        $part = $winningRequest->part;
+        $secondRequest = $this->createHoldRequestForPart($part, $refusedClient);
+        $thirdRequest = $this->createHoldRequestForPart($part);
+
+        $this->post(route('scrapyard.requests.accept', $winningRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $winningRequest))
+            ->assertSessionHas('success', 'La demande a été acceptée. La pièce est maintenant mise de côté.');
+
+        $this->assertSame('accepted', $winningRequest->fresh()->status);
+        $this->assertTrue($winningRequest->fresh()->reserved_until->equalTo(now()->addHours(48)));
+        $this->assertSame(48.0, now()->diffInHours($winningRequest->fresh()->reserved_until));
+        $this->assertSame('reserved', $part->fresh()->status);
+        $this->assertSame('refused', $secondRequest->fresh()->status);
+        $this->assertSame('refused', $thirdRequest->fresh()->status);
+
+        $this->get(route('scrapyard.requests.show', $winningRequest))
+            ->assertOk()
+            ->assertSee('Client Gagnant')
+            ->assertSee('client-gagnant@example.com')
+            ->assertSee('0696123456');
+
+        $this->get(route('scrapyard.requests.show', $secondRequest))
+            ->assertOk()
+            ->assertDontSee('Client Refusé Auto')
+            ->assertDontSee('client-refuse-auto@example.com')
+            ->assertDontSee('0696654321');
+    }
+
+    public function test_losing_request_cannot_be_accepted_after_same_part_was_reserved(): void
+    {
+        $winningRequest = $this->createHoldRequest();
+        $part = $winningRequest->part;
+        $losingRequest = $this->createHoldRequestForPart($part);
+
+        $this->post(route('scrapyard.requests.accept', $winningRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $winningRequest));
+
+        $this->post(route('scrapyard.requests.accept', $losingRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $losingRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être traitée.');
+
+        $this->assertSame('accepted', $winningRequest->fresh()->status);
+        $this->assertSame('refused', $losingRequest->fresh()->status);
+        $this->assertSame('reserved', $part->fresh()->status);
+        $this->assertSame(1, PartHoldRequest::query()
+            ->where('part_id', $part->id)
+            ->where('status', 'accepted')
+            ->count());
+    }
+
+    public function test_automatically_refused_request_cannot_become_accepted(): void
+    {
+        $winningRequest = $this->createHoldRequest();
+        $part = $winningRequest->part;
+        $automaticallyRefusedRequest = $this->createHoldRequestForPart($part);
+
+        $this->post(route('scrapyard.requests.accept', $winningRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $winningRequest));
+
+        $this->assertSame('refused', $automaticallyRefusedRequest->fresh()->status);
+
+        $this->post(route('scrapyard.requests.accept', $automaticallyRefusedRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $automaticallyRefusedRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être traitée.');
+
+        $this->assertSame('refused', $automaticallyRefusedRequest->fresh()->status);
+        $this->assertSame('accepted', $winningRequest->fresh()->status);
+    }
+
+    public function test_reserved_part_blocks_new_acceptance(): void
+    {
+        $holdRequest = $this->createHoldRequest();
+        $holdRequest->part->update([
+            'status' => 'reserved',
+        ]);
+
+        $this->post(route('scrapyard.requests.accept', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'La pièce n’est plus disponible pour une mise de côté.');
+
+        $this->assertSame('pending', $holdRequest->fresh()->status);
+        $this->assertSame('reserved', $holdRequest->part->fresh()->status);
+        $this->assertNull($holdRequest->fresh()->reserved_until);
+    }
+
+    public function test_unpublished_available_part_can_still_accept_existing_request(): void
+    {
+        $holdRequest = $this->createHoldRequest();
+        $holdRequest->part->update([
+            'status' => 'available',
+            'is_published' => false,
+        ]);
+
+        $this->post(route('scrapyard.requests.accept', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('success', 'La demande a été acceptée. La pièce est maintenant mise de côté.');
+
+        $this->assertSame('accepted', $holdRequest->fresh()->status);
+        $this->assertSame('reserved', $holdRequest->part->fresh()->status);
+        $this->assertFalse($holdRequest->part->fresh()->is_published);
+    }
+
+    public function test_existing_accepted_request_for_same_available_part_blocks_new_acceptance(): void
+    {
+        $acceptedRequest = $this->createHoldRequest(status: 'accepted');
+        $part = $acceptedRequest->part;
+        $part->update([
+            'status' => 'available',
+        ]);
+        $pendingRequest = $this->createHoldRequestForPart($part);
+
+        $this->post(route('scrapyard.requests.accept', $pendingRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $pendingRequest))
+            ->assertSessionHas('error', 'Une autre demande a déjà été acceptée pour cette pièce.');
+
+        $this->assertSame('accepted', $acceptedRequest->fresh()->status);
+        $this->assertSame('pending', $pendingRequest->fresh()->status);
+        $this->assertSame('available', $part->fresh()->status);
+    }
+
     public function test_non_pending_requests_cannot_be_accepted_again(): void
     {
         $scrapyard = $this->createScrapyard();
@@ -611,6 +762,25 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             'status' => 'available',
             'price' => 85,
             'is_published' => true,
+        ]);
+
+        return PartHoldRequest::query()->create([
+            'user_id' => $client->id,
+            'part_id' => $part->id,
+            'status' => $status,
+            'customer_message' => 'Je souhaite réserver cette pièce.',
+        ]);
+    }
+
+    private function createHoldRequestForPart(
+        Part $part,
+        ?User $client = null,
+        string $status = 'pending',
+    ): PartHoldRequest {
+        $client ??= User::factory()->create([
+            'name' => 'Client Test',
+            'email' => 'client-test-' . uniqid() . '@example.com',
+            'phone' => '0696000001',
         ]);
 
         return PartHoldRequest::query()->create([

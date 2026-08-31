@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Part;
 use App\Models\PartHoldRequest;
 use App\Models\Scrapyard;
 use Illuminate\Contracts\View\View;
@@ -80,36 +81,84 @@ class ScrapyardRequestController extends Controller
 
     public function accept(PartHoldRequest $partHoldRequest): RedirectResponse
     {
-        $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+        $scrapyard = Scrapyard::query()->first();
 
-        if ($partHoldRequest->status !== 'pending') {
-            return redirect()
-                ->route('scrapyard.requests.show', $partHoldRequest)
-                ->with('error', 'Cette demande ne peut plus être traitée.');
-        }
+        abort_unless($scrapyard, 404);
 
-        DB::transaction(function () use ($partHoldRequest): void {
+        $result = DB::transaction(function () use ($partHoldRequest, $scrapyard): array {
+            $lockedPart = Part::query()
+                ->with('vehicle')
+                ->whereKey($partHoldRequest->part_id)
+                ->lockForUpdate()
+                ->first();
+
+            abort_unless($lockedPart, 404);
+
+            $lockedRequest = PartHoldRequest::query()
+                ->whereKey($partHoldRequest->id)
+                ->lockForUpdate()
+                ->first();
+
+            abort_unless($lockedRequest, 404);
+            abort_unless((int) $lockedRequest->part_id === (int) $lockedPart->id, 404);
+            abort_unless((int) ($lockedPart->vehicle?->scrapyard_id) === (int) $scrapyard->id, 404);
+
+            if ($lockedRequest->status !== 'pending') {
+                return [
+                    'accepted' => false,
+                    'message' => 'Cette demande ne peut plus être traitée.',
+                ];
+            }
+
+            if ($lockedPart->status !== 'available') {
+                return [
+                    'accepted' => false,
+                    'message' => 'La pièce n’est plus disponible pour une mise de côté.',
+                ];
+            }
+
+            $acceptedRequestExists = PartHoldRequest::query()
+                ->where('part_id', $lockedPart->id)
+                ->whereKeyNot($lockedRequest->id)
+                ->where('status', 'accepted')
+                ->exists();
+
+            if ($acceptedRequestExists) {
+                return [
+                    'accepted' => false,
+                    'message' => 'Une autre demande a déjà été acceptée pour cette pièce.',
+                ];
+            }
+
             $handledAt = now();
 
-            $partHoldRequest->update([
+            $lockedRequest->update([
                 'status' => 'accepted',
                 'handled_at' => $handledAt,
                 'reserved_until' => $handledAt->copy()->addHours(48),
             ]);
 
-            $partHoldRequest->part->update([
+            $lockedPart->update([
                 'status' => 'reserved',
             ]);
 
             PartHoldRequest::query()
-                ->where('part_id', $partHoldRequest->part_id)
-                ->whereKeyNot($partHoldRequest->id)
+                ->where('part_id', $lockedPart->id)
+                ->whereKeyNot($lockedRequest->id)
                 ->where('status', 'pending')
                 ->update([
                     'status' => 'refused',
                     'handled_at' => $handledAt,
                 ]);
+
+            return ['accepted' => true];
         });
+
+        if (! $result['accepted']) {
+            return redirect()
+                ->route('scrapyard.requests.show', $partHoldRequest)
+                ->with('error', $result['message']);
+        }
 
         return redirect()
             ->route('scrapyard.requests.show', $partHoldRequest)
