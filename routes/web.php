@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
 use App\Http\Controllers\EmailVerificationNotificationController;
 use App\Http\Controllers\EmailVerificationPromptController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewPasswordController;
 use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\RegisteredClientController;
@@ -16,9 +17,8 @@ use App\Http\Controllers\ScrapyardVehiclePartController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', HomeController::class)
+    ->name('home');
 
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])
     ->middleware('guest')
