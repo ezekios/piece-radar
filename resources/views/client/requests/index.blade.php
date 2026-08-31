@@ -49,29 +49,26 @@
                             </p>
                         </div>
 
-                        @if ($clientEmail)
+                        <div class="flex flex-wrap items-center gap-2">
                             <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
-                                {{ $clientEmail }}
+                                {{ auth()->user()?->email }}
                             </span>
-                        @endif
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                    Déconnexion
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </header>
 
-                @if (! $clientEmail)
+                @if ($requests->isEmpty())
                     <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
                         <h2 class="text-base font-black text-zinc-950">Aucune demande trouvée pour le moment.</h2>
                         <p class="mt-1.5 text-sm leading-6 text-zinc-600">
-                            Envoyez une demande de mise de côté pour pouvoir la suivre ici.
-                        </p>
-                        <a href="{{ route('client.parts.index') }}" class="mt-4 inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
-                            Rechercher une pièce
-                        </a>
-                    </section>
-                @elseif ($requests->isEmpty())
-                    <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Aucune demande trouvée pour le moment.</h2>
-                        <p class="mt-1.5 text-sm leading-6 text-zinc-600">
-                            Aucune demande n’est associée à cette adresse email.
+                            Aucune demande n’est encore associée à votre compte.
                         </p>
                         <a href="{{ route('client.parts.index') }}" class="mt-4 inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
                             Rechercher une pièce

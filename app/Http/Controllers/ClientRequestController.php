@@ -3,44 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\PartHoldRequest;
-use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class ClientRequestController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $clientEmail = session('client_email');
-        $requests = collect();
-
-        if ($clientEmail) {
-            $client = User::query()
-                ->where('email', $clientEmail)
-                ->first();
-
-            if ($client) {
-                $requests = $client->partHoldRequests()
-                    ->with(['part.vehicle.scrapyard'])
-                    ->latest()
-                    ->get();
-            }
-        }
+        $requests = $request->user()
+            ->partHoldRequests()
+            ->with(['part.vehicle.scrapyard'])
+            ->latest()
+            ->get();
 
         return view('client.requests.index', [
-            'clientEmail' => $clientEmail,
             'requests' => $requests,
         ]);
     }
 
-    public function show(PartHoldRequest $partHoldRequest): View
+    public function show(Request $request, PartHoldRequest $partHoldRequest): View
     {
-        $clientEmail = session('client_email');
-
-        abort_unless($clientEmail, 404);
-
         $partHoldRequest->load(['user', 'part.vehicle.scrapyard']);
 
-        abort_unless($partHoldRequest->user?->email === $clientEmail, 404);
+        abort_unless((int) $partHoldRequest->user_id === (int) $request->user()->id, 404);
 
         return view('client.requests.show', [
             'partHoldRequest' => $partHoldRequest,

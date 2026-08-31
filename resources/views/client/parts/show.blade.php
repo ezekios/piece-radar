@@ -29,9 +29,27 @@
                 @endif
 
                 <header class="mb-4">
-                    <a href="{{ route('client.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                        Retour vers les résultats
-                    </a>
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <a href="{{ route('client.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                            Retour vers les résultats
+                        </a>
+
+                        @auth
+                            @if (auth()->user()->role === 'client')
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <a href="{{ route('client.requests.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Mes demandes
+                                    </a>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="text-sm font-bold text-zinc-500 hover:text-zinc-900">
+                                            Déconnexion
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        @endauth
+                    </div>
 
                     <div class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <div class="flex gap-4">

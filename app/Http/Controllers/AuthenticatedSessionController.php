@@ -6,6 +6,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
@@ -13,7 +14,7 @@ class AuthenticatedSessionController extends Controller
     public function create(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('scrapyard.dashboard');
+            return redirect($this->homePathFor(Auth::user()?->role));
         }
 
         return view('auth.login');
@@ -36,7 +37,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('scrapyard.dashboard'));
+        return redirect()->intended($this->homePathFor($request->user()?->role));
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -47,5 +48,14 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    private function homePathFor(?string $role): string
+    {
+        return match ($role) {
+            'scrapyard' => route('scrapyard.dashboard'),
+            'client' => route('client.requests.index'),
+            default => Route::has('client.parts.index') ? route('client.parts.index') : '/',
+        };
     }
 }

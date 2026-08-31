@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsClient;
 use App\Http\Middleware\EnsureUserIsScrapyard;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'client' => EnsureUserIsClient::class,
             'scrapyard' => EnsureUserIsScrapyard::class,
         ]);
     })

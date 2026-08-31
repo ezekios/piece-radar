@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
+use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
 use App\Http\Controllers\ScrapyardRequestController;
@@ -25,23 +26,33 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
+Route::get('/inscription', [RegisteredClientController::class, 'create'])
+    ->middleware('guest')
+    ->name('client.register.create');
+
+Route::post('/inscription', [RegisteredClientController::class, 'store'])
+    ->middleware('guest')
+    ->name('client.register.store');
+
 Route::get('/pieces', [ClientPartController::class, 'index'])
     ->name('client.parts.index');
 
-Route::get('/pieces/{part}/demande', [ClientPartController::class, 'requestForm'])
-    ->name('pieces.request');
+Route::middleware(['auth', 'client'])->group(function (): void {
+    Route::get('/pieces/{part}/demande', [ClientPartController::class, 'requestForm'])
+        ->name('pieces.request');
 
-Route::post('/pieces/{part}/demande', [ClientPartController::class, 'storeRequest'])
-    ->name('pieces.request.store');
+    Route::post('/pieces/{part}/demande', [ClientPartController::class, 'storeRequest'])
+        ->name('pieces.request.store');
+
+    Route::get('/mes-demandes', [ClientRequestController::class, 'index'])
+        ->name('client.requests.index');
+
+    Route::get('/mes-demandes/{partHoldRequest}', [ClientRequestController::class, 'show'])
+        ->name('client.requests.show');
+});
 
 Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
     ->name('pieces.show');
-
-Route::get('/mes-demandes', [ClientRequestController::class, 'index'])
-    ->name('client.requests.index');
-
-Route::get('/mes-demandes/{partHoldRequest}', [ClientRequestController::class, 'show'])
-    ->name('client.requests.show');
 
 Route::middleware(['auth', 'scrapyard'])->group(function (): void {
     Route::get('/casse', [ScrapyardDashboardController::class, 'index'])

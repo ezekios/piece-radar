@@ -62,9 +62,18 @@
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
-                    <a href="{{ route('client.requests.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                        Retour vers mes demandes
-                    </a>
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <a href="{{ route('client.requests.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                            Retour vers mes demandes
+                        </a>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="text-sm font-bold text-zinc-500 hover:text-zinc-900">
+                                Déconnexion
+                            </button>
+                        </form>
+                    </div>
 
                     <div class="mt-4 flex flex-wrap items-start justify-between gap-3">
                         <div>

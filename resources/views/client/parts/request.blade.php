@@ -27,7 +27,7 @@
                             Demande de mise de côté
                         </h1>
                         <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                            Envoyez vos coordonnées à la casse pour réserver cette pièce.
+                            Votre compte client sera associé à cette demande.
                         </p>
                     </div>
                 </header>
@@ -68,56 +68,43 @@
                     </div>
                 </section>
 
+                <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-black text-zinc-950">Compte client</h2>
+                            <p class="mt-1 text-sm font-medium text-zinc-600">
+                                Ces coordonnées proviennent de votre compte connecté.
+                            </p>
+                        </div>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                Déconnexion
+                            </button>
+                        </form>
+                    </div>
+
+                    <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+                        <div class="rounded-xl bg-zinc-50 p-3">
+                            <dt class="text-xs font-bold text-zinc-500">Nom</dt>
+                            <dd class="mt-1 font-black text-zinc-950">{{ $client?->name }}</dd>
+                        </div>
+
+                        <div class="rounded-xl bg-zinc-50 p-3">
+                            <dt class="text-xs font-bold text-zinc-500">Téléphone</dt>
+                            <dd class="mt-1 font-black text-zinc-950">{{ $client?->phone ?? 'Non renseigné' }}</dd>
+                        </div>
+
+                        <div class="rounded-xl bg-zinc-50 p-3">
+                            <dt class="text-xs font-bold text-zinc-500">Email</dt>
+                            <dd class="mt-1 break-words font-black text-zinc-950">{{ $client?->email }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
                 <form method="POST" action="{{ route('pieces.request.store', $part) }}" class="mt-4 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                     @csrf
-
-                    <div>
-                        <label for="name" class="text-sm font-black text-zinc-900">Nom complet</label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value="{{ old('name') }}"
-                            required
-                            class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                            placeholder="Votre nom"
-                        >
-                        @error('name')
-                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="phone" class="text-sm font-black text-zinc-900">Téléphone</label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            value="{{ old('phone') }}"
-                            required
-                            class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                            placeholder="0696000000"
-                        >
-                        @error('phone')
-                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="email" class="text-sm font-black text-zinc-900">Email</label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value="{{ old('email') }}"
-                            required
-                            class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                            placeholder="vous@example.com"
-                        >
-                        @error('email')
-                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
 
                     <div>
                         <label for="customer_message" class="text-sm font-black text-zinc-900">Message à la casse</label>

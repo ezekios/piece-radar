@@ -16,7 +16,7 @@ class ScrapyardAuthenticationTest extends TestCase
     {
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('Connexion casse')
+            ->assertSee('Connexion à Pièce Radar')
             ->assertSee('Email')
             ->assertSee('Mot de passe');
     }

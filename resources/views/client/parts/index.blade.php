@@ -12,11 +12,27 @@
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
-                    <div class="mb-4 flex items-center justify-between">
+                    <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                         <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
-                        <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
-                            Martinique
-                        </span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            @auth
+                                @if (auth()->user()->role === 'client')
+                                    <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                        Mes demandes
+                                    </a>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="rounded-full bg-white px-3 py-1 text-xs font-black text-zinc-600 ring-1 ring-zinc-200 hover:text-zinc-900">
+                                            Déconnexion
+                                        </button>
+                                    </form>
+                                @endif
+                            @endauth
+
+                            <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
+                                Martinique
+                            </span>
+                        </div>
                     </div>
 
                     <h1 class="text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Résultats de recherche</h1>
@@ -240,9 +256,9 @@
                 <button type="button" class="text-[#FC8505]">
                     Recherche
                 </button>
-                <button type="button" class="text-zinc-500">
+                <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
                     Demandes
-                </button>
+                </a>
                 <button type="button" class="text-zinc-500">
                     Compte
                 </button>

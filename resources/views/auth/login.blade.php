@@ -12,9 +12,9 @@
         <main class="mx-auto flex min-h-screen w-full max-w-5xl items-center px-4 py-8 sm:px-6 lg:px-8">
             <section class="mx-auto w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
                 <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
-                <h1 class="mt-2 text-2xl font-black leading-tight text-zinc-950">Connexion casse</h1>
+                <h1 class="mt-2 text-2xl font-black leading-tight text-zinc-950">Connexion à Pièce Radar</h1>
                 <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                    Accédez à votre espace de gestion.
+                    Accédez à votre espace selon votre compte.
                 </p>
 
                 <form method="POST" action="{{ route('login') }}" class="mt-5 space-y-4">
@@ -69,6 +69,11 @@
                         Se connecter
                     </button>
                 </form>
+
+                <p class="mt-5 text-center text-sm font-medium text-zinc-600">
+                    Nouveau client ?
+                    <a href="{{ route('client.register.create') }}" class="font-black text-[#FC8505] hover:text-[#E87804]">Créer un compte client</a>
+                </p>
             </section>
         </main>
     </body>
