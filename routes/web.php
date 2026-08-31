@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
+use App\Http\Controllers\NewPasswordController;
+use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
@@ -25,6 +27,22 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
+
+Route::get('/mot-de-passe-oublie', [PasswordResetLinkController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.request');
+
+Route::post('/mot-de-passe-oublie', [PasswordResetLinkController::class, 'store'])
+    ->middleware('guest')
+    ->name('password.email');
+
+Route::get('/reinitialiser-mot-de-passe/{token}', [NewPasswordController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('/reinitialiser-mot-de-passe', [NewPasswordController::class, 'store'])
+    ->middleware('guest')
+    ->name('password.update');
 
 Route::get('/inscription', [RegisteredClientController::class, 'create'])
     ->middleware('guest')
