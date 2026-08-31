@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
+use App\Http\Controllers\EmailVerificationNotificationController;
+use App\Http\Controllers\EmailVerificationPromptController;
 use App\Http\Controllers\NewPasswordController;
 use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\RegisteredClientController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\ScrapyardPartController;
 use App\Http\Controllers\ScrapyardRequestController;
 use App\Http\Controllers\ScrapyardVehicleController;
 use App\Http\Controllers\ScrapyardVehiclePartController;
+use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -52,10 +55,22 @@ Route::post('/inscription', [RegisteredClientController::class, 'store'])
     ->middleware('guest')
     ->name('client.register.store');
 
+Route::get('/verification-email', EmailVerificationPromptController::class)
+    ->middleware(['auth', 'client'])
+    ->name('verification.notice');
+
+Route::get('/verification-email/{id}/{hash}', VerifyEmailController::class)
+    ->middleware(['auth', 'client', 'signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
+Route::post('/verification-email/renvoyer', [EmailVerificationNotificationController::class, 'store'])
+    ->middleware(['auth', 'client', 'throttle:6,1'])
+    ->name('verification.send');
+
 Route::get('/pieces', [ClientPartController::class, 'index'])
     ->name('client.parts.index');
 
-Route::middleware(['auth', 'client'])->group(function (): void {
+Route::middleware(['auth', 'client', 'verified'])->group(function (): void {
     Route::get('/pieces/{part}/demande', [ClientPartController::class, 'requestForm'])
         ->name('pieces.request');
 

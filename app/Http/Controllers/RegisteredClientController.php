@@ -35,7 +35,8 @@ class RegisteredClientController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+        $user->sendEmailVerificationNotification();
 
-        return redirect()->intended(route('client.requests.index'));
+        return redirect()->intended(route('verification.notice'));
     }
 }

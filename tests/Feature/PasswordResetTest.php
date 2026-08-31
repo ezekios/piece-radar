@@ -8,6 +8,7 @@ use App\Models\Scrapyard;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -327,6 +328,8 @@ class PasswordResetTest extends TestCase
 
     public function test_client_registration_still_works_after_password_reset_routes_are_added(): void
     {
+        Notification::fake();
+
         $this->post(route('client.register.store'), [
             'name' => 'Client Inscription',
             'email' => 'client-inscription@example.com',
@@ -334,13 +337,17 @@ class PasswordResetTest extends TestCase
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
         ])
-            ->assertRedirect(route('client.requests.index'));
+            ->assertRedirect(route('verification.notice'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
             'email' => 'client-inscription@example.com',
             'role' => 'client',
         ]);
+
+        $user = User::query()->where('email', 'client-inscription@example.com')->firstOrFail();
+        $this->assertNull($user->email_verified_at);
+        Notification::assertSentTo($user, VerifyEmail::class);
     }
 
     private function createClientUser(array $attributes = []): User

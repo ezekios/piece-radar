@@ -7,8 +7,10 @@ use App\Models\PartHoldRequest;
 use App\Models\Scrapyard;
 use App\Models\User;
 use App\Models\Vehicle;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class ClientAuthRequestOwnershipTest extends TestCase
@@ -71,6 +73,8 @@ class ClientAuthRequestOwnershipTest extends TestCase
 
     public function test_client_can_register_and_is_authenticated(): void
     {
+        Notification::fake();
+
         $this->post(route('client.register.store'), [
             'name' => 'Client Test',
             'email' => 'client-register@example.com',
@@ -78,14 +82,16 @@ class ClientAuthRequestOwnershipTest extends TestCase
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
         ])
-            ->assertRedirect(route('client.requests.index'));
+            ->assertRedirect(route('verification.notice'));
 
         $user = User::query()->where('email', 'client-register@example.com')->firstOrFail();
 
         $this->assertAuthenticatedAs($user);
         $this->assertSame('client', $user->role);
+        $this->assertNull($user->email_verified_at);
         $this->assertTrue(Hash::check('secret-password', $user->password));
         $this->assertNotSame('secret-password', $user->password);
+        Notification::assertSentTo($user, VerifyEmail::class);
     }
 
     public function test_registration_rejects_already_used_email(): void

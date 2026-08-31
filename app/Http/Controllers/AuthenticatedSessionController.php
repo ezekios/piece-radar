@@ -52,9 +52,13 @@ class AuthenticatedSessionController extends Controller
 
     private function homePathFor(?string $role): string
     {
+        $user = Auth::user();
+
         return match ($role) {
             'scrapyard' => route('scrapyard.dashboard'),
-            'client' => route('client.requests.index'),
+            'client' => $user?->hasVerifiedEmail()
+                ? route('client.requests.index')
+                : route('verification.notice'),
             default => Route::has('client.parts.index') ? route('client.parts.index') : '/',
         };
     }
