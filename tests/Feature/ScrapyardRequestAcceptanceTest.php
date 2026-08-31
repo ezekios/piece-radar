@@ -8,11 +8,28 @@ use App\Models\Scrapyard;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class ScrapyardRequestAcceptanceTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
+
+    public function test_application_keeps_utc_internally_and_uses_martinique_for_display(): void
+    {
+        $this->assertSame('UTC', config('app.timezone'));
+        $this->assertSame('UTC', date_default_timezone_get());
+        $this->assertSame('UTC', now()->timezoneName);
+        $this->assertSame('fr', config('app.locale'));
+        $this->assertSame('America/Martinique', config('app.display_timezone'));
+    }
 
     public function test_pending_request_acceptance_confirmation_page_is_accessible(): void
     {
@@ -34,6 +51,7 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             ->assertOk();
 
         $this->assertSame('pending', $holdRequest->fresh()->status);
+        $this->assertNull($holdRequest->fresh()->reserved_until);
     }
 
     public function test_scrapyard_cannot_confirm_request_from_another_scrapyard(): void
@@ -53,6 +71,7 @@ class ScrapyardRequestAcceptanceTest extends TestCase
 
     public function test_final_confirmation_accepts_pending_request(): void
     {
+        Carbon::setTestNow('2026-08-31 10:00:00');
         $holdRequest = $this->createHoldRequest();
 
         $this->post(route('scrapyard.requests.accept', $holdRequest))
@@ -60,14 +79,31 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             ->assertSessionHas('success', 'La demande a été acceptée. La pièce est maintenant mise de côté.');
 
         $this->assertSame('accepted', $holdRequest->fresh()->status);
+        $this->assertTrue($holdRequest->fresh()->reserved_until->equalTo(now()->addHours(48)));
+        $this->assertSame(48.0, now()->diffInHours($holdRequest->fresh()->reserved_until));
         $this->assertSame('reserved', $holdRequest->part->fresh()->status);
+    }
+
+    public function test_reserved_until_is_displayed_in_martinique_timezone_with_french_remaining_time(): void
+    {
+        Carbon::setTestNow('2026-08-31 13:22:00');
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->update([
+            'reserved_until' => Carbon::parse('2026-09-01 16:53:00', 'UTC'),
+        ]);
+
+        $this->get(route('scrapyard.requests.show', $holdRequest))
+            ->assertOk()
+            ->assertSee('Pièce réservée jusqu’au 01/09/2026 à 12:53')
+            ->assertSee('Temps restant : 1 jour et 3 heures.')
+            ->assertDontSee('from now');
     }
 
     public function test_non_pending_requests_cannot_be_accepted_again(): void
     {
         $scrapyard = $this->createScrapyard();
 
-        foreach (['accepted', 'refused', 'cancelled', 'completed'] as $status) {
+        foreach (['accepted', 'refused', 'cancelled', 'completed', 'expired'] as $status) {
             $holdRequest = $this->createHoldRequest(scrapyard: $scrapyard, status: $status);
 
             $this->post(route('scrapyard.requests.accept', $holdRequest))
@@ -224,6 +260,29 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             ->assertSee('0696555555');
     }
 
+    public function test_client_contact_is_hidden_for_expired_request_on_scrapyard_pages(): void
+    {
+        $client = User::factory()->create([
+            'name' => 'Expired Client Secret',
+            'email' => 'expired-client-secret@example.com',
+            'phone' => '0696666666',
+        ]);
+        $holdRequest = $this->createHoldRequest(client: $client, status: 'expired');
+
+        $this->get(route('scrapyard.requests.show', $holdRequest))
+            ->assertOk()
+            ->assertDontSee('Expired Client Secret')
+            ->assertDontSee('expired-client-secret@example.com')
+            ->assertDontSee('0696666666');
+
+        $this->get(route('scrapyard.requests.index', ['status' => 'expired']))
+            ->assertOk()
+            ->assertSee('Expirée')
+            ->assertDontSee('Expired Client Secret')
+            ->assertDontSee('expired-client-secret@example.com')
+            ->assertDontSee('0696666666');
+    }
+
     public function test_refusing_pending_request_still_works(): void
     {
         $holdRequest = $this->createHoldRequest();
@@ -233,6 +292,295 @@ class ScrapyardRequestAcceptanceTest extends TestCase
             ->assertSessionHas('success', 'La demande a été refusée.');
 
         $this->assertSame('refused', $holdRequest->fresh()->status);
+    }
+
+    public function test_accepted_request_can_be_completed(): void
+    {
+        $client = User::factory()->create([
+            'name' => 'Completed Lifecycle Client',
+            'email' => 'completed-lifecycle@example.com',
+            'phone' => '0696777777',
+        ]);
+        $holdRequest = $this->createHoldRequest(client: $client, status: 'accepted');
+        $holdRequest->part->update([
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->post(route('scrapyard.requests.complete', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('success', 'La demande a été terminée.');
+
+        $this->assertSame('completed', $holdRequest->fresh()->status);
+        $this->assertNotNull($holdRequest->fresh()->handled_at);
+        $this->assertNull($holdRequest->fresh()->reserved_until);
+        $this->assertSame('sold', $holdRequest->part->fresh()->status);
+        $this->assertFalse($holdRequest->part->fresh()->is_published);
+
+        $this->get(route('scrapyard.requests.show', $holdRequest))
+            ->assertOk()
+            ->assertSee('Completed Lifecycle Client')
+            ->assertSee('completed-lifecycle@example.com')
+            ->assertSee('0696777777');
+    }
+
+    public function test_completing_request_does_not_make_part_available(): void
+    {
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->part->update([
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->post(route('scrapyard.requests.complete', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest));
+
+        $this->assertNotSame('available', $holdRequest->part->fresh()->status);
+    }
+
+    public function test_accepted_request_can_be_cancelled(): void
+    {
+        $client = User::factory()->create([
+            'name' => 'Cancelled Lifecycle Client',
+            'email' => 'cancelled-lifecycle@example.com',
+            'phone' => '0696888888',
+        ]);
+        $holdRequest = $this->createHoldRequest(client: $client, status: 'accepted');
+        $holdRequest->part->update([
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->post(route('scrapyard.requests.cancel', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('success', 'La mise de côté a été annulée.');
+
+        $this->assertSame('cancelled', $holdRequest->fresh()->status);
+        $this->assertNotNull($holdRequest->fresh()->handled_at);
+        $this->assertNull($holdRequest->fresh()->reserved_until);
+        $this->assertSame('available', $holdRequest->part->fresh()->status);
+        $this->assertTrue($holdRequest->part->fresh()->is_published);
+
+        $this->get(route('scrapyard.requests.show', $holdRequest))
+            ->assertOk()
+            ->assertDontSee('Cancelled Lifecycle Client')
+            ->assertDontSee('cancelled-lifecycle@example.com')
+            ->assertDontSee('0696888888');
+    }
+
+    public function test_published_part_is_visible_client_side_after_cancellation(): void
+    {
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->part->update([
+            'name' => 'Alternateur visible après annulation',
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->post(route('scrapyard.requests.cancel', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest));
+
+        $this->get(route('client.parts.index'))
+            ->assertOk()
+            ->assertSee('Alternateur visible après annulation');
+    }
+
+    public function test_completed_request_cannot_be_modified_by_lifecycle_actions(): void
+    {
+        $holdRequest = $this->createHoldRequest(status: 'completed');
+        $holdRequest->part->update([
+            'status' => 'sold',
+            'is_published' => false,
+        ]);
+
+        $this->post(route('scrapyard.requests.complete', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être modifiée.');
+
+        $this->post(route('scrapyard.requests.cancel', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être modifiée.');
+
+        $this->assertSame('completed', $holdRequest->fresh()->status);
+        $this->assertSame('sold', $holdRequest->part->fresh()->status);
+        $this->assertFalse($holdRequest->part->fresh()->is_published);
+    }
+
+    public function test_only_accepted_requests_can_use_lifecycle_actions(): void
+    {
+        $scrapyard = $this->createScrapyard();
+
+        foreach (['pending', 'refused', 'cancelled', 'completed'] as $status) {
+            $holdRequest = $this->createHoldRequest(scrapyard: $scrapyard, status: $status);
+
+            $this->post(route('scrapyard.requests.complete', $holdRequest))
+                ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+                ->assertSessionHas('error', 'Cette demande ne peut plus être modifiée.');
+
+            $this->post(route('scrapyard.requests.cancel', $holdRequest))
+                ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+                ->assertSessionHas('error', 'Cette demande ne peut plus être modifiée.');
+
+            $this->assertSame($status, $holdRequest->fresh()->status);
+        }
+    }
+
+    public function test_scrapyard_cannot_complete_or_cancel_request_from_another_scrapyard(): void
+    {
+        $this->createScrapyard();
+        $otherScrapyard = $this->createScrapyard('other-scrapyard');
+        $holdRequest = $this->createHoldRequest($otherScrapyard, status: 'accepted');
+
+        $this->post(route('scrapyard.requests.complete', $holdRequest))
+            ->assertNotFound();
+
+        $this->post(route('scrapyard.requests.cancel', $holdRequest))
+            ->assertNotFound();
+
+        $this->assertSame('accepted', $holdRequest->fresh()->status);
+    }
+
+    public function test_accepted_request_before_reserved_until_does_not_expire(): void
+    {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->update([
+            'reserved_until' => now()->addHour(),
+        ]);
+        $holdRequest->part->update([
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->artisan('requests:expire-reservations')
+            ->expectsOutput('0 demandes expirées.')
+            ->assertSuccessful();
+
+        $this->assertSame('accepted', $holdRequest->fresh()->status);
+        $this->assertSame('reserved', $holdRequest->part->fresh()->status);
+    }
+
+    public function test_accepted_request_after_reserved_until_expires(): void
+    {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->update([
+            'reserved_until' => now()->subMinute(),
+        ]);
+        $holdRequest->part->update([
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->artisan('requests:expire-reservations')
+            ->expectsOutput('1 demande expirée.')
+            ->assertSuccessful();
+
+        $this->assertSame('expired', $holdRequest->fresh()->status);
+        $this->assertNotNull($holdRequest->fresh()->handled_at);
+        $this->assertTrue($holdRequest->fresh()->reserved_until->equalTo(now()->subMinute()));
+        $this->assertSame('available', $holdRequest->part->fresh()->status);
+        $this->assertTrue($holdRequest->part->fresh()->is_published);
+    }
+
+    public function test_published_part_is_visible_client_side_after_expiration(): void
+    {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->update([
+            'reserved_until' => now()->subMinute(),
+        ]);
+        $holdRequest->part->update([
+            'name' => 'Démarreur visible après expiration',
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->artisan('requests:expire-reservations')
+            ->assertSuccessful();
+
+        $this->get(route('client.parts.index'))
+            ->assertOk()
+            ->assertSee('Démarreur visible après expiration');
+    }
+
+    public function test_unpublished_part_stays_hidden_client_side_after_expiration(): void
+    {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->update([
+            'reserved_until' => now()->subMinute(),
+        ]);
+        $holdRequest->part->update([
+            'name' => 'Démarreur non publié après expiration',
+            'status' => 'reserved',
+            'is_published' => false,
+        ]);
+
+        $this->artisan('requests:expire-reservations')
+            ->assertSuccessful();
+
+        $this->get(route('client.parts.index'))
+            ->assertOk()
+            ->assertDontSee('Démarreur non publié après expiration');
+    }
+
+    public function test_expired_request_cannot_be_accepted_refused_completed_or_cancelled(): void
+    {
+        $holdRequest = $this->createHoldRequest(status: 'expired');
+        $holdRequest->part->update([
+            'status' => 'available',
+            'is_published' => true,
+        ]);
+
+        $this->post(route('scrapyard.requests.accept', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être traitée.');
+
+        $this->post(route('scrapyard.requests.refuse', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être traitée.');
+
+        $this->post(route('scrapyard.requests.complete', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être modifiée.');
+
+        $this->post(route('scrapyard.requests.cancel', $holdRequest))
+            ->assertRedirect(route('scrapyard.requests.show', $holdRequest))
+            ->assertSessionHas('error', 'Cette demande ne peut plus être modifiée.');
+
+        $this->assertSame('expired', $holdRequest->fresh()->status);
+        $this->assertSame('available', $holdRequest->part->fresh()->status);
+        $this->assertTrue($holdRequest->part->fresh()->is_published);
+    }
+
+    public function test_expiration_command_is_idempotent(): void
+    {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+        $holdRequest = $this->createHoldRequest(status: 'accepted');
+        $holdRequest->update([
+            'reserved_until' => now()->subMinute(),
+        ]);
+        $holdRequest->part->update([
+            'status' => 'reserved',
+            'is_published' => true,
+        ]);
+
+        $this->artisan('requests:expire-reservations')
+            ->expectsOutput('1 demande expirée.')
+            ->assertSuccessful();
+
+        $handledAt = $holdRequest->fresh()->handled_at;
+
+        Carbon::setTestNow('2026-08-31 11:00:00');
+
+        $this->artisan('requests:expire-reservations')
+            ->expectsOutput('0 demandes expirées.')
+            ->assertSuccessful();
+
+        $this->assertSame('expired', $holdRequest->fresh()->status);
+        $this->assertTrue($holdRequest->fresh()->handled_at->equalTo($handledAt));
+        $this->assertSame('available', $holdRequest->part->fresh()->status);
     }
 
     private function createHoldRequest(

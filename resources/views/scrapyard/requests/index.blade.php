@@ -16,6 +16,7 @@
                 'refused' => 'Refusée',
                 'cancelled' => 'Annulée',
                 'completed' => 'Terminée',
+                'expired' => 'Expirée',
             ];
 
             $statusClasses = [
@@ -24,6 +25,7 @@
                 'refused' => 'bg-red-50 text-red-700',
                 'cancelled' => 'bg-zinc-100 text-zinc-600',
                 'completed' => 'bg-blue-50 text-blue-700',
+                'expired' => 'bg-amber-50 text-amber-700',
             ];
 
             $statusTreatmentLabels = [
@@ -32,6 +34,7 @@
                 'refused' => 'Demande refusée',
                 'cancelled' => 'Demande annulée',
                 'completed' => 'Demande terminée',
+                'expired' => 'Réservation expirée',
             ];
 
             $filterItems = [
@@ -41,6 +44,7 @@
                 ['label' => 'Refusées', 'status' => 'refused'],
                 ['label' => 'Annulées', 'status' => 'cancelled'],
                 ['label' => 'Terminées', 'status' => 'completed'],
+                ['label' => 'Expirées', 'status' => 'expired'],
             ];
         @endphp
 

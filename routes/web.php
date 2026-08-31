@@ -91,5 +91,11 @@ Route::post('/casse/demandes/{partHoldRequest}/accepter', [ScrapyardRequestContr
 Route::post('/casse/demandes/{partHoldRequest}/refuser', [ScrapyardRequestController::class, 'refuse'])
     ->name('scrapyard.requests.refuse');
 
+Route::post('/casse/demandes/{partHoldRequest}/terminer', [ScrapyardRequestController::class, 'complete'])
+    ->name('scrapyard.requests.complete');
+
+Route::post('/casse/demandes/{partHoldRequest}/annuler', [ScrapyardRequestController::class, 'cancel'])
+    ->name('scrapyard.requests.cancel');
+
 Route::get('/casse/demandes/{partHoldRequest}', [ScrapyardRequestController::class, 'show'])
     ->name('scrapyard.requests.show');

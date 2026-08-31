@@ -16,6 +16,7 @@
                 'refused' => 'Refusée',
                 'cancelled' => 'Annulée',
                 'completed' => 'Terminée',
+                'expired' => 'Expirée',
             ];
 
             $statusClasses = [
@@ -24,7 +25,10 @@
                 'refused' => 'bg-red-50 text-red-700',
                 'cancelled' => 'bg-zinc-100 text-zinc-600',
                 'completed' => 'bg-blue-50 text-blue-700',
+                'expired' => 'bg-amber-50 text-amber-700',
             ];
+
+            $displayTimezone = config('app.display_timezone', 'UTC');
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
@@ -81,6 +85,8 @@
                                 $vehicle = $part?->vehicle;
                                 $scrapyard = $vehicle?->scrapyard;
                                 $status = $holdRequest->status;
+                                $handledAtDisplay = $holdRequest->handled_at?->copy()->timezone($displayTimezone);
+                                $reservedUntilDisplay = $holdRequest->reserved_until?->copy()->timezone($displayTimezone);
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -135,7 +141,7 @@
                                             <div class="rounded-xl border border-zinc-100 bg-white p-3">
                                                 <p class="text-xs font-bold text-zinc-500">Traitée le</p>
                                                 <p class="mt-1 font-black text-zinc-950">
-                                                    {{ $holdRequest->handled_at->format('d/m/Y à H:i') }}
+                                                    {{ $handledAtDisplay->format('d/m/Y à H:i') }}
                                                 </p>
                                             </div>
                                         @endif
@@ -144,7 +150,7 @@
                                             <div class="rounded-xl border border-orange-100 bg-[#FC8505]/5 p-3">
                                                 <p class="text-xs font-bold text-[#C96504]">Réservée jusqu’au</p>
                                                 <p class="mt-1 font-black text-zinc-950">
-                                                    {{ $holdRequest->reserved_until->format('d/m/Y à H:i') }}
+                                                    {{ $reservedUntilDisplay->format('d/m/Y à H:i') }}
                                                 </p>
                                             </div>
                                         @endif

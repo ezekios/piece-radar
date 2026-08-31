@@ -24,7 +24,8 @@ return new class extends Migration
                 'accepted',
                 'refused',
                 'cancelled',
-                'completed'
+                'completed',
+                'expired'
             ])->default('pending');
 
             $table->text('customer_message')->nullable();

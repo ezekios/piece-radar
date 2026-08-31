@@ -13,6 +13,9 @@
             $part = $partHoldRequest->part;
             $vehicle = $part?->vehicle;
             $scrapyard = $vehicle?->scrapyard;
+            $displayTimezone = config('app.display_timezone', 'UTC');
+            $handledAtDisplay = $partHoldRequest->handled_at?->copy()->timezone($displayTimezone);
+            $reservedUntilDisplay = $partHoldRequest->reserved_until?->copy()->timezone($displayTimezone);
 
             $statusLabels = [
                 'pending' => 'En attente',
@@ -20,6 +23,7 @@
                 'refused' => 'Refusée',
                 'cancelled' => 'Annulée',
                 'completed' => 'Terminée',
+                'expired' => 'Expirée',
             ];
 
             $statusHelpTexts = [
@@ -28,6 +32,7 @@
                 'refused' => 'Votre demande a été refusée par la casse.',
                 'completed' => 'Cette demande est terminée.',
                 'cancelled' => 'Cette demande a été annulée.',
+                'expired' => 'Votre réservation a expiré.',
             ];
 
             $statusClasses = [
@@ -36,6 +41,7 @@
                 'refused' => 'bg-red-50 text-red-700',
                 'cancelled' => 'bg-zinc-100 text-zinc-600',
                 'completed' => 'bg-blue-50 text-blue-700',
+                'expired' => 'bg-amber-50 text-amber-700',
             ];
 
             $partStatusLabels = [
@@ -91,14 +97,14 @@
                         @if ($partHoldRequest->handled_at)
                             <div class="rounded-xl bg-zinc-50 p-3">
                                 <p class="text-xs font-bold text-zinc-500">Date de traitement</p>
-                                <p class="mt-1 font-black text-zinc-950">{{ $partHoldRequest->handled_at->format('d/m/Y à H:i') }}</p>
+                                <p class="mt-1 font-black text-zinc-950">{{ $handledAtDisplay->format('d/m/Y à H:i') }}</p>
                             </div>
                         @endif
 
                         @if ($partHoldRequest->reserved_until)
                             <div class="rounded-xl border border-orange-100 bg-[#FC8505]/5 p-3">
                                 <p class="text-xs font-bold text-[#C96504]">Réservation limite</p>
-                                <p class="mt-1 font-black text-zinc-950">{{ $partHoldRequest->reserved_until->format('d/m/Y à H:i') }}</p>
+                                <p class="mt-1 font-black text-zinc-950">{{ $reservedUntilDisplay->format('d/m/Y à H:i') }}</p>
                             </div>
                         @endif
                     </div>

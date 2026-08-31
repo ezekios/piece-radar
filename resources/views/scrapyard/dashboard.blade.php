@@ -16,6 +16,7 @@
                 'refused' => 'Refusée',
                 'cancelled' => 'Annulée',
                 'completed' => 'Terminée',
+                'expired' => 'Expirée',
             ];
 
             $partStatusLabels = [
@@ -32,6 +33,7 @@
                 'refused' => 'bg-red-50 text-red-700',
                 'cancelled' => 'bg-zinc-100 text-zinc-600',
                 'completed' => 'bg-blue-50 text-blue-700',
+                'expired' => 'bg-amber-50 text-amber-700',
             ];
 
             $statCards = [

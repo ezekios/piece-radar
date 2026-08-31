@@ -17,7 +17,7 @@ class ScrapyardRequestController extends Controller
 
         $requests = collect();
         $pendingRequestsCount = 0;
-        $allowedStatuses = ['pending', 'accepted', 'refused', 'cancelled', 'completed'];
+        $allowedStatuses = ['pending', 'accepted', 'refused', 'cancelled', 'completed', 'expired'];
         $activeStatus = in_array($request->string('status')->toString(), $allowedStatuses, true)
             ? $request->string('status')->toString()
             : null;
@@ -134,6 +134,61 @@ class ScrapyardRequestController extends Controller
         return redirect()
             ->route('scrapyard.requests.show', $partHoldRequest)
             ->with('success', 'La demande a été refusée.');
+    }
+
+    public function complete(PartHoldRequest $partHoldRequest): RedirectResponse
+    {
+        $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+
+        if ($partHoldRequest->status !== 'accepted') {
+            return redirect()
+                ->route('scrapyard.requests.show', $partHoldRequest)
+                ->with('error', 'Cette demande ne peut plus être modifiée.');
+        }
+
+        DB::transaction(function () use ($partHoldRequest): void {
+            $partHoldRequest->update([
+                'status' => 'completed',
+                'handled_at' => now(),
+                'reserved_until' => null,
+            ]);
+
+            $partHoldRequest->part->update([
+                'status' => 'sold',
+                'is_published' => false,
+            ]);
+        });
+
+        return redirect()
+            ->route('scrapyard.requests.show', $partHoldRequest)
+            ->with('success', 'La demande a été terminée.');
+    }
+
+    public function cancel(PartHoldRequest $partHoldRequest): RedirectResponse
+    {
+        $this->ensureRequestBelongsToFirstScrapyard($partHoldRequest);
+
+        if ($partHoldRequest->status !== 'accepted') {
+            return redirect()
+                ->route('scrapyard.requests.show', $partHoldRequest)
+                ->with('error', 'Cette demande ne peut plus être modifiée.');
+        }
+
+        DB::transaction(function () use ($partHoldRequest): void {
+            $partHoldRequest->update([
+                'status' => 'cancelled',
+                'handled_at' => now(),
+                'reserved_until' => null,
+            ]);
+
+            $partHoldRequest->part->update([
+                'status' => 'available',
+            ]);
+        });
+
+        return redirect()
+            ->route('scrapyard.requests.show', $partHoldRequest)
+            ->with('success', 'La mise de côté a été annulée.');
     }
 
     private function ensureRequestBelongsToFirstScrapyard(PartHoldRequest $partHoldRequest): Scrapyard

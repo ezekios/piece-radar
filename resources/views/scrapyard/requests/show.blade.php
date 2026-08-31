@@ -15,6 +15,15 @@
             $requestScrapyard = $vehicle?->scrapyard;
             $client = $partHoldRequest->user;
             $canShowClientContact = in_array($partHoldRequest->status, ['accepted', 'completed'], true);
+            $displayTimezone = config('app.display_timezone', 'UTC');
+            $reservedUntilDisplay = $partHoldRequest->reserved_until?->copy()->timezone($displayTimezone);
+            $reservationRemaining = $partHoldRequest->reserved_until?->isFuture()
+                ? now()
+                    ->diffAsCarbonInterval($partHoldRequest->reserved_until, true)
+                    ->cascade()
+                    ->locale(app()->getLocale())
+                    ->forHumans(['parts' => 2, 'join' => true])
+                : null;
 
             $statusLabels = [
                 'pending' => 'En attente',
@@ -22,6 +31,7 @@
                 'refused' => 'Refusée',
                 'cancelled' => 'Annulée',
                 'completed' => 'Terminée',
+                'expired' => 'Expirée',
             ];
 
             $partStatusLabels = [
@@ -37,6 +47,7 @@
                 'refused' => 'bg-red-50 text-red-700',
                 'cancelled' => 'bg-zinc-100 text-zinc-600',
                 'completed' => 'bg-blue-50 text-blue-700',
+                'expired' => 'bg-amber-50 text-amber-700',
             ];
 
             $conditionLabels = [
@@ -158,6 +169,69 @@
                                         class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-black text-zinc-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2"
                                     >
                                         Refuser la demande
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+                    @endif
+
+                    @if ($partHoldRequest->status === 'accepted')
+                        <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                            <h2 class="text-base font-black text-zinc-950">Réservation</h2>
+
+                            @if ($partHoldRequest->reserved_until)
+                                <p class="mt-2 text-sm font-black text-zinc-900">
+                                    Pièce réservée jusqu’au {{ $reservedUntilDisplay->format('d/m/Y à H:i') }}
+                                </p>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                    La réservation est valable 48 heures après acceptation.
+                                    @if ($reservationRemaining)
+                                        Temps restant : {{ $reservationRemaining }}.
+                                    @else
+                                        La date limite est dépassée et sera traitée par l’expiration automatique.
+                                    @endif
+                                </p>
+                            @else
+                                <p class="mt-2 text-sm font-medium leading-6 text-zinc-600">
+                                    La date limite de réservation n’est pas renseignée.
+                                </p>
+                            @endif
+                        </section>
+
+                        <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                            <h2 class="text-base font-black text-zinc-950">Gérer la mise de côté</h2>
+                            <p class="mt-2 text-sm font-medium leading-6 text-zinc-600">
+                                Terminez la demande si le client a récupéré la pièce, ou annulez la mise de côté si elle est abandonnée.
+                            </p>
+
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                <form
+                                    method="POST"
+                                    action="{{ route('scrapyard.requests.complete', $partHoldRequest) }}"
+                                    onsubmit="return confirm('Confirmer que la pièce a bien été récupérée par le client ? Cette action clôturera la demande.');"
+                                >
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+                                    >
+                                        Marquer comme terminée
+                                    </button>
+                                </form>
+
+                                <form
+                                    method="POST"
+                                    action="{{ route('scrapyard.requests.cancel', $partHoldRequest) }}"
+                                    onsubmit="return confirm('Confirmer l’annulation de la mise de côté ? La pièce redeviendra disponible côté client.');"
+                                >
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-black text-zinc-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2"
+                                    >
+                                        Annuler la mise de côté
                                     </button>
                                 </form>
                             </div>
