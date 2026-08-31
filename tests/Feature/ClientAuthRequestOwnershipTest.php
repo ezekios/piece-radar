@@ -7,7 +7,7 @@ use App\Models\PartHoldRequest;
 use App\Models\Scrapyard;
 use App\Models\User;
 use App\Models\Vehicle;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\Auth\VerifyEmailNotification as VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;

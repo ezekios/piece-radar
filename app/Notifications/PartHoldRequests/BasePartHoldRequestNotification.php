@@ -80,6 +80,7 @@ abstract class BasePartHoldRequestNotification extends Notification
     {
         return (new MailMessage)
             ->subject($subject)
-            ->greeting('Bonjour,');
+            ->greeting('Bonjour,')
+            ->salutation("Cordialement,\nL'équipe Pièce Radar");
     }
 }
