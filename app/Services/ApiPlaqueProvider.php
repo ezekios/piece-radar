@@ -102,7 +102,6 @@ class ApiPlaqueProvider implements PlateProviderInterface
         if (
             ! is_array($payload)
             || ($payload['error'] ?? false) === true
-            || ! is_array($payload['data'] ?? null)
         ) {
             $this->logProviderIssue('invalid_payload', ['status' => $response->status()]);
 
@@ -113,9 +112,13 @@ class ApiPlaqueProvider implements PlateProviderInterface
             );
         }
 
-        $vehicle = $this->vehicleFromPayloadData($payload['data']);
+        $data = is_array($payload['data'] ?? null)
+            ? $payload['data']
+            : $payload;
 
-        if ($vehicle->brand === null && $vehicle->model === null) {
+        $vehicle = $this->vehicleFromPayloadData($data);
+
+        if ($vehicle->brand === null || $vehicle->model === null) {
             $this->logProviderIssue('missing_identity', ['status' => $response->status()]);
 
             return VehicleLookupResult::failure(
@@ -133,20 +136,45 @@ class ApiPlaqueProvider implements PlateProviderInterface
      */
     private function vehicleFromPayloadData(array $data): VehicleIdentity
     {
-        $version = $this->clean($data['version'] ?? null);
+        $version = $this->firstClean($data, ['AWN_version', 'version']);
+        $year = $this->yearFromDate($this->firstClean($data, ['AWN_date_mise_en_circulation_us']))
+            ?? $this->yearFromDate($this->firstClean($data, ['AWN_date_mise_en_circulation']))
+            ?? $this->yearFromValue($data['annee'] ?? null)
+            ?? $this->yearFromDate($this->clean($data['date_mise_en_circulation_us'] ?? null))
+            ?? $this->yearFromDate($this->clean($data['date_mise_circulation'] ?? null));
+        $fuel = $this->firstClean($data, ['AWN_energie_description', 'AWN_energie', 'energie', 'motorisation']);
+        $engine = $this->firstClean($data, ['AWN_label_moteur'])
+            ?? $this->engineFromVersion($version);
 
         return new VehicleIdentity(
-            brand: $this->formatName($this->clean($data['marque'] ?? null)),
-            model: $this->formatName($this->clean($data['modele'] ?? null)),
-            year: $this->yearFromDate($this->clean($data['date_mise_en_circulation_us'] ?? null)),
+            brand: $this->formatName($this->firstClean($data, ['AWN_marque', 'marque'])),
+            model: $this->formatName($this->firstClean($data, ['AWN_modele', 'modele'])),
+            year: $year,
             version: $version,
-            engine: $this->engineFromVersion($version),
-            fuel: $this->formatName($this->clean($data['energie'] ?? null)),
-            engineCode: $this->clean($data['code_moteur'] ?? null),
-            kType: $this->clean($data['k_type'] ?? null),
-            vin: $this->clean($data['VIN'] ?? null),
-            typeMine: $this->clean($data['type_mine'] ?? null),
+            engine: $engine,
+            fuel: $this->formatName($fuel),
+            engineCode: $this->firstClean($data, ['AWN_code_moteur', 'code_moteur']),
+            kType: $this->firstClean($data, ['AWN_k_type', 'k_type']),
+            vin: $this->firstClean($data, ['AWN_VIN', 'VIN', 'vin']),
+            typeMine: $this->firstClean($data, ['AWN_type_mine', 'type_mine']),
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  array<int, string>  $keys
+     */
+    private function firstClean(array $data, array $keys): ?string
+    {
+        foreach ($keys as $key) {
+            $value = $this->clean($data[$key] ?? null);
+
+            if ($value !== null) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     private function clean(mixed $value): ?string
@@ -190,6 +218,19 @@ class ApiPlaqueProvider implements PlateProviderInterface
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function yearFromValue(mixed $value): ?int
+    {
+        if (! is_numeric($value)) {
+            return null;
+        }
+
+        $year = (int) $value;
+
+        return $year >= 1900 && $year <= ((int) date('Y')) + 1
+            ? $year
+            : null;
     }
 
     private function engineFromVersion(?string $version): ?string

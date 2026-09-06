@@ -304,6 +304,7 @@
 
                     <div class="flex flex-wrap gap-3 text-sm font-black">
                         <a href="{{ route('client.parts.index') }}" class="text-zinc-600 hover:text-[#FC8505]">Rechercher une pièce</a>
+                        <a href="{{ route('photo-credits') }}" class="text-zinc-600 hover:text-[#FC8505]">Crédits photos</a>
                         @guest
                             <a href="{{ route('login') }}" class="text-zinc-600 hover:text-[#FC8505]">Connexion</a>
                         @endguest

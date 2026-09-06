@@ -92,6 +92,172 @@ class LicensePlateSearchTest extends TestCase
         $this->assertNull($vehicle?->typeMine);
     }
 
+    public function test_api_plaque_provider_maps_real_awn_payload_response(): void
+    {
+        $this->configureApiPlaque();
+
+        Http::fake(fn () => Http::response([
+            'code' => 200,
+            'country' => 'FR',
+            'error' => false,
+            'message' => 'Succès',
+            'data' => [
+                'AWN_marque' => 'RENAULT',
+                'AWN_modele' => 'CLIO IV',
+                'AWN_version' => '1.5 DCI',
+                'AWN_date_mise_en_circulation_us' => '2019-06-20',
+                'AWN_energie' => 'GAZOLE',
+                'AWN_energie_description' => 'Diesel',
+                'AWN_VIN' => 'FAKEVIN123',
+                'AWN_code_moteur' => 'K9K',
+                'AWN_label_moteur' => '1.5 dCi',
+                'AWN_k_type' => '57281',
+                'AWN_type_mine' => 'TEST',
+            ],
+        ], 200));
+
+        $result = app(ApiPlaqueProvider::class)->lookup('FH034DD');
+        $vehicle = $result->vehicle;
+
+        $this->assertTrue($result->success);
+        $this->assertSame('identified', $result->status);
+        $this->assertSame('Renault', $vehicle?->brand);
+        $this->assertSame('Clio IV', $vehicle?->model);
+        $this->assertSame('1.5 DCI', $vehicle?->version);
+        $this->assertSame(2019, $vehicle?->year);
+        $this->assertSame('Diesel', $vehicle?->fuel);
+        $this->assertSame('FAKEVIN123', $vehicle?->vin);
+        $this->assertSame('K9K', $vehicle?->engineCode);
+        $this->assertSame('1.5 dCi', $vehicle?->engine);
+        $this->assertSame('57281', $vehicle?->kType);
+        $this->assertSame('TEST', $vehicle?->typeMine);
+    }
+
+    public function test_api_plaque_provider_maps_flat_root_response_with_annee_lowercase_vin_and_motorisation(): void
+    {
+        $this->configureApiPlaque();
+
+        Http::fake(fn () => Http::response([
+            'immatriculation' => 'AA-123-BB',
+            'marque' => 'RENAULT',
+            'modele' => 'CLIO V',
+            'annee' => 2022,
+            'vin' => 'vf1flatvin',
+            'motorisation' => 'Hybride',
+            'date_mise_circulation' => '2021-03-15',
+        ], 200));
+
+        $vehicle = app(ApiPlaqueProvider::class)->lookup('AA123BB')->vehicle;
+
+        $this->assertSame('Renault', $vehicle?->brand);
+        $this->assertSame('Clio V', $vehicle?->model);
+        $this->assertSame(2022, $vehicle?->year);
+        $this->assertSame('vf1flatvin', $vehicle?->vin);
+        $this->assertSame('Hybride', $vehicle?->fuel);
+    }
+
+    public function test_api_plaque_provider_extracts_year_from_flat_date_mise_circulation(): void
+    {
+        $this->configureApiPlaque();
+
+        Http::fake(fn () => Http::response([
+            'marque' => 'PEUGEOT',
+            'modele' => '208',
+            'date_mise_circulation' => '2022-03-15',
+        ], 200));
+
+        $vehicle = app(ApiPlaqueProvider::class)->lookup('BB123CC')->vehicle;
+
+        $this->assertSame('Peugeot', $vehicle?->brand);
+        $this->assertSame('208', $vehicle?->model);
+        $this->assertSame(2022, $vehicle?->year);
+    }
+
+    public function test_api_plaque_provider_uses_uppercase_vin_key_from_flat_payload(): void
+    {
+        $this->configureApiPlaque();
+
+        Http::fake(fn () => Http::response([
+            'marque' => 'CITROEN',
+            'modele' => 'C3',
+            'VIN' => 'VF7UPPERCASEVIN',
+        ], 200));
+
+        $vehicle = app(ApiPlaqueProvider::class)->lookup('CC123DD')->vehicle;
+
+        $this->assertSame('Citroen', $vehicle?->brand);
+        $this->assertSame('C3', $vehicle?->model);
+        $this->assertSame('VF7UPPERCASEVIN', $vehicle?->vin);
+    }
+
+    public function test_api_plaque_provider_accepts_identity_without_secondary_technical_data(): void
+    {
+        $this->configureApiPlaque();
+
+        Http::fake(fn () => Http::response([
+            'marque' => 'TOYOTA',
+            'modele' => 'YARIS',
+        ], 200));
+
+        $vehicle = app(ApiPlaqueProvider::class)->lookup('DD123EE')->vehicle;
+
+        $this->assertSame('Toyota', $vehicle?->brand);
+        $this->assertSame('Yaris', $vehicle?->model);
+        $this->assertNull($vehicle?->year);
+        $this->assertNull($vehicle?->version);
+        $this->assertNull($vehicle?->engine);
+        $this->assertNull($vehicle?->fuel);
+        $this->assertNull($vehicle?->engineCode);
+        $this->assertNull($vehicle?->kType);
+        $this->assertNull($vehicle?->vin);
+        $this->assertNull($vehicle?->typeMine);
+    }
+
+    public function test_api_plaque_provider_rejects_payload_without_brand_or_model(): void
+    {
+        $this->configureApiPlaque();
+
+        $cases = [
+            ['modele' => 'CLIO IV'],
+            ['marque' => 'RENAULT'],
+            ['marque' => '', 'modele' => 'INCONNU'],
+        ];
+
+        foreach ($cases as $payload) {
+            Http::fake(fn () => Http::response($payload, 200));
+
+            $result = app(ApiPlaqueProvider::class)->lookup('EE123FF');
+
+            $this->assertFalse($result->success);
+            $this->assertSame('provider_unavailable', $result->status);
+            $this->assertNull($result->vehicle);
+        }
+    }
+
+    public function test_api_plaque_provider_missing_identity_path_handles_nested_payload_shape(): void
+    {
+        $this->configureApiPlaque();
+
+        Http::fake(fn () => Http::response([
+            'error' => false,
+            'code' => 200,
+            'message' => 'Succès',
+            'result' => [
+                'vehicle' => [
+                    'manufacturer' => 'RENAULT',
+                    'commercialName' => 'CLIO',
+                ],
+                'country' => 'FR',
+            ],
+        ], 200));
+
+        $result = app(ApiPlaqueProvider::class)->lookup('FF123GG');
+
+        $this->assertFalse($result->success);
+        $this->assertSame('provider_unavailable', $result->status);
+        $this->assertNull($result->vehicle);
+    }
+
     public function test_api_plaque_provider_handles_expected_error_statuses(): void
     {
         $this->configureApiPlaque();

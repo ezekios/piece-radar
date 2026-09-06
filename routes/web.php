@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)
     ->name('home');
 
+Route::view('/credits-photos', 'photo-credits')
+    ->name('photo-credits');
+
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])
     ->middleware('guest')
     ->name('login');
