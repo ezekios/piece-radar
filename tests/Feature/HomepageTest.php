@@ -34,6 +34,14 @@ class HomepageTest extends TestCase
             ->assertSee('Créer un compte');
     }
 
+    public function test_homepage_displays_piece_radar_logo(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('images/logo-piece-radar.png', false)
+            ->assertSee('alt="Pièce Radar"', false);
+    }
+
     public function test_client_navigation_shows_my_requests_without_scrapyard_cta(): void
     {
         $client = $this->createClientUser();
@@ -68,10 +76,10 @@ class HomepageTest extends TestCase
             ->assertSee('method="GET"', false)
             ->assertSee('action="' . route('client.parts.index') . '"', false)
             ->assertSee('name="q"', false)
+            ->assertSee('name="license_plate"', false)
             ->assertSee('name="brand"', false)
             ->assertSee('name="model"', false)
-            ->assertSee('name="city"', false)
-            ->assertDontSee('license_plate', false);
+            ->assertSee('name="city"', false);
     }
 
     public function test_recent_parts_show_only_published_available_parts(): void

@@ -13,6 +13,8 @@
             $part = $partHoldRequest->part;
             $vehicle = $part?->vehicle;
             $requestScrapyard = $vehicle?->scrapyard;
+            $displayTimezone = config('app.display_timezone', 'UTC');
+            $createdAtDisplay = $partHoldRequest->created_at?->copy()->timezone($displayTimezone);
 
             $partStatusLabels = [
                 'available' => 'Disponible',
@@ -34,7 +36,7 @@
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div>
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                         @include('scrapyard.partials.navigation')
                         <a href="{{ route('scrapyard.requests.show', $partHoldRequest) }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                             Retour vers la demande
@@ -75,7 +77,7 @@
 
                             <div>
                                 <dt class="font-medium text-zinc-500">Reçue le</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $partHoldRequest->created_at?->format('d/m/Y à H:i') }}</dd>
+                                <dd class="mt-1 font-black text-zinc-900">{{ $createdAtDisplay?->format('d/m/Y à H:i') }}</dd>
                             </div>
                         </dl>
                     </section>

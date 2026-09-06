@@ -46,13 +46,15 @@
                 ['label' => 'Terminées', 'status' => 'completed'],
                 ['label' => 'Expirées', 'status' => 'expired'],
             ];
+
+            $displayTimezone = config('app.display_timezone', 'UTC');
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="mb-4 flex items-center justify-between">
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-9 w-auto max-w-[145px] object-contain" />
                         <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
                             Espace casse
                         </span>
@@ -123,6 +125,7 @@
                                 $requestScrapyard = $vehicle?->scrapyard;
                                 $status = $holdRequest->status;
                                 $canShowClientContact = in_array($status, ['accepted', 'completed'], true);
+                                $createdAtDisplay = $holdRequest->created_at?->copy()->timezone($displayTimezone);
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -183,7 +186,7 @@
                                 <div class="mt-3 border-t border-zinc-100 pt-3">
                                     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <p class="text-xs font-medium text-zinc-400">
-                                            Reçue le {{ $holdRequest->created_at?->format('d/m/Y à H:i') }}
+                                            Reçue le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                                         </p>
 
                                         <span class="inline-flex w-fit rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">

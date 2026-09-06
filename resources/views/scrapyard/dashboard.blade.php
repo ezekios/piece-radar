@@ -36,6 +36,8 @@
                 'expired' => 'bg-amber-50 text-amber-700',
             ];
 
+            $displayTimezone = config('app.display_timezone', 'UTC');
+
             $statCards = [
                 ['label' => 'Véhicules', 'value' => $stats['vehicles_total']],
                 ['label' => 'Pièces', 'value' => $stats['parts_total']],
@@ -140,7 +142,7 @@
             <div class="mx-auto w-full max-w-4xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="mb-4 flex items-center justify-between">
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                         <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
                             Espace casse
                         </span>
@@ -280,6 +282,7 @@
                                         $vehicle = $part?->vehicle;
                                         $status = $holdRequest->status;
                                         $canShowClientContact = in_array($status, ['accepted', 'completed'], true);
+                                        $createdAtDisplay = $holdRequest->created_at?->copy()->timezone($displayTimezone);
                                     @endphp
 
                                     <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -306,7 +309,7 @@
 
                                         <div class="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
                                             <p class="text-xs font-medium text-zinc-400">
-                                                Reçue le {{ $holdRequest->created_at?->format('d/m/Y à H:i') }}
+                                                Reçue le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                                             </p>
                                             <a href="{{ route('scrapyard.requests.show', $holdRequest) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                                 Voir la demande

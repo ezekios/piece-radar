@@ -4,27 +4,21 @@ namespace App\Services;
 
 class LicensePlateLookupService
 {
+    public function __construct(private VehicleLookupService $vehicleLookupService)
+    {
+    }
+
     /**
-     * Prepare a license plate lookup response without calling an external API.
-     *
      * @return array{
      *     success: bool,
      *     status: string,
      *     normalized_plate: string,
      *     message: string,
-     *     vehicle: null
+     *     vehicle: ?array<string, mixed>
      * }
      */
     public function lookup(string $licensePlate): array
     {
-        $normalizedPlate = strtoupper(preg_replace('/[\s-]+/', '', trim($licensePlate)) ?? '');
-
-        return [
-            'success' => false,
-            'status' => 'not_configured',
-            'normalized_plate' => $normalizedPlate,
-            'message' => "L’API d’immatriculation n’est pas encore configurée.",
-            'vehicle' => null,
-        ];
+        return $this->vehicleLookupService->lookup($licensePlate)->toArray();
     }
 }

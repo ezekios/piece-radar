@@ -33,6 +33,8 @@
                 'damaged' => 'Endommagée',
             ];
 
+            $displayTimezone = config('app.display_timezone', 'UTC');
+
             $publicationFilters = [
                 ['label' => 'Toutes les pièces', 'value' => null],
                 ['label' => 'Publiées', 'value' => 'published'],
@@ -45,7 +47,7 @@
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="flex flex-wrap items-end justify-between gap-4">
                         <div>
-                            <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                             @include('scrapyard.partials.navigation')
                             <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Pièces de la casse</h1>
                             <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
@@ -148,6 +150,7 @@
                                     $vehicle = $part->vehicle;
                                     $status = $part->status;
                                     $partImage = $part->images->first();
+                                    $createdAtDisplay = $part->created_at?->copy()->timezone($displayTimezone);
                                 @endphp
 
                                 <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -213,7 +216,7 @@
 
                                     <div class="mt-3 border-t border-zinc-100 pt-3">
                                         <p class="text-xs font-medium text-zinc-400">
-                                            Créée le {{ $part->created_at?->format('d/m/Y à H:i') }}
+                                            Créée le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                                         </p>
 
                                         <div class="mt-3">

@@ -40,7 +40,7 @@
 
                     <div class="mt-4 flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                             <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">
                                 Mes demandes
                             </h1>
@@ -82,6 +82,7 @@
                                 $vehicle = $part?->vehicle;
                                 $scrapyard = $vehicle?->scrapyard;
                                 $status = $holdRequest->status;
+                                $createdAtDisplay = $holdRequest->created_at?->copy()->timezone($displayTimezone);
                                 $handledAtDisplay = $holdRequest->handled_at?->copy()->timezone($displayTimezone);
                                 $reservedUntilDisplay = $holdRequest->reserved_until?->copy()->timezone($displayTimezone);
                             @endphp
@@ -112,7 +113,7 @@
                                     <div>
                                         <p class="text-xs font-bold text-zinc-500">Date de la demande</p>
                                         <p class="mt-1 text-sm font-black text-zinc-950">
-                                            {{ $holdRequest->created_at?->format('d/m/Y à H:i') }}
+                                            {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                                         </p>
                                     </div>
 

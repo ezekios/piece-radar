@@ -9,12 +9,16 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
+        @php
+            $displayTimezone = config('app.display_timezone', 'UTC');
+        @endphp
+
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
             <div class="mx-auto w-full max-w-4xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="flex flex-wrap items-end justify-between gap-4">
                         <div>
-                            <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                             @include('scrapyard.partials.navigation')
                             <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Véhicules de la casse</h1>
                             <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
@@ -81,6 +85,7 @@
                             @foreach ($vehicles as $vehicle)
                                 @php
                                     $vehicleImage = $vehicle->images->first();
+                                    $createdAtDisplay = $vehicle->created_at?->copy()->timezone($displayTimezone);
                                 @endphp
 
                                 <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -142,7 +147,7 @@
 
                                     <div class="mt-3 border-t border-zinc-100 pt-3">
                                         <p class="text-xs font-medium text-zinc-400">
-                                            Ajouté le {{ $vehicle->created_at?->format('d/m/Y à H:i') }}
+                                            Ajouté le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                                         </p>
 
                                         <div class="mt-3">

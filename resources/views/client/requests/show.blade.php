@@ -14,6 +14,7 @@
             $vehicle = $part?->vehicle;
             $scrapyard = $vehicle?->scrapyard;
             $displayTimezone = config('app.display_timezone', 'UTC');
+            $createdAtDisplay = $partHoldRequest->created_at?->copy()->timezone($displayTimezone);
             $handledAtDisplay = $partHoldRequest->handled_at?->copy()->timezone($displayTimezone);
             $reservedUntilDisplay = $partHoldRequest->reserved_until?->copy()->timezone($displayTimezone);
 
@@ -77,12 +78,12 @@
 
                     <div class="mt-4 flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                             <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">
                                 Détail de ma demande
                             </h1>
                             <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                                Demande envoyée le {{ $partHoldRequest->created_at?->format('d/m/Y à H:i') }}
+                                Demande envoyée le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                             </p>
                         </div>
 
@@ -100,7 +101,7 @@
                     <div class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
                         <div class="rounded-xl bg-zinc-50 p-3">
                             <p class="text-xs font-bold text-zinc-500">Date de la demande</p>
-                            <p class="mt-1 font-black text-zinc-950">{{ $partHoldRequest->created_at?->format('d/m/Y à H:i') }}</p>
+                            <p class="mt-1 font-black text-zinc-950">{{ $createdAtDisplay?->format('d/m/Y à H:i') }}</p>
                         </div>
 
                         @if ($partHoldRequest->handled_at)

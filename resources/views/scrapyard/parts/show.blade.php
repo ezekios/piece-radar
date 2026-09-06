@@ -12,6 +12,9 @@
         @php
             $vehicle = $part->vehicle;
             $requestScrapyard = $vehicle?->scrapyard;
+            $displayTimezone = config('app.display_timezone', 'UTC');
+            $createdAtDisplay = $part->created_at?->copy()->timezone($displayTimezone);
+            $updatedAtDisplay = $part->updated_at?->copy()->timezone($displayTimezone);
 
             $statusLabels = [
                 'available' => 'Disponible',
@@ -48,7 +51,7 @@
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                            <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                             @include('scrapyard.partials.navigation')
                             <a href="{{ route('scrapyard.parts.index') }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                 Retour vers les pièces
@@ -111,12 +114,12 @@
 
                             <div>
                                 <dt class="font-medium text-zinc-500">Créée le</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $part->created_at?->format('d/m/Y à H:i') }}</dd>
+                                <dd class="mt-1 font-black text-zinc-900">{{ $createdAtDisplay?->format('d/m/Y à H:i') }}</dd>
                             </div>
 
                             <div>
                                 <dt class="font-medium text-zinc-500">Mise à jour le</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $part->updated_at?->format('d/m/Y à H:i') }}</dd>
+                                <dd class="mt-1 font-black text-zinc-900">{{ $updatedAtDisplay?->format('d/m/Y à H:i') }}</dd>
                             </div>
                         </dl>
 

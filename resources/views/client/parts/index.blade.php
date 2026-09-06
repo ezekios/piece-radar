@@ -13,7 +13,7 @@
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-9 w-auto max-w-[145px] object-contain" />
                         <div class="flex flex-wrap items-center gap-2">
                             @auth
                                 @if (auth()->user()->role === 'client')
@@ -132,25 +132,54 @@
 
                 @if ($hasLicensePlate)
                     <section class="mt-3 rounded-2xl border border-orange-100 bg-[#FC8505]/5 p-4 text-sm leading-6 text-zinc-700">
-                        <p class="font-bold text-zinc-900">
-                            Recherche par plaque préparée : la plaque sera utilisée pour identifier automatiquement le véhicule lorsque l’API d’immatriculation sera connectée.
-                        </p>
-                        <p class="mt-1 text-zinc-600">
-                            {{ $licensePlateLookup['message'] }}
-                        </p>
-                        <p class="mt-1 font-black text-[#C96504]">
+                        @if ($licensePlateLookup['success'] && $licensePlateLookup['vehicle'])
+                            @php
+                                $identifiedVehicle = $licensePlateLookup['vehicle'];
+                                $vehicleTitle = trim(($identifiedVehicle['brand'] ?? '') . ' ' . ($identifiedVehicle['model'] ?? ''));
+                                $vehicleDetails = array_filter([
+                                    $identifiedVehicle['year'] ?? null,
+                                    $identifiedVehicle['engine'] ?? null,
+                                    $identifiedVehicle['fuel'] ?? null,
+                                ]);
+                            @endphp
+
+                            <p class="font-black text-zinc-950">Véhicule identifié</p>
+
+                            @if ($vehicleTitle !== '')
+                                <p class="mt-1 text-base font-black text-[#C96504]">{{ $vehicleTitle }}</p>
+                            @endif
+
+                            @if (! empty($vehicleDetails))
+                                <p class="mt-1 font-medium text-zinc-700">
+                                    {{ implode(' · ', $vehicleDetails) }}
+                                </p>
+                            @endif
+
+                            <p class="mt-2 text-zinc-600">
+                                Résultats correspondant à votre véhicule avec les informations disponibles.
+                            </p>
+                        @else
+                            <p class="font-bold text-zinc-900">
+                                {{ $licensePlateLookup['message'] }}
+                            </p>
+                            <p class="mt-1 text-zinc-600">
+                                Vous pouvez modifier ou supprimer la plaque, ou utiliser les champs de recherche manuelle.
+                            </p>
+                        @endif
+
+                        <p class="mt-2 font-black text-[#C96504]">
                             Plaque saisie : {{ $licensePlateLookup['normalized_plate'] }}
                         </p>
                     </section>
                 @endif
 
                 <section class="mt-4 flex gap-2 overflow-x-auto pb-1">
-                    <button type="button" class="shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-800">
+                    <span class="shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-800">
                         Filtres
-                    </button>
-                    <button type="button" class="shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-800">
+                    </span>
+                    <span class="shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-800">
                         Trier
-                    </button>
+                    </span>
                     <span class="shrink-0 rounded-full bg-[#FC8505]/10 px-3 py-2 text-xs font-black text-[#C96504]">
                         Disponible
                     </span>
@@ -255,18 +284,30 @@
 
         <nav class="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden">
             <div class="mx-auto grid max-w-md grid-cols-4 gap-2 text-center text-[11px] font-bold">
-                <button type="button" class="text-zinc-500">
+                <a href="{{ route('home') }}" class="text-zinc-500">
                     Accueil
-                </button>
-                <button type="button" class="text-[#FC8505]">
+                </a>
+                <a href="{{ route('client.parts.index') }}" class="text-[#FC8505]" aria-current="page">
                     Recherche
-                </button>
+                </a>
                 <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
                     Demandes
                 </a>
-                <button type="button" class="text-zinc-500">
-                    Compte
-                </button>
+                @auth
+                    @if (auth()->user()->role === 'scrapyard')
+                        <a href="{{ route('scrapyard.dashboard') }}" class="text-zinc-500">
+                            Compte
+                        </a>
+                    @else
+                        <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
+                            Compte
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="text-zinc-500">
+                        Compte
+                    </a>
+                @endauth
             </div>
         </nav>
     </body>

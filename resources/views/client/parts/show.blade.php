@@ -65,7 +65,7 @@
                             <div class="min-w-0 flex-1">
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                                        <x-brand-logo :href="route('home')" image-class="h-8 w-auto max-w-[135px] object-contain" />
                                         <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950">
                                             {{ $part->name }}
                                         </h1>

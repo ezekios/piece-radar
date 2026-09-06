@@ -16,6 +16,7 @@
             $client = $partHoldRequest->user;
             $canShowClientContact = in_array($partHoldRequest->status, ['accepted', 'completed'], true);
             $displayTimezone = config('app.display_timezone', 'UTC');
+            $createdAtDisplay = $partHoldRequest->created_at?->copy()->timezone($displayTimezone);
             $reservedUntilDisplay = $partHoldRequest->reserved_until?->copy()->timezone($displayTimezone);
             $reservationRemaining = $partHoldRequest->reserved_until?->isFuture()
                 ? now()
@@ -75,7 +76,7 @@
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                             @include('scrapyard.partials.navigation')
                             <a href="{{ route('scrapyard.requests.index') }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                 Retour vers les demandes
@@ -84,7 +85,7 @@
                                 Détail de la demande
                             </h1>
                             <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                                Reçue le {{ $partHoldRequest->created_at?->format('d/m/Y à H:i') }}
+                                Reçue le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                             </p>
                         </div>
 

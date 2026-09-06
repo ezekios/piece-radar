@@ -18,6 +18,9 @@ class ClientPartController extends Controller
         $licensePlateLookup = $licensePlate !== ''
             ? $licensePlateLookupService->lookup($licensePlate)
             : null;
+        $identifiedVehicle = ($licensePlateLookup['success'] ?? false) && is_array($licensePlateLookup['vehicle'] ?? null)
+            ? $licensePlateLookup['vehicle']
+            : null;
 
         $parts = Part::query()
             ->with(['images', 'vehicle.scrapyard'])
@@ -58,6 +61,19 @@ class ClientPartController extends Controller
                     $query->where('city', 'like', $city);
                 });
             })
+            ->when($identifiedVehicle !== null, function ($query) use ($identifiedVehicle) {
+                $query->whereHas('vehicle', function ($query) use ($identifiedVehicle) {
+                    if (! empty($identifiedVehicle['brand'])) {
+                        $query->where('brand', 'like', '%' . trim((string) $identifiedVehicle['brand']) . '%');
+                    }
+
+                    $modelTerm = $this->modelSearchTerm($identifiedVehicle['model'] ?? null);
+
+                    if ($modelTerm !== null) {
+                        $query->where('model', 'like', '%' . $modelTerm . '%');
+                    }
+                });
+            })
             ->latest()
             ->get();
 
@@ -66,6 +82,29 @@ class ClientPartController extends Controller
             'licensePlateLookup' => $licensePlateLookup,
             'parts' => $parts,
         ]);
+    }
+
+    private function modelSearchTerm(mixed $model): ?string
+    {
+        if (! is_scalar($model)) {
+            return null;
+        }
+
+        $model = trim((string) $model);
+
+        if ($model === '') {
+            return null;
+        }
+
+        $tokens = preg_split('/\s+/', $model) ?: [];
+
+        foreach ($tokens as $token) {
+            if (! in_array(strtolower($token), ['i', 'ii', 'iii', 'iv', 'v', 'vi'], true)) {
+                return $token;
+            }
+        }
+
+        return $model;
     }
 
     public function show(Part $part): View

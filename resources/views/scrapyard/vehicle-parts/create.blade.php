@@ -30,7 +30,7 @@
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div>
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                         @include('scrapyard.partials.navigation')
                         <a href="{{ route('scrapyard.vehicles.show', $vehicle) }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                             Retour vers le véhicule

@@ -23,7 +23,7 @@
                     </a>
 
                     <div class="mt-4">
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                         <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">
                             Demande de mise de côté
                         </h1>

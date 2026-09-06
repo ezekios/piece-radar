@@ -25,10 +25,7 @@
         <main class="min-h-screen">
             <header class="border-b border-zinc-200/80 bg-white">
                 <div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-                    <a href="{{ route('home') }}" class="inline-flex flex-col">
-                        <span class="text-base font-black text-[#FC8505]">Pièce Radar</span>
-                        <span class="text-xs font-bold text-zinc-500">Pièces auto de casse, plus simples à trouver</span>
-                    </a>
+                    <x-brand-logo :href="route('home')" image-class="h-12 w-auto max-w-[180px] object-contain sm:h-14" />
 
                     <nav class="flex flex-wrap items-center gap-2" aria-label="Navigation principale">
                         @if (! $isScrapyard)
@@ -103,6 +100,17 @@
                     <h2 class="mt-1 text-xl font-black text-zinc-950">Décrivez la pièce ou le véhicule</h2>
 
                     <form method="GET" action="{{ route('client.parts.index') }}" class="mt-4 space-y-3">
+                        <div class="rounded-xl border border-orange-100 bg-[#FC8505]/5 p-3">
+                            <label for="license_plate" class="text-xs font-black text-zinc-700">Recherche par plaque</label>
+                            <input
+                                id="license_plate"
+                                name="license_plate"
+                                type="text"
+                                placeholder="AB-123-CD"
+                                class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm font-medium uppercase text-zinc-700 placeholder:normal-case placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            >
+                        </div>
+
                         <div>
                             <label for="q" class="text-xs font-black text-zinc-700">Pièce ou mot-clé</label>
                             <input
@@ -290,7 +298,7 @@
             <footer class="border-t border-zinc-200/80 bg-white">
                 <div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
                     <div>
-                        <p class="text-sm font-black text-[#FC8505]">Pièce Radar</p>
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
                         <p class="mt-1 text-sm font-medium text-zinc-600">Centrale de pièces automobiles issues de casses.</p>
                     </div>
 
