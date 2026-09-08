@@ -14,11 +14,21 @@ class ScrapyardAuthenticationTest extends TestCase
 
     public function test_login_page_is_accessible_to_guests(): void
     {
-        $this->get(route('login'))
+        $response = $this->get(route('login'));
+
+        $response
             ->assertOk()
             ->assertSee('Connexion à Pièce Radar')
             ->assertSee('Email')
             ->assertSee('Mot de passe');
+
+        $html = $response->getContent();
+
+        $this->assertSame(1, substr_count($html, "data-password-toggle\n"));
+        $this->assertMatchesRegularExpression('/id="password"\s+name="password"\s+type="password"/', $html);
+        $this->assertSame(1, substr_count($html, "type=\"button\"\n                                class=\"absolute"));
+        $this->assertStringContainsString('aria-label="Afficher le mot de passe"', $html);
+        $this->assertStringContainsString('data-password-target="password"', $html);
     }
 
     public function test_scrapyard_user_can_log_in(): void

@@ -38,6 +38,10 @@
                         @auth
                             @if (auth()->user()->role === 'client')
                                 <div class="flex flex-wrap items-center gap-2">
+                                    <a href="{{ route('client.account.show') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Mon compte
+                                    </a>
+
                                     <a href="{{ route('client.requests.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                         Mes demandes
                                     </a>

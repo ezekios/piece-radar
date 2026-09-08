@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\ClientAccountController;
 use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
 use App\Http\Controllers\EmailVerificationNotificationController;
@@ -74,6 +75,15 @@ Route::get('/pieces', [ClientPartController::class, 'index'])
     ->name('client.parts.index');
 
 Route::middleware(['auth', 'client', 'verified'])->group(function (): void {
+    Route::get('/mon-compte', [ClientAccountController::class, 'show'])
+        ->name('client.account.show');
+
+    Route::patch('/mon-compte', [ClientAccountController::class, 'update'])
+        ->name('client.account.update');
+
+    Route::patch('/mon-compte/mot-de-passe', [ClientAccountController::class, 'updatePassword'])
+        ->name('client.account.password.update');
+
     Route::get('/pieces/{part}/demande', [ClientPartController::class, 'requestForm'])
         ->name('pieces.request');
 

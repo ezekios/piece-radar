@@ -68,12 +68,18 @@
                             Retour vers mes demandes
                         </a>
 
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-sm font-bold text-zinc-500 hover:text-zinc-900">
-                                Déconnexion
-                            </button>
-                        </form>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('client.account.show') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                Mon compte
+                            </a>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="text-sm font-bold text-zinc-500 hover:text-zinc-900">
+                                    Déconnexion
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="mt-4 flex flex-wrap items-start justify-between gap-3">

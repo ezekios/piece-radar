@@ -17,6 +17,10 @@
                         <div class="flex flex-wrap items-center gap-2">
                             @auth
                                 @if (auth()->user()->role === 'client')
+                                    <a href="{{ route('client.account.show') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                        Mon compte
+                                    </a>
+
                                     <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
                                         Mes demandes
                                     </a>
@@ -299,7 +303,7 @@
                             Compte
                         </a>
                     @else
-                        <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
+                        <a href="{{ route('client.account.show') }}" class="text-zinc-500">
                             Compte
                         </a>
                     @endif

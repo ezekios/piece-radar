@@ -82,12 +82,18 @@
                             </p>
                         </div>
 
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                                Déconnexion
-                            </button>
-                        </form>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('client.account.show') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                Mon compte
+                            </a>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                    Déconnexion
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
