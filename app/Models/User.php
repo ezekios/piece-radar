@@ -31,6 +31,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(PartHoldRequest::class);
     }
 
+    public function savedPartSearches(): HasMany
+    {
+        return $this->hasMany(SavedPartSearch::class);
+    }
+
     public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
     {
         $this->notify(new ResetPasswordNotification($token));

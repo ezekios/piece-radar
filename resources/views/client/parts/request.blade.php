@@ -87,6 +87,10 @@
                                 Mon compte
                             </a>
 
+                            <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                Mes recherches
+                            </a>
+
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">

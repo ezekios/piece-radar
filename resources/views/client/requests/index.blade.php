@@ -54,6 +54,10 @@
                                 Mon compte
                             </a>
 
+                            <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                Mes recherches
+                            </a>
+
                             <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
                                 {{ auth()->user()?->email }}
                             </span>

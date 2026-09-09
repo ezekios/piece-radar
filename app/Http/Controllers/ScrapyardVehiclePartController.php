@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Models\Scrapyard;
 use App\Models\Vehicle;
+use App\Services\ArrivalMatchingService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class ScrapyardVehiclePartController extends Controller
         ]);
     }
 
-    public function store(Request $request, Vehicle $vehicle): RedirectResponse
+    public function store(Request $request, Vehicle $vehicle, ArrivalMatchingService $arrivalMatching): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
         $this->ensureVehicleBelongsToScrapyard($vehicle, $scrapyard);
@@ -46,7 +47,7 @@ class ScrapyardVehiclePartController extends Controller
         $photos = $request->file('photos', []);
         unset($validated['photos']);
 
-        DB::transaction(function () use ($validated, $vehicle, $photos): void {
+        $part = DB::transaction(function () use ($validated, $vehicle, $photos): Part {
             $part = Part::query()->create([
                 ...$validated,
                 'vehicle_id' => $vehicle->id,
@@ -56,7 +57,11 @@ class ScrapyardVehiclePartController extends Controller
             ]);
 
             $this->storePartImages($part, $photos);
+
+            return $part;
         });
+
+        $arrivalMatching->matchPart($part);
 
         return redirect()
             ->route('scrapyard.vehicles.show', $vehicle)

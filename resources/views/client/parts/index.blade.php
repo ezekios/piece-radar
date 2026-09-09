@@ -21,6 +21,10 @@
                                         Mon compte
                                     </a>
 
+                                    <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                        Mes recherches
+                                    </a>
+
                                     <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
                                         Mes demandes
                                     </a>
@@ -44,6 +48,12 @@
                         {{ $parts->count() }} pièces disponibles autour de vous
                     </p>
                 </header>
+
+                @if (session('success'))
+                    <div class="mt-4 rounded-2xl border border-orange-200 bg-white p-4 text-sm font-bold text-[#C96504] shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
                 <form method="GET" action="{{ route('client.parts.index') }}" class="mt-4 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
                     <div class="grid gap-3 sm:grid-cols-2">
@@ -201,6 +211,122 @@
                         <p class="mt-1.5 text-sm leading-6 text-zinc-600">
                             Essayez avec une autre pièce, marque, catégorie ou ville.
                         </p>
+                    </section>
+
+                    <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                                <h2 class="text-base font-black text-zinc-950">Enregistrer ma recherche</h2>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                    Pièce Radar pourra repérer une future arrivée correspondant à votre besoin.
+                                </p>
+                            </div>
+
+                            @auth
+                                @if (auth()->user()->role === 'client')
+                                    <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Mes recherches
+                                    </a>
+                                @endif
+                            @endauth
+                        </div>
+
+                        @auth
+                            @if (auth()->user()->role === 'client')
+                                <form method="POST" action="{{ route('client.saved-searches.store') }}" class="mt-4 space-y-4">
+                                    @csrf
+
+                                    <div class="grid gap-4 sm:grid-cols-2">
+                                        <div>
+                                            <label for="part_name" class="text-sm font-black text-zinc-900">Pièce recherchée</label>
+                                            <input
+                                                id="part_name"
+                                                name="part_name"
+                                                type="text"
+                                                value="{{ old('part_name', request('q')) }}"
+                                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                                            >
+                                            @error('part_name')
+                                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="part_category" class="text-sm font-black text-zinc-900">Catégorie</label>
+                                            <input
+                                                id="part_category"
+                                                name="part_category"
+                                                type="text"
+                                                value="{{ old('part_category', request('category')) }}"
+                                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                                            >
+                                            @error('part_category')
+                                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="vehicle_brand" class="text-sm font-black text-zinc-900">Marque du véhicule</label>
+                                            <input
+                                                id="vehicle_brand"
+                                                name="vehicle_brand"
+                                                type="text"
+                                                value="{{ old('vehicle_brand', request('brand')) }}"
+                                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                                            >
+                                            @error('vehicle_brand')
+                                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="vehicle_model" class="text-sm font-black text-zinc-900">Modèle du véhicule</label>
+                                            <input
+                                                id="vehicle_model"
+                                                name="vehicle_model"
+                                                type="text"
+                                                value="{{ old('vehicle_model', request('model')) }}"
+                                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                                            >
+                                            @error('vehicle_model')
+                                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="vehicle_year" class="text-sm font-black text-zinc-900">Année</label>
+                                            <input
+                                                id="vehicle_year"
+                                                name="vehicle_year"
+                                                type="number"
+                                                min="1900"
+                                                max="{{ now()->year + 1 }}"
+                                                value="{{ old('vehicle_year') }}"
+                                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                                            >
+                                            @error('vehicle_year')
+                                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                    >
+                                        Enregistrer ma recherche
+                                    </button>
+                                </form>
+                            @else
+                                <p class="mt-4 rounded-xl bg-zinc-50 p-3 text-sm font-medium leading-6 text-zinc-600">
+                                    Connectez-vous avec un compte client pour enregistrer une recherche.
+                                </p>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}" class="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                Se connecter pour enregistrer ma recherche
+                            </a>
+                        @endauth
                     </section>
                 @else
                     <section class="mt-5 space-y-2.5">

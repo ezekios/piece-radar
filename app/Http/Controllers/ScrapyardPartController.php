@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Models\PartImage;
 use App\Models\Scrapyard;
+use App\Services\ArrivalMatchingService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -92,7 +93,7 @@ class ScrapyardPartController extends Controller
         ]);
     }
 
-    public function updatePreparation(Request $request, Part $part): RedirectResponse
+    public function updatePreparation(Request $request, Part $part, ArrivalMatchingService $arrivalMatching): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
 
@@ -129,6 +130,8 @@ class ScrapyardPartController extends Controller
             $this->storePartImages($part, $photos);
         });
 
+        $arrivalMatching->matchPart($part->refresh());
+
         return redirect()
             ->route('scrapyard.parts.show', $part)
             ->with('success', 'Les informations de préparation de la pièce ont été mises à jour.');
@@ -151,7 +154,7 @@ class ScrapyardPartController extends Controller
         return back()->with('success', 'La photo de la pièce a été supprimée.');
     }
 
-    public function updateStatus(Request $request, Part $part): RedirectResponse
+    public function updateStatus(Request $request, Part $part, ArrivalMatchingService $arrivalMatching): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
 
@@ -174,12 +177,14 @@ class ScrapyardPartController extends Controller
 
         $part->save();
 
+        $arrivalMatching->matchPart($part);
+
         return redirect()
             ->route('scrapyard.parts.show', $part)
             ->with('success', 'Le statut de la pièce a été mis à jour.');
     }
 
-    public function publish(Request $request, Part $part): RedirectResponse
+    public function publish(Request $request, Part $part, ArrivalMatchingService $arrivalMatching): RedirectResponse
     {
         $scrapyard = $this->scrapyard($request);
 
@@ -189,6 +194,8 @@ class ScrapyardPartController extends Controller
         $part->status = 'available';
         $part->is_published = true;
         $part->save();
+
+        $arrivalMatching->matchPart($part);
 
         return redirect()
             ->route('scrapyard.parts.show', $part)

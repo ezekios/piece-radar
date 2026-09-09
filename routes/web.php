@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\ClientAccountController;
 use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
+use App\Http\Controllers\ClientSavedPartSearchController;
 use App\Http\Controllers\EmailVerificationNotificationController;
 use App\Http\Controllers\EmailVerificationPromptController;
 use App\Http\Controllers\HomeController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\NewPasswordController;
 use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\ScrapyardAccountController;
+use App\Http\Controllers\ScrapyardCorrespondenceController;
 use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
 use App\Http\Controllers\ScrapyardRequestController;
@@ -96,6 +98,12 @@ Route::middleware(['auth', 'client', 'verified'])->group(function (): void {
 
     Route::get('/mes-demandes/{partHoldRequest}', [ClientRequestController::class, 'show'])
         ->name('client.requests.show');
+
+    Route::get('/mes-recherches', [ClientSavedPartSearchController::class, 'index'])
+        ->name('client.saved-searches.index');
+
+    Route::post('/mes-recherches', [ClientSavedPartSearchController::class, 'store'])
+        ->name('client.saved-searches.store');
 });
 
 Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
@@ -116,6 +124,9 @@ Route::middleware(['auth', 'scrapyard'])->group(function (): void {
 
     Route::patch('/casse/mon-compte/mot-de-passe', [ScrapyardAccountController::class, 'updatePassword'])
         ->name('scrapyard.account.password.update');
+
+    Route::get('/casse/correspondances', [ScrapyardCorrespondenceController::class, 'index'])
+        ->name('scrapyard.correspondences.index');
 
     Route::get('/casse/vehicules', [ScrapyardVehicleController::class, 'index'])
         ->name('scrapyard.vehicles.index');

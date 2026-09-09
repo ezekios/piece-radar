@@ -42,6 +42,10 @@
                                         Mon compte
                                     </a>
 
+                                    <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Mes recherches
+                                    </a>
+
                                     <a href="{{ route('client.requests.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                         Mes demandes
                                     </a>

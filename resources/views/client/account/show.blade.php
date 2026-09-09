@@ -18,6 +18,10 @@
                         </a>
 
                         <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                Mes recherches
+                            </a>
+
                             <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
                                 Mes demandes
                             </a>
@@ -83,6 +87,10 @@
                             Mes demandes
                         </a>
                     </div>
+
+                    <a href="{{ route('client.saved-searches.index') }}" class="mt-3 inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                        Mes recherches enregistrées
+                    </a>
 
                     <form method="POST" action="{{ route('client.account.update') }}" class="mt-4 space-y-4">
                         @csrf

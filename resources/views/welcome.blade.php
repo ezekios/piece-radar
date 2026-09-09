@@ -52,6 +52,10 @@
                                     Mon compte
                                 </a>
 
+                                <a href="{{ route('client.saved-searches.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-orange-100 bg-white px-3 text-sm font-black text-[#FC8505] transition hover:border-orange-200 hover:text-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                    Mes recherches
+                                </a>
+
                                 <a href="{{ route('client.requests.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl bg-[#FC8505] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
                                     Mes demandes
                                 </a>
