@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsBuyer;
 use App\Http\Middleware\EnsureUserIsClient;
+use App\Http\Middleware\EnsureUserIsProfessional;
 use App\Http\Middleware\EnsureUserIsScrapyard;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,7 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'admin' => EnsureUserIsAdmin::class,
+            'buyer' => EnsureUserIsBuyer::class,
             'client' => EnsureUserIsClient::class,
+            'professional' => EnsureUserIsProfessional::class,
             'scrapyard' => EnsureUserIsScrapyard::class,
         ]);
     })

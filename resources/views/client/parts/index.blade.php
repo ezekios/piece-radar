@@ -9,6 +9,14 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
+        @php
+            $user = auth()->user();
+            $isBuyer = in_array($user?->role, ['client', 'professional'], true);
+            $buyerAccountRoute = $user?->role === 'professional'
+                ? route('professional.account.show')
+                : route('client.account.show');
+        @endphp
+
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
@@ -16,9 +24,9 @@
                         <x-brand-logo :href="route('home')" image-class="h-9 w-auto max-w-[145px] object-contain" />
                         <div class="flex flex-wrap items-center gap-2">
                             @auth
-                                @if (auth()->user()->role === 'client')
-                                    <a href="{{ route('client.account.show') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
-                                        Mon compte
+                                @if ($isBuyer)
+                                    <a href="{{ $buyerAccountRoute }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                        {{ $user?->role === 'professional' ? 'Espace pro' : 'Mon compte' }}
                                     </a>
 
                                     <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
@@ -227,7 +235,7 @@
                             </div>
 
                             @auth
-                                @if (auth()->user()->role === 'client')
+                                @if ($isBuyer)
                                     <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                         Mes recherches
                                     </a>
@@ -236,7 +244,7 @@
                         </div>
 
                         @auth
-                            @if (auth()->user()->role === 'client')
+                            @if ($isBuyer)
                                 <form method="POST" action="{{ route('client.saved-searches.store') }}" class="mt-4 space-y-4">
                                     @csrf
 
@@ -430,6 +438,14 @@
                 @auth
                     @if (auth()->user()->role === 'scrapyard')
                         <a href="{{ route('scrapyard.dashboard') }}" class="text-zinc-500">
+                            Compte
+                        </a>
+                    @elseif (auth()->user()->role === 'admin')
+                        <a href="{{ route('admin.dashboard') }}" class="text-zinc-500">
+                            Compte
+                        </a>
+                    @elseif (auth()->user()->role === 'professional')
+                        <a href="{{ route('professional.account.show') }}" class="text-zinc-500">
                             Compte
                         </a>
                     @else

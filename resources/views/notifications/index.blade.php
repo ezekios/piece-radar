@@ -12,7 +12,10 @@
         @php
             $user = auth()->user();
             $isClient = $user?->role === 'client';
+            $isProfessional = $user?->role === 'professional';
+            $isBuyer = $isClient || $isProfessional;
             $isScrapyard = $user?->role === 'scrapyard';
+            $buyerAccountRoute = $isProfessional ? route('professional.account.show') : route('client.account.show');
             $displayTimezone = config('app.display_timezone', 'UTC');
         @endphp
 
@@ -23,15 +26,15 @@
                         <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
 
                         <div class="flex flex-wrap items-center gap-2">
-                            @if ($isClient)
+                            @if ($isBuyer)
                                 <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
                                     Mes recherches
                                 </a>
                                 <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
                                     Mes demandes
                                 </a>
-                                <a href="{{ route('client.account.show') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
-                                    Mon compte
+                                <a href="{{ $buyerAccountRoute }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                    {{ $isProfessional ? 'Espace pro' : 'Mon compte' }}
                                 </a>
                             @elseif ($isScrapyard)
                                 <a href="{{ route('scrapyard.dashboard') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
@@ -135,7 +138,7 @@
             </div>
         </main>
 
-        @if ($isClient)
+        @if ($isBuyer)
             <nav class="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden">
                 <div class="mx-auto grid max-w-md grid-cols-4 gap-2 text-center text-[11px] font-bold">
                     <a href="{{ route('home') }}" class="text-zinc-500">
@@ -147,7 +150,7 @@
                     <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
                         Demandes
                     </a>
-                    <a href="{{ route('client.account.show') }}" class="text-zinc-500">
+                    <a href="{{ $buyerAccountRoute }}" class="text-zinc-500">
                         Compte
                     </a>
                 </div>

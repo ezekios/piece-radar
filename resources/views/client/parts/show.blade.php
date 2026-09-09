@@ -13,6 +13,11 @@
             $vehicle = $part->vehicle;
             $scrapyard = $vehicle?->scrapyard;
             $mainImage = $part->images->first();
+            $user = auth()->user();
+            $isBuyer = in_array($user?->role, ['client', 'professional'], true);
+            $buyerAccountRoute = $user?->role === 'professional'
+                ? route('professional.account.show')
+                : route('client.account.show');
             $conditionLabels = [
                 'unknown' => 'État non précisé',
                 'used_good' => 'Occasion bon état',
@@ -36,10 +41,10 @@
                         </a>
 
                         @auth
-                            @if (auth()->user()->role === 'client')
+                            @if ($isBuyer)
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <a href="{{ route('client.account.show') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                                        Mon compte
+                                    <a href="{{ $buyerAccountRoute }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        {{ $user?->role === 'professional' ? 'Espace pro' : 'Mon compte' }}
                                     </a>
 
                                     <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">

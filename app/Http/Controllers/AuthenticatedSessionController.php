@@ -55,6 +55,10 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         return match ($role) {
+            'admin' => route('admin.dashboard'),
+            'professional' => $user?->hasVerifiedEmail()
+                ? route('professional.account.show')
+                : route('verification.notice'),
             'scrapyard' => route('scrapyard.dashboard'),
             'client' => $user?->hasVerifiedEmail()
                 ? route('client.requests.index')

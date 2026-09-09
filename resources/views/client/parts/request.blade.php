@@ -13,6 +13,8 @@
             $vehicle = $part->vehicle;
             $scrapyard = $vehicle?->scrapyard;
             $partImage = $part->images->first();
+            $isProfessional = $client?->role === 'professional';
+            $buyerAccountRoute = $isProfessional ? route('professional.account.show') : route('client.account.show');
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
@@ -76,15 +78,15 @@
                 <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <h2 class="text-base font-black text-zinc-950">Compte client</h2>
+                            <h2 class="text-base font-black text-zinc-950">{{ $isProfessional ? 'Compte professionnel' : 'Compte client' }}</h2>
                             <p class="mt-1 text-sm font-medium text-zinc-600">
                                 Ces coordonnées proviennent de votre compte connecté.
                             </p>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <a href="{{ route('client.account.show') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                                Mon compte
+                            <a href="{{ $buyerAccountRoute }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                {{ $isProfessional ? 'Espace pro' : 'Mon compte' }}
                             </a>
 
                             <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">

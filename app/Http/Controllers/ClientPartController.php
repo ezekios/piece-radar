@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 
 class ClientPartController extends Controller
 {
+    private const BUYER_ROLES = ['client', 'professional'];
+
     public function index(Request $request, LicensePlateLookupService $licensePlateLookupService): View
     {
         $licensePlate = (string) $request->string('license_plate')->trim();
@@ -120,6 +122,8 @@ class ClientPartController extends Controller
 
     public function requestForm(Request $request, Part $part): View
     {
+        $this->ensureBuyer($request);
+
         abort_unless($part->is_published && $part->status === 'available', 404);
 
         $part->load(['images', 'vehicle.scrapyard']);
@@ -132,6 +136,8 @@ class ClientPartController extends Controller
 
     public function storeRequest(Request $request, Part $part, PartHoldRequestNotifier $notifier): RedirectResponse
     {
+        $this->ensureBuyer($request);
+
         abort_unless($part->is_published && $part->status === 'available', 404);
 
         $validated = $request->validate([
@@ -150,5 +156,10 @@ class ClientPartController extends Controller
         return redirect()
             ->route('pieces.show', $part)
             ->with('success', 'Votre demande de mise de côté a bien été envoyée à la casse.');
+    }
+
+    private function ensureBuyer(Request $request): void
+    {
+        abort_unless(in_array($request->user()?->role, self::BUYER_ROLES, true), 403);
     }
 }

@@ -12,7 +12,14 @@ class VerifyEmailController extends Controller
         $request->fulfill();
 
         return redirect()
-            ->intended(route('client.requests.index'))
+            ->intended($this->homePathFor($request->user()->role))
             ->with('status', 'Votre adresse email a été vérifiée.');
+    }
+
+    private function homePathFor(?string $role): string
+    {
+        return $role === 'professional'
+            ? route('professional.account.show')
+            : route('client.requests.index');
     }
 }

@@ -23,6 +23,10 @@
             ];
 
             $displayTimezone = config('app.display_timezone', 'UTC');
+            $user = auth()->user();
+            $buyerAccountRoute = $user?->role === 'professional'
+                ? route('professional.account.show')
+                : route('client.account.show');
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
@@ -48,8 +52,8 @@
                                 Mes demandes
                             </a>
 
-                            <a href="{{ route('client.account.show') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
-                                Mon compte
+                            <a href="{{ $buyerAccountRoute }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                {{ $user?->role === 'professional' ? 'Espace pro' : 'Mon compte' }}
                             </a>
 
                             <a href="{{ route('notifications.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
@@ -178,7 +182,7 @@
                 <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
                     Demandes
                 </a>
-                <a href="{{ route('client.account.show') }}" class="text-zinc-500">
+                <a href="{{ $buyerAccountRoute }}" class="text-zinc-500">
                     Compte
                 </a>
             </div>

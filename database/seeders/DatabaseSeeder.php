@@ -131,6 +131,43 @@ class DatabaseSeeder extends Seeder
         $client->role = 'client';
         $client->save();
 
+        $professional = User::query()->firstOrNew([
+            'email' => 'pro@example.com',
+        ]);
+
+        $professional->fill([
+            'name' => 'Garage Démo',
+            'password' => Hash::make('Test1234!'),
+            'phone' => '0696000003',
+        ]);
+        $professional->role = 'professional';
+        $professional->email_verified_at ??= now();
+        $professional->save();
+
+        $professional->professionalProfile()->updateOrCreate(
+            [],
+            [
+                'company_name' => 'Garage Démo Martinique',
+                'siret' => null,
+                'address' => '10 route de l’atelier',
+                'postal_code' => '97232',
+                'city' => 'Le Lamentin',
+            ],
+        );
+
+        $admin = User::query()->firstOrNew([
+            'email' => 'admin@example.com',
+        ]);
+
+        $admin->fill([
+            'name' => 'Admin Pièce Radar',
+            'password' => Hash::make('Test1234!'),
+            'phone' => null,
+        ]);
+        $admin->role = 'admin';
+        $admin->email_verified_at ??= now();
+        $admin->save();
+
         PartHoldRequest::query()->updateOrCreate(
             [
                 'user_id' => $client->id,

@@ -17,6 +17,10 @@
             $createdAtDisplay = $partHoldRequest->created_at?->copy()->timezone($displayTimezone);
             $handledAtDisplay = $partHoldRequest->handled_at?->copy()->timezone($displayTimezone);
             $reservedUntilDisplay = $partHoldRequest->reserved_until?->copy()->timezone($displayTimezone);
+            $user = auth()->user();
+            $buyerAccountRoute = $user?->role === 'professional'
+                ? route('professional.account.show')
+                : route('client.account.show');
 
             $statusLabels = [
                 'pending' => 'En attente',
@@ -69,8 +73,8 @@
                         </a>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <a href="{{ route('client.account.show') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                                Mon compte
+                            <a href="{{ $buyerAccountRoute }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                {{ $user?->role === 'professional' ? 'Espace pro' : 'Mon compte' }}
                             </a>
 
                             <a href="{{ route('client.saved-searches.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">

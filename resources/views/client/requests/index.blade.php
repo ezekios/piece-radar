@@ -29,6 +29,10 @@
             ];
 
             $displayTimezone = config('app.display_timezone', 'UTC');
+            $user = auth()->user();
+            $buyerAccountRoute = $user?->role === 'professional'
+                ? route('professional.account.show')
+                : route('client.account.show');
         @endphp
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
@@ -50,8 +54,8 @@
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <a href="{{ route('client.account.show') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
-                                Mon compte
+                            <a href="{{ $buyerAccountRoute }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                {{ $user?->role === 'professional' ? 'Espace pro' : 'Mon compte' }}
                             </a>
 
                             <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">

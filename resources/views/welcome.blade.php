@@ -12,7 +12,11 @@
         @php
             $user = auth()->user();
             $isClient = $user?->role === 'client';
+            $isProfessional = $user?->role === 'professional';
             $isScrapyard = $user?->role === 'scrapyard';
+            $isAdmin = $user?->role === 'admin';
+            $isBuyer = $isClient || $isProfessional;
+            $buyerAccountRoute = $isProfessional ? route('professional.account.show') : route('client.account.show');
 
             $conditionLabels = [
                 'unknown' => 'État non précisé',
@@ -47,9 +51,9 @@
                                 Créer un compte
                             </a>
                         @else
-                            @if ($isClient)
-                                <a href="{{ route('client.account.show') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-orange-100 bg-white px-3 text-sm font-black text-[#FC8505] transition hover:border-orange-200 hover:text-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
-                                    Mon compte
+                            @if ($isBuyer)
+                                <a href="{{ $buyerAccountRoute }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-orange-100 bg-white px-3 text-sm font-black text-[#FC8505] transition hover:border-orange-200 hover:text-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                    {{ $isProfessional ? 'Espace pro' : 'Mon compte' }}
                                 </a>
 
                                 <a href="{{ route('client.saved-searches.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-orange-100 bg-white px-3 text-sm font-black text-[#FC8505] transition hover:border-orange-200 hover:text-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
@@ -68,6 +72,12 @@
                             @if ($isScrapyard)
                                 <a href="{{ route('scrapyard.dashboard') }}" class="inline-flex h-10 items-center justify-center rounded-xl bg-[#FC8505] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
                                     Espace casse
+                                </a>
+                            @endif
+
+                            @if ($isAdmin)
+                                <a href="{{ route('admin.dashboard') }}" class="inline-flex h-10 items-center justify-center rounded-xl bg-[#FC8505] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                    Administration
                                 </a>
                             @endif
 
@@ -230,9 +240,9 @@
                             <a href="{{ route('scrapyard.dashboard') }}" class="mt-5 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                 Accéder à l'espace casse
                             </a>
-                        @elseif ($isClient)
+                        @elseif ($isBuyer)
                             <p class="mt-5 rounded-xl bg-zinc-50 p-3 text-sm font-bold text-zinc-600">
-                                Votre compte actuel est un compte client.
+                                Votre compte actuel est un compte {{ $isProfessional ? 'garage / mécanicien' : 'client' }}.
                             </p>
                         @endif
                     @endguest

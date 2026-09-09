@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminScrapyardController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ClientAccountController;
 use App\Http\Controllers\ClientPartController;
 use App\Http\Controllers\ClientRequestController;
@@ -11,6 +14,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewPasswordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordResetLinkController;
+use App\Http\Controllers\ProfessionalAccountController;
 use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\ScrapyardAccountController;
 use App\Http\Controllers\ScrapyardCorrespondenceController;
@@ -64,15 +68,15 @@ Route::post('/inscription', [RegisteredClientController::class, 'store'])
     ->name('client.register.store');
 
 Route::get('/verification-email', EmailVerificationPromptController::class)
-    ->middleware(['auth', 'client'])
+    ->middleware(['auth', 'buyer'])
     ->name('verification.notice');
 
 Route::get('/verification-email/{id}/{hash}', VerifyEmailController::class)
-    ->middleware(['auth', 'client', 'signed', 'throttle:6,1'])
+    ->middleware(['auth', 'buyer', 'signed', 'throttle:6,1'])
     ->name('verification.verify');
 
 Route::post('/verification-email/renvoyer', [EmailVerificationNotificationController::class, 'store'])
-    ->middleware(['auth', 'client', 'throttle:6,1'])
+    ->middleware(['auth', 'buyer', 'throttle:6,1'])
     ->name('verification.send');
 
 Route::get('/pieces', [ClientPartController::class, 'index'])
@@ -104,7 +108,23 @@ Route::middleware(['auth', 'client', 'verified'])->group(function (): void {
 
     Route::patch('/mon-compte/mot-de-passe', [ClientAccountController::class, 'updatePassword'])
         ->name('client.account.password.update');
+});
 
+Route::middleware(['auth', 'professional', 'verified'])->group(function (): void {
+    Route::get('/professionnel/mon-compte', [ProfessionalAccountController::class, 'show'])
+        ->name('professional.account.show');
+
+    Route::patch('/professionnel/mon-compte', [ProfessionalAccountController::class, 'update'])
+        ->name('professional.account.update');
+
+    Route::patch('/professionnel/mon-compte/profil', [ProfessionalAccountController::class, 'updateProfile'])
+        ->name('professional.account.profile.update');
+
+    Route::patch('/professionnel/mon-compte/mot-de-passe', [ProfessionalAccountController::class, 'updatePassword'])
+        ->name('professional.account.password.update');
+});
+
+Route::middleware(['auth', 'buyer', 'verified'])->group(function (): void {
     Route::get('/pieces/{part}/demande', [ClientPartController::class, 'requestForm'])
         ->name('pieces.request');
 
@@ -126,6 +146,20 @@ Route::middleware(['auth', 'client', 'verified'])->group(function (): void {
 
 Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
     ->name('pieces.show');
+
+Route::middleware(['auth', 'admin'])->group(function (): void {
+    Route::get('/admin', AdminDashboardController::class)
+        ->name('admin.dashboard');
+
+    Route::get('/admin/utilisateurs', [AdminUserController::class, 'index'])
+        ->name('admin.users.index');
+
+    Route::get('/admin/casses', [AdminScrapyardController::class, 'index'])
+        ->name('admin.scrapyards.index');
+
+    Route::patch('/admin/casses/{scrapyard}/statut', [AdminScrapyardController::class, 'updateStatus'])
+        ->name('admin.scrapyards.update-status');
+});
 
 Route::middleware(['auth', 'scrapyard'])->group(function (): void {
     Route::get('/casse', [ScrapyardDashboardController::class, 'index'])
