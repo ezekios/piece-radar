@@ -1,186 +1,137 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<x-layouts.scrapyard title="Ajouter un véhicule - Pièce Radar" max-width="max-w-5xl">
+    <x-slot:header>
+        <x-ui.page-header
+            eyebrow="Véhicules"
+            title="Ajouter un véhicule"
+            description="{{ $scrapyard?->name ? 'Créez une fiche donneur avant d’ajouter les pièces disponibles.' : 'Le formulaire sera disponible dès qu’une casse existera.' }}"
+        >
+            <x-slot:actions>
+                <x-ui.button href="{{ route('scrapyard.vehicles.index') }}" variant="secondary" size="md" class="w-full sm:w-auto">
+                    Retour vers les véhicules
+                </x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-        <title>Ajouter un véhicule - Pièce Radar</title>
+        @if ($scrapyard)
+            <p class="mt-2 text-sm font-semibold text-zinc-500">
+                {{ $scrapyard->name }}@if ($scrapyard->city) · {{ $scrapyard->city }}@endif
+            </p>
+        @endif
+    </x-slot:header>
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
-            <div class="mx-auto w-full max-w-3xl">
-                <header class="border-b border-zinc-200/80 pb-4">
-                    <div>
-                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
-                        @include('scrapyard.partials.navigation')
-                        <a href="{{ route('scrapyard.vehicles.index') }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                            Retour vers les véhicules
-                        </a>
-                        <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Ajouter un véhicule</h1>
-                        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                            {{ $scrapyard?->name ?? 'Aucune casse disponible' }}
-                            @if ($scrapyard?->city)
-                                · {{ $scrapyard->city }}
-                            @endif
-                        </p>
+    @if (! $scrapyard)
+        <x-ui.empty-state
+            class="mt-6"
+            title="Aucune casse n’est disponible."
+            description="Le formulaire sera disponible dès qu’une casse existera en base."
+        />
+    @else
+        <x-ui.card class="mt-6" padding="p-4 sm:p-5">
+            <form method="POST" action="{{ route('scrapyard.vehicles.store') }}" enctype="multipart/form-data" class="space-y-5">
+                @csrf
+
+                <section>
+                    <h2 class="text-lg font-black text-zinc-950">Informations du véhicule</h2>
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        <x-ui.input
+                            id="brand"
+                            name="brand"
+                            label="Marque"
+                            value="{{ old('brand') }}"
+                            required
+                            placeholder="Renault"
+                        />
+
+                        <x-ui.input
+                            id="model"
+                            name="model"
+                            label="Modèle"
+                            value="{{ old('model') }}"
+                            required
+                            placeholder="Clio IV"
+                        />
+
+                        <x-ui.input
+                            id="year"
+                            name="year"
+                            type="number"
+                            label="Année"
+                            value="{{ old('year') }}"
+                            min="1900"
+                            max="{{ (int) date('Y') + 1 }}"
+                            placeholder="2017"
+                        />
+
+                        <x-ui.input
+                            id="license_plate"
+                            name="license_plate"
+                            label="Plaque d’immatriculation"
+                            value="{{ old('license_plate') }}"
+                            placeholder="AB-123-CD"
+                            class="uppercase placeholder:normal-case"
+                        />
+
+                        <x-ui.input
+                            id="fuel"
+                            name="fuel"
+                            label="Carburant"
+                            value="{{ old('fuel') }}"
+                            placeholder="Diesel"
+                        />
+
+                        <x-ui.input
+                            id="engine"
+                            name="engine"
+                            label="Motorisation"
+                            value="{{ old('engine') }}"
+                            placeholder="1.5 dCi"
+                        />
+
+                        <div class="sm:col-span-2">
+                            <x-ui.input
+                                id="mileage"
+                                name="mileage"
+                                type="number"
+                                label="Kilométrage"
+                                value="{{ old('mileage') }}"
+                                min="0"
+                                placeholder="125000"
+                            />
+                        </div>
                     </div>
-                </header>
+                </section>
 
-                @if (! $scrapyard)
-                    <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Aucune casse n’est disponible.</h2>
-                        <p class="mt-1.5 text-sm leading-6 text-zinc-600">
-                            Le formulaire sera disponible dès qu’une casse existera en base.
-                        </p>
-                    </section>
-                @else
-                    <form method="POST" action="{{ route('scrapyard.vehicles.store') }}" enctype="multipart/form-data" class="mt-5 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        @csrf
+                <section class="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                    <label for="photos" class="text-sm font-black text-zinc-900">Photos du véhicule</label>
+                    <p class="mt-1 text-xs font-medium leading-5 text-zinc-500">
+                        Maximum 5 photos — JPG, PNG ou WebP — 5 Mo maximum par photo.
+                    </p>
+                    <input
+                        id="photos"
+                        name="photos[]"
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        class="mt-3 block w-full cursor-pointer text-sm font-medium text-zinc-700 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-[#FC8505] file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-[#E87804]"
+                    >
+                    @error('photos')
+                        <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                    @enderror
+                    @error('photos.*')
+                        <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                    @enderror
+                </section>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label for="brand" class="text-sm font-black text-zinc-900">Marque</label>
-                                <input
-                                    id="brand"
-                                    name="brand"
-                                    type="text"
-                                    value="{{ old('brand') }}"
-                                    required
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="Renault"
-                                >
-                                @error('brand')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                <div class="flex flex-col gap-2 min-[390px]:flex-row min-[390px]:items-center">
+                    <x-ui.button as="button" type="submit" variant="primary" size="lg" class="w-full min-[390px]:w-auto">
+                        Ajouter le véhicule
+                    </x-ui.button>
 
-                            <div>
-                                <label for="model" class="text-sm font-black text-zinc-900">Modèle</label>
-                                <input
-                                    id="model"
-                                    name="model"
-                                    type="text"
-                                    value="{{ old('model') }}"
-                                    required
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="Clio IV"
-                                >
-                                @error('model')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="year" class="text-sm font-black text-zinc-900">Année</label>
-                                <input
-                                    id="year"
-                                    name="year"
-                                    type="number"
-                                    min="1900"
-                                    max="{{ (int) date('Y') + 1 }}"
-                                    value="{{ old('year') }}"
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="2017"
-                                >
-                                @error('year')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="license_plate" class="text-sm font-black text-zinc-900">Plaque d’immatriculation</label>
-                                <input
-                                    id="license_plate"
-                                    name="license_plate"
-                                    type="text"
-                                    value="{{ old('license_plate') }}"
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium uppercase text-zinc-900 placeholder:normal-case placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="AB-123-CD"
-                                >
-                                @error('license_plate')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="fuel" class="text-sm font-black text-zinc-900">Carburant</label>
-                                <input
-                                    id="fuel"
-                                    name="fuel"
-                                    type="text"
-                                    value="{{ old('fuel') }}"
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="Diesel"
-                                >
-                                @error('fuel')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="engine" class="text-sm font-black text-zinc-900">Motorisation</label>
-                                <input
-                                    id="engine"
-                                    name="engine"
-                                    type="text"
-                                    value="{{ old('engine') }}"
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="1.5 dCi"
-                                >
-                                @error('engine')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="sm:col-span-2">
-                                <label for="mileage" class="text-sm font-black text-zinc-900">Kilométrage</label>
-                                <input
-                                    id="mileage"
-                                    name="mileage"
-                                    type="number"
-                                    min="0"
-                                    value="{{ old('mileage') }}"
-                                    class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                    placeholder="125000"
-                                >
-                                @error('mileage')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="rounded-2xl border border-zinc-200 bg-white p-4">
-                            <label for="photos" class="text-sm font-black text-zinc-900">Photos du véhicule</label>
-                            <p class="mt-1 text-xs font-medium leading-5 text-zinc-500">
-                                Maximum 5 photos — JPG, PNG ou WebP — 5 Mo maximum par photo.
-                            </p>
-                            <input
-                                id="photos"
-                                name="photos[]"
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                class="mt-3 block w-full cursor-pointer text-sm font-medium text-zinc-700 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-[#FC8505] file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-[#E87804]"
-                            >
-                            @error('photos')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                            @error('photos.*')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
-                        >
-                            Ajouter le véhicule
-                        </button>
-                    </form>
-                @endif
-            </div>
-        </main>
-    </body>
-</html>
+                    <x-ui.button href="{{ route('scrapyard.vehicles.index') }}" variant="secondary" size="lg" class="w-full min-[390px]:w-auto">
+                        Annuler
+                    </x-ui.button>
+                </div>
+            </form>
+        </x-ui.card>
+    @endif
+</x-layouts.scrapyard>

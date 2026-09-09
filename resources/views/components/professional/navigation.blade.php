@@ -87,19 +87,26 @@
         @endforeach
     </nav>
 
-    <form method="POST" action="{{ route('logout') }}" class="mt-5 border-t border-white/10 pt-4">
-        @csrf
+    <div class="mt-5 border-t border-white/10 pt-4">
+        <div class="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-3">
+            <span class="text-sm font-black text-zinc-300">Thème</span>
+            <x-ui.theme-toggle class="border-white/10 bg-white/5 text-zinc-300 hover:border-[#FC8505]/40 dark:border-white/10 dark:bg-white/5" />
+        </div>
 
-        <button
-            type="submit"
-            class="flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 py-2 text-sm font-black text-zinc-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 focus:ring-offset-zinc-950"
-        >
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/5 text-zinc-400">
-                <x-ui.icon name="logout" class="h-4 w-4" />
-            </span>
-            Déconnexion
-        </button>
-    </form>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+
+            <button
+                type="submit"
+                class="flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 py-2 text-sm font-black text-zinc-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 focus:ring-offset-zinc-950"
+            >
+                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/5 text-zinc-400">
+                    <x-ui.icon name="logout" class="h-4 w-4" />
+                </span>
+                Déconnexion
+            </button>
+        </form>
+    </div>
 </aside>
 
 <x-client.mobile-navigation :active="$mobileActive" />

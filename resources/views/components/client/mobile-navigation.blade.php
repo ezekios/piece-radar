@@ -38,14 +38,14 @@
     ];
 @endphp
 
-<nav class="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 px-3 py-2 shadow-[0_-4px_16px_rgba(24,24,27,0.06)] backdrop-blur sm:hidden" aria-label="Navigation mobile client">
+<nav class="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 px-3 py-2 shadow-[0_-4px_16px_rgba(24,24,27,0.06)] backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95 sm:hidden" aria-label="Navigation mobile client">
     <div class="mx-auto grid max-w-md grid-cols-4 gap-1 text-center">
         @foreach ($items as $item)
             @php($isActive = $active === $item['key'])
 
             <a
                 href="{{ $item['url'] }}"
-                class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-1 text-[11px] font-bold transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $isActive ? 'bg-[#FC8505]/10 text-[#C96504]' : 'text-zinc-500 hover:text-[#FC8505]' }}"
+                class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-1 text-[11px] font-bold transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950 {{ $isActive ? 'bg-[#FC8505]/10 text-[#C96504] dark:text-orange-200' : 'text-zinc-500 hover:text-[#FC8505] dark:text-zinc-400 dark:hover:text-[#FC8505]' }}"
                 @if ($isActive) aria-current="page" @endif
             >
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

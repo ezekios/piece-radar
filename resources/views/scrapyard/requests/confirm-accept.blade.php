@@ -1,163 +1,161 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@php
+    $part = $partHoldRequest->part;
+    $vehicle = $part?->vehicle;
+    $requestScrapyard = $vehicle?->scrapyard;
+    $scrapyardName = $requestScrapyard?->name ?? $scrapyard?->name ?? 'Casse non renseignée';
+    $scrapyardCity = $requestScrapyard?->city ?? $scrapyard?->city;
+    $headerDescription = $scrapyardName . ($scrapyardCity ? ' · ' . $scrapyardCity : '');
+    $displayTimezone = config('app.display_timezone', 'UTC');
+    $createdAtDisplay = $partHoldRequest->created_at?->copy()->timezone($displayTimezone);
 
-        <title>Confirmer l’acceptation - Pièce Radar</title>
+    $partStatusLabels = [
+        'available' => 'Disponible',
+        'preparing' => 'En préparation',
+        'reserved' => 'Mise de côté',
+        'sold' => 'Vendue',
+        'unavailable' => 'Non disponible',
+    ];
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
-        @php
-            $part = $partHoldRequest->part;
-            $vehicle = $part?->vehicle;
-            $requestScrapyard = $vehicle?->scrapyard;
-            $displayTimezone = config('app.display_timezone', 'UTC');
-            $createdAtDisplay = $partHoldRequest->created_at?->copy()->timezone($displayTimezone);
+    $partStatusVariants = [
+        'available' => 'success',
+        'preparing' => 'orange',
+        'reserved' => 'orange',
+        'sold' => 'info',
+        'unavailable' => 'neutral',
+    ];
 
-            $partStatusLabels = [
-                'available' => 'Disponible',
-                'preparing' => 'En préparation',
-                'reserved' => 'Mise de côté',
-                'sold' => 'Vendue',
-                'unavailable' => 'Non disponible',
-            ];
+    $conditionLabels = [
+        'unknown' => 'État non précisé',
+        'used_good' => 'Occasion bon état',
+        'used_average' => 'Occasion état moyen',
+        'damaged' => 'Endommagée',
+    ];
+@endphp
 
-            $conditionLabels = [
-                'unknown' => 'État non précisé',
-                'used_good' => 'Occasion bon état',
-                'used_average' => 'Occasion état moyen',
-                'damaged' => 'Endommagée',
-            ];
-        @endphp
+<x-layouts.scrapyard title="Confirmer l’acceptation - Pièce Radar" max-width="max-w-5xl">
+    <x-slot:header>
+        <x-ui.page-header
+            eyebrow="Validation"
+            title="Confirmer l’acceptation"
+            :description="$headerDescription"
+        >
+            <x-slot:actions>
+                <x-ui.badge variant="orange">Demande en attente</x-ui.badge>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
-            <div class="mx-auto w-full max-w-3xl">
-                <header class="border-b border-zinc-200/80 pb-4">
-                    <div>
-                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
-                        @include('scrapyard.partials.navigation')
-                        <a href="{{ route('scrapyard.requests.show', $partHoldRequest) }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                            Retour vers la demande
-                        </a>
-                        <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Confirmer l’acceptation</h1>
-                        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                            {{ $requestScrapyard?->name ?? $scrapyard?->name ?? 'Casse non renseignée' }}
-                            @if ($requestScrapyard?->city ?? $scrapyard?->city)
-                                · {{ $requestScrapyard?->city ?? $scrapyard->city }}
-                            @endif
+        <a href="{{ route('scrapyard.requests.show', $partHoldRequest) }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+            Retour vers la demande
+        </a>
+    </x-slot:header>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.58fr)_minmax(20rem,0.42fr)]">
+        <div class="space-y-5">
+            <x-ui.alert variant="warning" title="Validation requise">
+                <p class="leading-6">
+                    Vous êtes sur le point d’accepter cette demande. En confirmant, vous certifiez que la pièce est toujours disponible et peut être mise de côté pour le client. Après validation, les informations de contact nécessaires à la mise en relation pourront être débloquées.
+                </p>
+            </x-ui.alert>
+
+            <x-ui.card as="section" padding="p-4 sm:p-5">
+                <h2 class="text-lg font-black text-zinc-950">Pièce demandée</h2>
+
+                <div class="mt-4 flex flex-col gap-3 min-[390px]:flex-row min-[390px]:items-start min-[390px]:justify-between">
+                    <div class="min-w-0">
+                        <p class="break-words text-2xl font-black leading-tight text-zinc-950">{{ $part?->name ?? 'Pièce non renseignée' }}</p>
+                        <p class="mt-1 text-sm font-medium text-zinc-600">
+                            {{ $conditionLabels[$part?->condition] ?? $part?->condition ?? 'État non précisé' }}
                         </p>
                     </div>
-                </header>
 
-                <div class="mt-4 space-y-3">
-                    <section class="rounded-2xl border border-[#FC8505]/20 bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Validation requise</h2>
-                        <p class="mt-2 text-sm font-medium leading-6 text-zinc-700">
-                            Vous êtes sur le point d’accepter cette demande.
-                            En confirmant, vous certifiez que la pièce est toujours disponible et peut être mise de côté pour le client.
-                            Après validation, les informations de contact nécessaires à la mise en relation pourront être débloquées.
-                        </p>
-                    </section>
-
-                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Résumé de la demande</h2>
-
-                        <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-                            <div>
-                                <dt class="font-medium text-zinc-500">Demande</dt>
-                                <dd class="mt-1 font-black text-zinc-900">#{{ $partHoldRequest->id }}</dd>
-                            </div>
-
-                            <div>
-                                <dt class="font-medium text-zinc-500">Statut</dt>
-                                <dd class="mt-1 font-black text-zinc-900">En attente</dd>
-                            </div>
-
-                            <div>
-                                <dt class="font-medium text-zinc-500">Reçue le</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $createdAtDisplay?->format('d/m/Y à H:i') }}</dd>
-                            </div>
-                        </dl>
-                    </section>
-
-                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div class="min-w-0">
-                                <h2 class="text-base font-black text-zinc-950">Pièce demandée</h2>
-                                <p class="mt-2 text-lg font-black text-zinc-950">{{ $part?->name ?? 'Pièce non renseignée' }}</p>
-                                <p class="mt-1 text-sm font-medium text-zinc-600">
-                                    {{ $conditionLabels[$part?->condition] ?? $part?->condition ?? 'État non précisé' }}
-                                </p>
-                            </div>
-
-                            <div class="text-left sm:text-right">
-                                <p class="text-2xl font-black text-[#FC8505]">
-                                    @if ($part?->price !== null)
-                                        {{ number_format((float) $part->price, 2, ',', ' ') }} €
-                                    @else
-                                        Prix sur demande
-                                    @endif
-                                </p>
-                                <p class="mt-1 text-xs font-black text-zinc-500">
-                                    Statut pièce : {{ $partStatusLabels[$part?->status] ?? $part?->status ?? 'Non renseigné' }}
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Véhicule associé</h2>
-
-                        <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-                            <div>
-                                <dt class="font-medium text-zinc-500">Marque</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $vehicle?->brand ?? 'Non renseignée' }}</dd>
-                            </div>
-
-                            <div>
-                                <dt class="font-medium text-zinc-500">Modèle</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $vehicle?->model ?? 'Non renseigné' }}</dd>
-                            </div>
-
-                            <div>
-                                <dt class="font-medium text-zinc-500">Année</dt>
-                                <dd class="mt-1 font-black text-zinc-900">{{ $vehicle?->year ?? 'Non renseignée' }}</dd>
-                            </div>
-
-                            @if ($vehicle?->engine)
-                                <div>
-                                    <dt class="font-medium text-zinc-500">Motorisation</dt>
-                                    <dd class="mt-1 font-black text-zinc-900">{{ $vehicle->engine }}</dd>
-                                </div>
+                    <div class="shrink-0 text-left min-[390px]:text-right">
+                        <p class="text-3xl font-black text-[#FC8505]">
+                            @if ($part?->price !== null)
+                                {{ number_format((float) $part->price, 2, ',', ' ') }} €
+                            @else
+                                Prix sur demande
                             @endif
-                        </dl>
-                    </section>
-
-                    <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            <a
-                                href="{{ route('scrapyard.requests.show', $partHoldRequest) }}"
-                                class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
-                            >
-                                Annuler
-                            </a>
-
-                            <form method="POST" action="{{ route('scrapyard.requests.accept', $partHoldRequest) }}">
-                                @csrf
-
-                                <button
-                                    type="submit"
-                                    class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
-                                >
-                                    Confirmer l’acceptation
-                                </button>
-                            </form>
+                        </p>
+                        <div class="mt-2 flex flex-wrap gap-2 min-[390px]:justify-end">
+                            <x-ui.badge :variant="$partStatusVariants[$part?->status] ?? 'neutral'">
+                                {{ $partStatusLabels[$part?->status] ?? $part?->status ?? 'Non renseigné' }}
+                            </x-ui.badge>
                         </div>
-                    </section>
+                    </div>
                 </div>
-            </div>
-        </main>
-    </body>
-</html>
+            </x-ui.card>
+
+            <x-ui.card as="section" padding="p-4 sm:p-5">
+                <h2 class="text-lg font-black text-zinc-950">Véhicule associé</h2>
+
+                <dl class="mt-4 grid gap-3 text-sm min-[390px]:grid-cols-2">
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="font-medium text-zinc-500">Marque</dt>
+                        <dd class="mt-1 break-words font-black text-zinc-900">{{ $vehicle?->brand ?? 'Non renseignée' }}</dd>
+                    </div>
+
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="font-medium text-zinc-500">Modèle</dt>
+                        <dd class="mt-1 break-words font-black text-zinc-900">{{ $vehicle?->model ?? 'Non renseigné' }}</dd>
+                    </div>
+
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="font-medium text-zinc-500">Année</dt>
+                        <dd class="mt-1 font-black text-zinc-900">{{ $vehicle?->year ?? 'Non renseignée' }}</dd>
+                    </div>
+
+                    @if ($vehicle?->engine)
+                        <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                            <dt class="font-medium text-zinc-500">Motorisation</dt>
+                            <dd class="mt-1 break-words font-black text-zinc-900">{{ $vehicle->engine }}</dd>
+                        </div>
+                    @endif
+                </dl>
+            </x-ui.card>
+        </div>
+
+        <aside class="space-y-5">
+            <x-ui.card as="section" padding="p-4 sm:p-5">
+                <h2 class="text-lg font-black text-zinc-950">Résumé de la demande</h2>
+
+                <dl class="mt-4 grid gap-3 text-sm">
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="font-medium text-zinc-500">Demande</dt>
+                        <dd class="mt-1 font-black text-zinc-900">#{{ $partHoldRequest->id }}</dd>
+                    </div>
+
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="font-medium text-zinc-500">Statut</dt>
+                        <dd class="mt-1 font-black text-zinc-900">En attente</dd>
+                    </div>
+
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="font-medium text-zinc-500">Reçue le</dt>
+                        <dd class="mt-1 font-black text-zinc-900">{{ $createdAtDisplay?->format('d/m/Y à H:i') }}</dd>
+                    </div>
+                </dl>
+            </x-ui.card>
+
+            <x-ui.card as="section" padding="p-4 sm:p-5">
+                <h2 class="text-lg font-black text-zinc-950">Action finale</h2>
+                <p class="mt-2 text-sm font-medium leading-6 text-zinc-600">
+                    Seule cette validation passera réellement la demande en acceptée et déclenchera la réservation.
+                </p>
+
+                <div class="mt-4 grid gap-3">
+                    <form method="POST" action="{{ route('scrapyard.requests.accept', $partHoldRequest) }}">
+                        @csrf
+
+                        <x-ui.button as="button" type="submit" variant="primary" size="lg" class="w-full">
+                            Confirmer l’acceptation
+                        </x-ui.button>
+                    </form>
+
+                    <x-ui.button href="{{ route('scrapyard.requests.show', $partHoldRequest) }}" variant="secondary" size="lg" class="w-full">
+                        Annuler
+                    </x-ui.button>
+                </div>
+            </x-ui.card>
+        </aside>
+    </div>
+</x-layouts.scrapyard>

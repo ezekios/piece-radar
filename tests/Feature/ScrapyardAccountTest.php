@@ -74,15 +74,15 @@ class ScrapyardAccountTest extends TestCase
             ->assertSee('Active')
             ->assertSee('Mon compte')
             ->assertSee('Déconnexion')
-            ->assertSee('href="' . route('scrapyard.account.show') . '"', false);
+            ->assertSee('href="'.route('scrapyard.account.show').'"', false);
 
         $html = $response->getContent();
 
-        $this->assertSame(3, substr_count($html, "data-password-toggle\n"));
+        $this->assertSame(3, preg_match_all('/<button[^>]*\bdata-password-toggle\b/s', $html));
         $this->assertMatchesRegularExpression('/id="current_password"\s+name="current_password"\s+type="password"/', $html);
         $this->assertMatchesRegularExpression('/id="password"\s+name="password"\s+type="password"/', $html);
         $this->assertMatchesRegularExpression('/id="password_confirmation"\s+name="password_confirmation"\s+type="password"/', $html);
-        $this->assertSame(3, substr_count($html, "type=\"button\"\n                                    class=\"absolute"));
+        $this->assertSame(3, preg_match_all('/type="button"\s+class="absolute/', $html));
         $this->assertStringContainsString('aria-label="Afficher le mot de passe"', $html);
     }
 
@@ -302,7 +302,7 @@ class ScrapyardAccountTest extends TestCase
     ): array {
         $user = $this->createScrapyardUser(array_merge([
             'name' => $name,
-            'email' => strtolower(str_replace(' ', '-', $name)) . '-' . uniqid() . '@example.com',
+            'email' => strtolower(str_replace(' ', '-', $name)).'-'.uniqid().'@example.com',
             'password' => Hash::make('password'),
             'phone' => '0696000000',
         ], $userAttributes));
@@ -310,9 +310,9 @@ class ScrapyardAccountTest extends TestCase
         $scrapyard = Scrapyard::query()->create(array_merge([
             'user_id' => $user->id,
             'name' => $name,
-            'slug' => strtolower(str_replace(' ', '-', $name)) . '-' . uniqid(),
+            'slug' => strtolower(str_replace(' ', '-', $name)).'-'.uniqid(),
             'phone' => '0596000000',
-            'email' => 'contact-' . uniqid() . '@example.com',
+            'email' => 'contact-'.uniqid().'@example.com',
             'address' => '1 rue de la casse',
             'postal_code' => '97200',
             'city' => 'Fort-de-France',

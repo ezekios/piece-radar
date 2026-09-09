@@ -3,11 +3,11 @@
     'description' => null,
 ])
 
-<section {{ $attributes->merge(['class' => 'rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm sm:p-8']) }}>
-    <h2 class="text-base font-black text-zinc-950">{{ $title }}</h2>
+<section {{ $attributes->merge(['class' => 'rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm dark:border-[#FC8505]/30 dark:bg-zinc-900 sm:p-8']) }}>
+    <h2 class="text-base font-black text-zinc-950 dark:text-zinc-50">{{ $title }}</h2>
 
     @if ($description)
-        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">{{ $description }}</p>
+        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">{{ $description }}</p>
     @endif
 
     @isset($actions)

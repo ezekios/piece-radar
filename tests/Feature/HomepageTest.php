@@ -38,7 +38,8 @@ class HomepageTest extends TestCase
     {
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('images/logo-piece-radar.png', false)
+            ->assertSee('images/logo-piece-radar-transparent.png', false)
+            ->assertSee('images/logo-piece-radar-transparent-dark.png', false)
             ->assertSee('alt="Pièce Radar"', false);
     }
 
@@ -74,7 +75,7 @@ class HomepageTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('method="GET"', false)
-            ->assertSee('action="' . route('client.parts.index') . '"', false)
+            ->assertSee('action="'.route('client.parts.index').'"', false)
             ->assertSee('name="q"', false)
             ->assertSee('name="license_plate"', false)
             ->assertSee('name="brand"', false)
@@ -174,7 +175,7 @@ class HomepageTest extends TestCase
     {
         $user = User::factory()->create(array_merge([
             'name' => 'Client Test',
-            'email' => 'client-' . uniqid() . '@example.com',
+            'email' => 'client-'.uniqid().'@example.com',
             'phone' => '0696000000',
             'password' => Hash::make('password'),
         ], $attributes));
@@ -190,7 +191,10 @@ class HomepageTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => $name,
-            'email' => strtolower(str_replace(' ', '-', $name)) . '-' . uniqid() . '@example.com',
+            'email' => strtolower(str_replace(' ', '-', $name))
+                .'-'
+                .uniqid()
+                .'@example.com',
             'phone' => '0596000000',
             'password' => Hash::make('password'),
         ]);
@@ -199,7 +203,9 @@ class HomepageTest extends TestCase
         $scrapyard = Scrapyard::query()->create([
             'user_id' => $user->id,
             'name' => $name,
-            'slug' => strtolower(str_replace(' ', '-', $name)) . '-' . uniqid(),
+            'slug' => strtolower(str_replace(' ', '-', $name))
+                .'-'
+                .uniqid(),
             'city' => 'Fort-de-France',
             'is_active' => true,
         ]);

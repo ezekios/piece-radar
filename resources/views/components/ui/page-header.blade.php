@@ -11,12 +11,12 @@
             <x-ui.badge :variant="$badgeVariant">{{ $eyebrow }}</x-ui.badge>
         @endif
 
-        <h1 class="{{ $eyebrow ? 'mt-3' : '' }} text-2xl font-black leading-tight text-zinc-950 sm:text-3xl lg:text-4xl">
+        <h1 class="{{ $eyebrow ? 'mt-3' : '' }} text-2xl font-black leading-tight text-zinc-950 dark:text-zinc-50 sm:text-3xl lg:text-4xl">
             {{ $title }}
         </h1>
 
         @if ($description)
-            <p class="mt-2 max-w-2xl text-sm font-medium leading-6 text-zinc-600 sm:text-base">
+            <p class="mt-2 max-w-2xl text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400 sm:text-base">
                 {{ $description }}
             </p>
         @endif

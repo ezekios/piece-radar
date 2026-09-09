@@ -1,268 +1,244 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@php
+    $statusLabels = [
+        'available' => 'Disponible',
+        'reserved' => 'Mise de côté',
+        'sold' => 'Vendue',
+        'unavailable' => 'Non disponible',
+        'preparing' => 'En préparation',
+    ];
 
-        <title>Pièces de la casse - Pièce Radar</title>
+    $statusVariants = [
+        'available' => 'success',
+        'reserved' => 'orange',
+        'sold' => 'info',
+        'unavailable' => 'neutral',
+        'preparing' => 'orange',
+    ];
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
-        @php
-            $statusLabels = [
-                'available' => 'Disponible',
-                'reserved' => 'Mise de côté',
-                'sold' => 'Vendue',
-                'unavailable' => 'Non disponible',
-                'preparing' => 'En préparation',
-            ];
+    $conditionLabels = [
+        'unknown' => 'État non précisé',
+        'used_good' => 'Occasion bon état',
+        'used_average' => 'Occasion état moyen',
+        'damaged' => 'Endommagée',
+    ];
 
-            $statusClasses = [
-                'available' => 'bg-emerald-50 text-emerald-700',
-                'reserved' => 'bg-[#FC8505]/10 text-[#C96504]',
-                'sold' => 'bg-blue-50 text-blue-700',
-                'unavailable' => 'bg-zinc-100 text-zinc-600',
-                'preparing' => 'bg-amber-50 text-amber-700',
-            ];
+    $displayTimezone = config('app.display_timezone', 'UTC');
 
-            $conditionLabels = [
-                'unknown' => 'État non précisé',
-                'used_good' => 'Occasion bon état',
-                'used_average' => 'Occasion état moyen',
-                'damaged' => 'Endommagée',
-            ];
+    $publicationFilters = [
+        ['label' => 'Toutes les pièces', 'value' => null],
+        ['label' => 'Publiées', 'value' => 'published'],
+        ['label' => 'Non publiées', 'value' => 'unpublished'],
+    ];
+@endphp
 
-            $displayTimezone = config('app.display_timezone', 'UTC');
+<x-layouts.scrapyard title="Pièces - Pièce Radar">
+    <x-slot:header>
+        <x-ui.page-header
+            eyebrow="Espace casse"
+            title="Pièces"
+            description="{{ $scrapyard?->name ? 'Préparez, publiez et suivez les pièces issues de vos véhicules donneurs.' : 'La liste des pièces sera disponible dès qu’une casse existera.' }}"
+        >
+            <x-slot:actions>
+                <x-ui.badge variant="neutral">
+                    {{ $parts->count() }} pièce{{ $parts->count() > 1 ? 's' : '' }}
+                </x-ui.badge>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-            $publicationFilters = [
-                ['label' => 'Toutes les pièces', 'value' => null],
-                ['label' => 'Publiées', 'value' => 'published'],
-                ['label' => 'Non publiées', 'value' => 'unpublished'],
-            ];
-        @endphp
+        @if ($scrapyard)
+            <p class="mt-2 text-sm font-semibold text-zinc-500">
+                {{ $scrapyard->name }}@if ($scrapyard->city) · {{ $scrapyard->city }}@endif
+            </p>
+        @endif
+    </x-slot:header>
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
-            <div class="mx-auto w-full max-w-4xl">
-                <header class="border-b border-zinc-200/80 pb-4">
-                    <div class="flex flex-wrap items-end justify-between gap-4">
-                        <div>
-                            <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
-                            @include('scrapyard.partials.navigation')
-                            <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Pièces de la casse</h1>
-                            <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                                {{ $scrapyard?->name ?? 'Aucune casse disponible' }}
-                                @if ($scrapyard?->city)
-                                    · {{ $scrapyard->city }}
-                                @endif
-                            </p>
-                        </div>
+    @if (! $scrapyard)
+        <x-ui.empty-state
+            class="mt-6"
+            title="Aucune casse n’est disponible."
+            description="La liste des pièces s’affichera dès qu’une casse existera en base."
+        />
+    @else
+        <section class="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.35fr)]">
+            <x-ui.card padding="p-4 sm:p-5">
+                <form method="GET" action="{{ route('scrapyard.parts.index') }}">
+                    <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_14rem]">
+                        <x-ui.input
+                            id="q"
+                            name="q"
+                            type="search"
+                            label="Rechercher une pièce"
+                            value="{{ request('q') }}"
+                            placeholder="Nom, référence, marque, modèle..."
+                        />
 
-                        <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
-                            {{ $parts->count() }} pièce{{ $parts->count() > 1 ? 's' : '' }} affichée{{ $parts->count() > 1 ? 's' : '' }}
-                        </span>
+                        <x-ui.select
+                            id="status"
+                            name="status"
+                            label="Statut"
+                            value="{{ request('status') }}"
+                            :options="$statusLabels"
+                            placeholder="Tous les statuts"
+                        />
                     </div>
-                </header>
 
-                @if (! $scrapyard)
-                    <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Aucune casse n’est disponible.</h2>
-                        <p class="mt-1.5 text-sm leading-6 text-zinc-600">
-                            La liste des pièces s’affichera dès qu’une casse existera en base.
-                        </p>
-                    </section>
-                @else
-                    <form method="GET" action="{{ route('scrapyard.parts.index') }}" class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <div class="grid gap-3 sm:grid-cols-[1fr_220px]">
-                            <div>
-                                <label for="q" class="text-xs font-black text-zinc-700">Rechercher une pièce</label>
-                                <input
-                                    id="q"
-                                    name="q"
-                                    type="search"
-                                    value="{{ request('q') }}"
-                                    placeholder="Nom, référence, marque, modèle..."
-                                    class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                >
-                            </div>
-
-                            <div>
-                                <label for="status" class="text-xs font-black text-zinc-700">Statut</label>
-                                <select
-                                    id="status"
-                                    name="status"
-                                    class="mt-1.5 h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                >
-                                    <option value="">Tous les statuts</option>
-                                    @foreach ($statusLabels as $status => $label)
-                                        <option value="{{ $status }}" @selected(request('status') === $status)>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                            <button
-                                type="submit"
-                                class="inline-flex h-11 items-center justify-center rounded-xl bg-[#FC8505] px-5 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
-                            >
-                                Rechercher
-                            </button>
-
-                            <a href="{{ route('scrapyard.parts.index') }}" class="inline-flex h-11 items-center justify-center text-sm font-bold text-zinc-500 hover:text-zinc-800">
-                                Réinitialiser
-                            </a>
-                        </div>
-                    </form>
-
-                    <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-black uppercase text-[#FC8505]">Publication</p>
-
-                        <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                            @foreach ($publicationFilters as $filter)
-                                @php
-                                    $isActive = $activePublication === $filter['value'];
-                                    $filterParameters = request()
-                                        ->only(['q', 'status'])
-                                        + ($filter['value'] ? ['publication' => $filter['value']] : []);
-                                @endphp
-
-                                <a
-                                    href="{{ route('scrapyard.parts.index', $filterParameters) }}"
-                                    class="inline-flex h-10 w-full items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
-                                >
-                                    {{ $filter['label'] }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </section>
-
-                    @if ($parts->isEmpty())
-                        <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                            <h2 class="text-base font-black text-zinc-950">Aucune pièce trouvée pour le moment.</h2>
-                        </section>
-                    @else
-                        <section class="mt-5 space-y-3">
-                            @foreach ($parts as $part)
-                                @php
-                                    $vehicle = $part->vehicle;
-                                    $status = $part->status;
-                                    $partImage = $part->images->first();
-                                    $createdAtDisplay = $part->created_at?->copy()->timezone($displayTimezone);
-                                @endphp
-
-                                <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                        <div class="flex min-w-0 gap-3">
-                                            <div class="flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
-                                                @if ($partImage)
-                                                    <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
-                                                @else
-                                                    <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
-                                                @endif
-                                            </div>
-
-                                            <div class="min-w-0">
-                                                <h2 class="truncate text-base font-black text-zinc-950">
-                                                    {{ $part->name }}
-                                                </h2>
-                                                <p class="mt-1 truncate text-xs font-semibold text-zinc-700">
-                                                    {{ $vehicle?->brand ?? 'Marque inconnue' }} {{ $vehicle?->model ?? '' }}
-                                                    @if ($vehicle?->year)
-                                                        · {{ $vehicle->year }}
-                                                    @endif
-                                                </p>
-                                                <p class="mt-1 text-xs font-medium text-zinc-500">
-                                                    {{ $conditionLabels[$part->condition] ?? $part->condition ?? 'État non précisé' }}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div class="text-left sm:text-right">
-                                            <p class="text-xl font-black text-[#FC8505]">
-                                                @if ($part->price !== null)
-                                                    {{ number_format((float) $part->price, 2, ',', ' ') }} €
-                                                @else
-                                                    Prix sur demande
-                                                @endif
-                                            </p>
-
-                                            <span class="mt-1 inline-flex rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">
-                                                {{ $statusLabels[$status] ?? $status }}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-4 grid gap-3 rounded-xl bg-zinc-50 p-3 text-sm sm:grid-cols-3">
-                                        <div>
-                                            <p class="text-xs font-bold text-zinc-500">Publication</p>
-                                            <p class="mt-1 font-black text-zinc-950">
-                                                {{ $part->is_published ? 'Publiée' : 'Non publiée' }}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <p class="text-xs font-bold text-zinc-500">Référence</p>
-                                            <p class="mt-1 font-black text-zinc-950">{{ $part->reference ?: 'Non renseignée' }}</p>
-                                        </div>
-
-                                        <div>
-                                            <p class="text-xs font-bold text-zinc-500">Référence OEM</p>
-                                            <p class="mt-1 font-black text-zinc-950">{{ $part->oem_reference ?: 'Non renseignée' }}</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-3 border-t border-zinc-100 pt-3">
-                                        <p class="text-xs font-medium text-zinc-400">
-                                            Créée le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
-                                        </p>
-
-                                        <div class="mt-3">
-                                            <p class="text-xs font-black uppercase text-zinc-500">Actions rapides</p>
-
-                                            <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                                                <a href="{{ route('scrapyard.parts.show', $part) }}" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#FC8505]/30 bg-white px-4 text-sm font-black text-[#FC8505] transition hover:bg-[#FC8505]/10 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
-                                                    Voir la pièce
-                                                </a>
-
-                                                <a href="{{ route('scrapyard.parts.preparation.edit', $part) }}" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-black text-zinc-700 transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
-                                                    Préparer / vérifier
-                                                </a>
-
-                                                @if (! $part->is_published)
-                                                    <form method="POST" action="{{ route('scrapyard.parts.publish', $part) }}" class="sm:inline-flex">
-                                                        @csrf
-
-                                                        <button
-                                                            type="submit"
-                                                            class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FC8505] px-4 text-sm font-black text-white transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
-                                                        >
-                                                            Publier
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <form method="POST" action="{{ route('scrapyard.parts.unpublish', $part) }}" class="sm:inline-flex">
-                                                        @csrf
-
-                                                        <button
-                                                            type="submit"
-                                                            class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-black text-zinc-700 transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
-                                                        >
-                                                            Retirer
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>
-                            @endforeach
-                        </section>
+                    @if ($activePublication)
+                        <input type="hidden" name="publication" value="{{ $activePublication }}">
                     @endif
-                @endif
-            </div>
-        </main>
-    </body>
-</html>
+
+                    <div class="mt-4 flex flex-col gap-2 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
+                        <x-ui.button as="button" type="submit" variant="primary" size="md" class="w-full min-[390px]:w-auto">
+                            Rechercher
+                        </x-ui.button>
+
+                        <x-ui.button href="{{ route('scrapyard.parts.index') }}" variant="ghost" size="md" class="w-full min-[390px]:w-auto">
+                            Réinitialiser
+                        </x-ui.button>
+                    </div>
+                </form>
+            </x-ui.card>
+
+            <x-ui.card padding="p-4 sm:p-5">
+                <p class="text-xs font-black uppercase tracking-[0.12em] text-[#C96504]">Publication</p>
+
+                <div class="mt-3 flex flex-col gap-2 min-[390px]:flex-row min-[390px]:flex-wrap xl:flex-col">
+                    @foreach ($publicationFilters as $filter)
+                        @php
+                            $isActive = $activePublication === $filter['value'];
+                            $filterParameters = request()
+                                ->only(['q', 'status'])
+                                + ($filter['value'] ? ['publication' => $filter['value']] : []);
+                        @endphp
+
+                        <x-ui.button
+                            href="{{ route('scrapyard.parts.index', $filterParameters) }}"
+                            :variant="$isActive ? 'primary' : 'secondary'"
+                            size="sm"
+                            class="w-full min-[390px]:w-auto xl:w-full"
+                        >
+                            {{ $filter['label'] }}
+                        </x-ui.button>
+                    @endforeach
+                </div>
+            </x-ui.card>
+        </section>
+
+        @if ($parts->isEmpty())
+            <x-ui.empty-state class="mt-5" title="Aucune pièce trouvée pour le moment." />
+        @else
+            <section class="mt-5 grid gap-4 xl:grid-cols-2" aria-label="Pièces de la casse">
+                @foreach ($parts as $part)
+                    @php
+                        $vehicle = $part->vehicle;
+                        $status = $part->status;
+                        $partImage = $part->images->first();
+                        $createdAtDisplay = $part->created_at?->copy()->timezone($displayTimezone);
+                    @endphp
+
+                    <x-ui.card as="article" padding="p-4 sm:p-5" class="flex h-full flex-col">
+                        <div class="flex flex-col gap-4 min-[390px]:flex-row min-[390px]:items-start min-[390px]:justify-between">
+                            <div class="flex min-w-0 gap-3">
+                                <div class="flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                    @if ($partImage)
+                                        <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
+                                    @else
+                                        <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                                    @endif
+                                </div>
+
+                                <div class="min-w-0">
+                                    <h2 class="break-words text-lg font-black leading-tight text-zinc-950">
+                                        {{ $part->name }}
+                                    </h2>
+                                    <p class="mt-1 text-sm font-semibold text-zinc-700">
+                                        {{ $vehicle?->brand ?? 'Marque inconnue' }} {{ $vehicle?->model ?? '' }}
+                                        @if ($vehicle?->year)
+                                            · {{ $vehicle->year }}
+                                        @endif
+                                    </p>
+                                    <p class="mt-1 text-xs font-medium text-zinc-500">
+                                        {{ $conditionLabels[$part->condition] ?? $part->condition ?? 'État non précisé' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="shrink-0 text-left min-[390px]:text-right">
+                                <p class="text-xl font-black text-[#FC8505]">
+                                    @if ($part->price !== null)
+                                        {{ number_format((float) $part->price, 2, ',', ' ') }} €
+                                    @else
+                                        Prix sur demande
+                                    @endif
+                                </p>
+
+                                <div class="mt-2 flex flex-wrap gap-2 min-[390px]:justify-end">
+                                    <x-ui.badge :variant="$statusVariants[$status] ?? 'neutral'">
+                                        {{ $statusLabels[$status] ?? $status }}
+                                    </x-ui.badge>
+                                    <x-ui.badge :variant="$part->is_published ? 'success' : 'neutral'">
+                                        {{ $part->is_published ? 'Publiée' : 'Non publiée' }}
+                                    </x-ui.badge>
+                                </div>
+                            </div>
+                        </div>
+
+                        <dl class="mt-4 grid gap-3 rounded-xl bg-zinc-50 p-3 text-sm min-[390px]:grid-cols-3">
+                            <div>
+                                <dt class="text-xs font-bold text-zinc-500">Publication</dt>
+                                <dd class="mt-1 font-black text-zinc-950">{{ $part->is_published ? 'Publiée' : 'Non publiée' }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-xs font-bold text-zinc-500">Référence</dt>
+                                <dd class="mt-1 break-words font-black text-zinc-950">{{ $part->reference ?: 'Non renseignée' }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-xs font-bold text-zinc-500">Référence OEM</dt>
+                                <dd class="mt-1 break-words font-black text-zinc-950">{{ $part->oem_reference ?: 'Non renseignée' }}</dd>
+                            </div>
+                        </dl>
+
+                        <div class="mt-auto pt-4">
+                            <p class="text-xs font-medium text-zinc-400">
+                                Créée le {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
+                            </p>
+
+                            <div class="mt-3 border-t border-zinc-100 pt-3">
+                                <p class="text-xs font-black uppercase tracking-[0.12em] text-zinc-400">Actions rapides</p>
+
+                                <div class="mt-2 flex flex-col gap-2 min-[390px]:flex-row min-[390px]:flex-wrap">
+                                    <x-ui.button href="{{ route('scrapyard.parts.show', $part) }}" variant="secondary" size="md" class="w-full min-[390px]:w-auto">
+                                        Voir la pièce
+                                    </x-ui.button>
+
+                                    <x-ui.button href="{{ route('scrapyard.parts.preparation.edit', $part) }}" variant="secondary" size="md" class="w-full min-[390px]:w-auto">
+                                        Préparer / vérifier
+                                    </x-ui.button>
+
+                                    @if (! $part->is_published)
+                                        <form method="POST" action="{{ route('scrapyard.parts.publish', $part) }}" class="min-[390px]:inline-flex">
+                                            @csrf
+
+                                            <x-ui.button as="button" type="submit" variant="primary" size="md" class="w-full min-[390px]:w-auto">
+                                                Publier
+                                            </x-ui.button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('scrapyard.parts.unpublish', $part) }}" class="min-[390px]:inline-flex">
+                                            @csrf
+
+                                            <x-ui.button as="button" type="submit" variant="secondary" size="md" class="w-full min-[390px]:w-auto">
+                                                Retirer
+                                            </x-ui.button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </x-ui.card>
+                @endforeach
+            </section>
+        @endif
+    @endif
+</x-layouts.scrapyard>

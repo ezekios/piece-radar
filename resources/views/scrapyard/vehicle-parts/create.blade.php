@@ -1,235 +1,181 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@php
+    $conditionLabels = [
+        'unknown' => 'État non précisé',
+        'used_good' => 'Occasion bon état',
+        'used_average' => 'Occasion état moyen',
+        'damaged' => 'Endommagée',
+    ];
 
-        <title>Ajouter une pièce - Pièce Radar</title>
+    $statusLabels = [
+        'preparing' => 'En préparation',
+        'available' => 'Disponible',
+        'reserved' => 'Mise de côté',
+        'sold' => 'Vendue',
+        'unavailable' => 'Non disponible',
+    ];
+@endphp
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
-        @php
-            $conditionLabels = [
-                'unknown' => 'État non précisé',
-                'used_good' => 'Occasion bon état',
-                'used_average' => 'Occasion état moyen',
-                'damaged' => 'Endommagée',
-            ];
+<x-layouts.scrapyard title="Ajouter une pièce - Pièce Radar" max-width="max-w-5xl">
+    <x-slot:header>
+        <x-ui.page-header
+            eyebrow="Pièces"
+            title="Ajouter une pièce"
+            description="{{ $scrapyard?->name ? 'Renseignez une nouvelle pièce issue du véhicule donneur.' : 'Le formulaire sera disponible dès qu’une casse existera.' }}"
+        >
+            <x-slot:actions>
+                <x-ui.button href="{{ route('scrapyard.vehicles.show', $vehicle) }}" variant="secondary" size="md" class="w-full sm:w-auto">
+                    Retour vers le véhicule
+                </x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-            $statusLabels = [
-                'preparing' => 'En préparation',
-                'available' => 'Disponible',
-                'reserved' => 'Mise de côté',
-                'sold' => 'Vendue',
-                'unavailable' => 'Non disponible',
-            ];
-        @endphp
+        @if ($scrapyard)
+            <p class="mt-2 text-sm font-semibold text-zinc-500">
+                {{ $scrapyard->name }}@if ($scrapyard->city) · {{ $scrapyard->city }}@endif
+            </p>
+        @endif
+    </x-slot:header>
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
-            <div class="mx-auto w-full max-w-3xl">
-                <header class="border-b border-zinc-200/80 pb-4">
-                    <div>
-                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
-                        @include('scrapyard.partials.navigation')
-                        <a href="{{ route('scrapyard.vehicles.show', $vehicle) }}" class="mt-4 inline-flex text-sm font-black text-[#FC8505] hover:text-[#E87804]">
-                            Retour vers le véhicule
-                        </a>
-                        <h1 class="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Ajouter une pièce</h1>
-                        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
-                            {{ $scrapyard?->name ?? 'Aucune casse disponible' }}
-                            @if ($scrapyard?->city)
-                                · {{ $scrapyard->city }}
-                            @endif
-                        </p>
+    @if (! $scrapyard)
+        <x-ui.empty-state
+            class="mt-6"
+            title="Aucune casse n’est disponible."
+            description="Le formulaire sera disponible dès qu’une casse existera en base."
+        />
+    @else
+        <div class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)]">
+            <x-ui.card as="section" padding="p-4 sm:p-5" class="h-fit">
+                <p class="text-xs font-black uppercase tracking-[0.12em] text-[#C96504]">Véhicule concerné</p>
+                <h2 class="mt-2 break-words text-xl font-black text-zinc-950">
+                    {{ $vehicle->brand }} {{ $vehicle->model }}
+                </h2>
+                <dl class="mt-4 grid gap-3 text-sm min-[390px]:grid-cols-2 lg:grid-cols-1">
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="text-xs font-bold text-zinc-500">Année</dt>
+                        <dd class="mt-1 font-black text-zinc-950">{{ $vehicle->year ?: 'Année non renseignée' }}</dd>
                     </div>
-                </header>
+                    <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                        <dt class="text-xs font-bold text-zinc-500">Plaque</dt>
+                        <dd class="mt-1 break-words font-black text-zinc-950">{{ $vehicle->license_plate ?: 'Non renseignée' }}</dd>
+                    </div>
+                </dl>
+            </x-ui.card>
 
-                @if (! $scrapyard)
-                    <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Aucune casse n’est disponible.</h2>
-                        <p class="mt-1.5 text-sm leading-6 text-zinc-600">
-                            Le formulaire sera disponible dès qu’une casse existera en base.
-                        </p>
-                    </section>
-                @else
-                    <section class="mt-5 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-black uppercase text-[#FC8505]">Véhicule concerné</p>
-                        <h2 class="mt-1 text-lg font-black text-zinc-950">
-                            {{ $vehicle->brand }} {{ $vehicle->model }}
-                        </h2>
-                        <p class="mt-1 text-sm font-medium text-zinc-600">
-                            @if ($vehicle->year)
-                                {{ $vehicle->year }}
-                            @else
-                                Année non renseignée
-                            @endif
-                        </p>
-                    </section>
+            <x-ui.card padding="p-4 sm:p-5">
+                <form method="POST" action="{{ route('scrapyard.vehicles.parts.store', $vehicle) }}" enctype="multipart/form-data" class="space-y-5">
+                    @csrf
 
-                    <form method="POST" action="{{ route('scrapyard.vehicles.parts.store', $vehicle) }}" enctype="multipart/form-data" class="mt-4 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        @csrf
+                    <section>
+                        <h2 class="text-lg font-black text-zinc-950">Informations de la pièce</h2>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="sm:col-span-2">
-                            <label for="name" class="text-sm font-black text-zinc-900">Nom de la pièce</label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                value="{{ old('name') }}"
-                                required
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                placeholder="Phare avant droit"
-                            >
-                            @error('name')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                            <div class="sm:col-span-2">
+                                <x-ui.input
+                                    id="name"
+                                    name="name"
+                                    label="Nom de la pièce"
+                                    value="{{ old('name') }}"
+                                    required
+                                    placeholder="Phare avant droit"
+                                />
+                            </div>
 
-                        <div>
-                            <label for="category" class="text-sm font-black text-zinc-900">Catégorie</label>
-                            <input
+                            <x-ui.input
                                 id="category"
                                 name="category"
-                                type="text"
+                                label="Catégorie"
                                 value="{{ old('category') }}"
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
                                 placeholder="Optique"
-                            >
-                            @error('category')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                            />
 
-                        <div>
-                            <label for="price" class="text-sm font-black text-zinc-900">Prix</label>
-                            <input
+                            <x-ui.input
                                 id="price"
                                 name="price"
                                 type="number"
+                                label="Prix"
+                                value="{{ old('price') }}"
                                 min="0"
                                 step="0.01"
-                                value="{{ old('price') }}"
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
                                 placeholder="85"
-                            >
-                            @error('price')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                            />
 
-                        <div>
-                            <label for="condition" class="text-sm font-black text-zinc-900">État</label>
-                            <select
+                            <x-ui.select
                                 id="condition"
                                 name="condition"
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                            >
-                                @foreach ($conditionLabels as $condition => $label)
-                                    <option value="{{ $condition }}" @selected(old('condition', 'unknown') === $condition)>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('condition')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                                label="État"
+                                value="{{ old('condition', 'unknown') }}"
+                                :options="$conditionLabels"
+                            />
 
-                        <div>
-                            <label for="status" class="text-sm font-black text-zinc-900">Statut</label>
-                            <select
+                            <x-ui.select
                                 id="status"
                                 name="status"
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                            >
-                                @foreach ($statusLabels as $status => $label)
-                                    <option value="{{ $status }}" @selected(old('status', 'preparing') === $status)>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('status')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                                label="Statut"
+                                value="{{ old('status', 'preparing') }}"
+                                :options="$statusLabels"
+                            />
 
-                        <div>
-                            <label for="reference" class="text-sm font-black text-zinc-900">Référence</label>
-                            <input
+                            <x-ui.input
                                 id="reference"
                                 name="reference"
-                                type="text"
+                                label="Référence"
                                 value="{{ old('reference') }}"
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
                                 placeholder="REF-123"
-                            >
-                            @error('reference')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                            />
 
-                        <div>
-                            <label for="oem_reference" class="text-sm font-black text-zinc-900">Référence OEM</label>
-                            <input
+                            <x-ui.input
                                 id="oem_reference"
                                 name="oem_reference"
-                                type="text"
+                                label="Référence OEM"
                                 value="{{ old('oem_reference') }}"
-                                class="mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
                                 placeholder="OEM-456"
-                            >
-                            @error('oem_reference')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                            />
 
-                        <div class="sm:col-span-2">
-                            <label for="description" class="text-sm font-black text-zinc-900">Description</label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                rows="5"
-                                class="mt-2 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
-                                placeholder="Informations utiles sur l’état ou la compatibilité."
-                            >{{ old('description') }}</textarea>
-                            @error('description')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
+                            <div class="sm:col-span-2">
+                                <x-ui.textarea
+                                    id="description"
+                                    name="description"
+                                    label="Description"
+                                    value="{{ old('description') }}"
+                                    rows="5"
+                                    placeholder="Informations utiles sur l’état ou la compatibilité."
+                                />
+                            </div>
                         </div>
-                        </div>
+                    </section>
 
-                        <div class="rounded-2xl border border-zinc-200 bg-white p-4">
-                            <label for="photos" class="text-sm font-black text-zinc-900">Photos de la pièce</label>
-                            <p class="mt-1 text-xs font-medium leading-5 text-zinc-500">
-                                Maximum 5 photos — JPG, PNG ou WebP — 5 Mo maximum par photo.
-                            </p>
-                            <input
-                                id="photos"
-                                name="photos[]"
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                class="mt-3 block w-full cursor-pointer text-sm font-medium text-zinc-700 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-[#FC8505] file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-[#E87804]"
-                            >
-                            @error('photos')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                            @error('photos.*')
-                                <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+                    <section class="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                        <label for="photos" class="text-sm font-black text-zinc-900">Photos de la pièce</label>
+                        <p class="mt-1 text-xs font-medium leading-5 text-zinc-500">
+                            Maximum 5 photos — JPG, PNG ou WebP — 5 Mo maximum par photo.
+                        </p>
+                        <input
+                            id="photos"
+                            name="photos[]"
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            class="mt-3 block w-full cursor-pointer text-sm font-medium text-zinc-700 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-[#FC8505] file:px-4 file:py-2.5 file:text-sm file:font-black file:text-white hover:file:bg-[#E87804]"
                         >
+                        @error('photos')
+                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('photos.*')
+                            <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                        @enderror
+                    </section>
+
+                    <div class="flex flex-col gap-2 min-[390px]:flex-row min-[390px]:items-center">
+                        <x-ui.button as="button" type="submit" variant="primary" size="lg" class="w-full min-[390px]:w-auto">
                             Ajouter la pièce
-                        </button>
-                    </form>
-                @endif
-            </div>
-        </main>
-    </body>
-</html>
+                        </x-ui.button>
+
+                        <x-ui.button href="{{ route('scrapyard.vehicles.show', $vehicle) }}" variant="secondary" size="lg" class="w-full min-[390px]:w-auto">
+                            Annuler
+                        </x-ui.button>
+                    </div>
+                </form>
+            </x-ui.card>
+        </div>
+    @endif
+</x-layouts.scrapyard>

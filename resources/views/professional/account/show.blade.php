@@ -6,12 +6,13 @@
 
         <title>Mon compte professionnel - Pièce Radar</title>
 
+        <x-ui.theme-script />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
+    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased dark:bg-zinc-950 dark:text-zinc-50">
         @php
-            $inputClass = 'mt-2 h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20';
-            $labelClass = 'text-sm font-black text-zinc-900';
+            $inputClass = 'mt-2 h-12 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 px-3 text-sm font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20';
+            $labelClass = 'text-sm font-black text-zinc-900 dark:text-zinc-100';
             $navLinks = [
                 ['label' => 'Recherche', 'url' => route('client.parts.index')],
                 ['label' => 'Mes recherches', 'url' => route('client.saved-searches.index')],
@@ -37,20 +38,22 @@
 
         <main class="mx-auto min-h-screen w-full max-w-6xl px-3 pb-24 pt-4 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-5xl">
-                <header class="border-b border-zinc-200/80 pb-5">
+                <header class="border-b border-zinc-200 pb-5 dark:border-zinc-800/80">
                     <div class="flex items-center justify-between gap-3">
-                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" theme-aware />
 
                         <div class="hidden flex-wrap items-center gap-2 sm:flex">
+                            <x-ui.theme-toggle />
+
                             @foreach ($navLinks as $link)
-                                <a href="{{ $link['url'] }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                <a href="{{ $link['url'] }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-sm font-black text-zinc-700 dark:text-zinc-300 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
                                     {{ $link['label'] }}
                                 </a>
                             @endforeach
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                <button type="submit" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-sm font-black text-zinc-700 dark:text-zinc-300 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
                                     Déconnexion
                                 </button>
                             </form>
@@ -60,18 +63,18 @@
                     <div class="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.36fr)] lg:items-end">
                         <div>
                             <x-ui.badge variant="orange">Espace professionnel</x-ui.badge>
-                            <h1 class="mt-3 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl lg:text-4xl">
+                            <h1 class="mt-3 text-2xl font-black leading-tight text-zinc-950 dark:text-zinc-50 sm:text-3xl lg:text-4xl">
                                 Mon compte garage / mécanicien
                             </h1>
-                            <p class="mt-2 max-w-2xl text-sm font-medium leading-6 text-zinc-600 sm:text-base">
+                            <p class="mt-2 max-w-2xl text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400 sm:text-base">
                                 Gérez votre profil professionnel, vos coordonnées et la sécurité du compte.
                             </p>
                         </div>
 
                         <x-ui.card padding="p-4" class="hidden lg:block">
                             <p class="text-xs font-black uppercase tracking-[0.14em] text-zinc-400">Compte connecté</p>
-                            <p class="mt-2 truncate text-sm font-black text-zinc-950">{{ $user->name }}</p>
-                            <p class="mt-1 truncate text-xs font-semibold text-zinc-500">{{ $user->email }}</p>
+                            <p class="mt-2 truncate text-sm font-black text-zinc-950 dark:text-zinc-50">{{ $user->name }}</p>
+                            <p class="mt-1 truncate text-xs font-semibold text-zinc-500 dark:text-zinc-400">{{ $user->email }}</p>
                         </x-ui.card>
                     </div>
                 </header>
@@ -89,8 +92,8 @@
                                 <x-ui.icon name="building" class="h-5 w-5" />
                             </span>
                             <div class="min-w-0">
-                                <h2 class="text-lg font-black text-zinc-950">Entreprise</h2>
-                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                <h2 class="text-lg font-black text-zinc-950 dark:text-zinc-50">Entreprise</h2>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                                     Informations du garage, atelier ou professionnel acheteur.
                                 </p>
                             </div>
@@ -98,9 +101,9 @@
 
                         <dl class="mt-4 grid gap-3 sm:grid-cols-2">
                             @foreach ($businessDetails as $detail)
-                                <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                                <div class="rounded-xl bg-zinc-50 dark:bg-zinc-800 p-3 ring-1 ring-zinc-200 dark:ring-zinc-700">
                                     <dt class="text-xs font-black uppercase tracking-[0.12em] text-zinc-400">{{ $detail['label'] }}</dt>
-                                    <dd class="mt-1.5 break-words text-sm font-black text-zinc-950">{{ $detail['value'] }}</dd>
+                                    <dd class="mt-1.5 break-words text-sm font-black text-zinc-950 dark:text-zinc-50">{{ $detail['value'] }}</dd>
                                 </div>
                             @endforeach
                         </dl>
@@ -108,12 +111,12 @@
 
                     <x-ui.card as="article" padding="p-4 sm:p-5">
                         <div class="flex items-start gap-3">
-                            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
+                            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-900">
                                 <x-ui.icon name="account" class="h-5 w-5" />
                             </span>
                             <div class="min-w-0">
-                                <h2 class="text-lg font-black text-zinc-950">Responsable du compte</h2>
-                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                <h2 class="text-lg font-black text-zinc-950 dark:text-zinc-50">Responsable du compte</h2>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                                     Coordonnées utilisées pour vos recherches et demandes.
                                 </p>
                             </div>
@@ -121,9 +124,9 @@
 
                         <dl class="mt-4 grid gap-3 sm:grid-cols-2">
                             @foreach ($accountDetails as $detail)
-                                <div class="rounded-xl bg-zinc-50 p-3 ring-1 ring-zinc-200">
+                                <div class="rounded-xl bg-zinc-50 dark:bg-zinc-800 p-3 ring-1 ring-zinc-200 dark:ring-zinc-700">
                                     <dt class="text-xs font-black uppercase tracking-[0.12em] text-zinc-400">{{ $detail['label'] }}</dt>
-                                    <dd class="mt-1.5 break-words text-sm font-black text-zinc-950">{{ $detail['value'] }}</dd>
+                                    <dd class="mt-1.5 break-words text-sm font-black text-zinc-950 dark:text-zinc-50">{{ $detail['value'] }}</dd>
                                 </div>
                             @endforeach
                         </dl>
@@ -132,8 +135,8 @@
 
                 <section class="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                     <x-ui.card as="section" padding="p-4 sm:p-5">
-                        <h2 class="text-lg font-black text-zinc-950">Compte utilisateur</h2>
-                        <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                        <h2 class="text-lg font-black text-zinc-950 dark:text-zinc-50">Compte utilisateur</h2>
+                        <p class="mt-1 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                             L’adresse email est affichée pour information et ne peut pas être modifiée ici.
                         </p>
 
@@ -145,7 +148,7 @@
                                 <label for="name" class="{{ $labelClass }}">Nom du responsable</label>
                                 <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" autocomplete="name" class="{{ $inputClass }}">
                                 @error('name')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -153,7 +156,7 @@
                                 <label for="phone" class="{{ $labelClass }}">Téléphone</label>
                                 <input id="phone" name="phone" type="tel" value="{{ old('phone', $user->phone) }}" autocomplete="tel" class="{{ $inputClass }}">
                                 @error('phone')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -164,8 +167,8 @@
                     </x-ui.card>
 
                     <x-ui.card as="section" padding="p-4 sm:p-5" class="h-fit">
-                        <h2 class="text-lg font-black text-zinc-950">Informations professionnelles</h2>
-                        <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                        <h2 class="text-lg font-black text-zinc-950 dark:text-zinc-50">Informations professionnelles</h2>
+                        <p class="mt-1 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                             Ces informations décrivent le garage, l’atelier ou l’entreprise qui recherche des pièces.
                         </p>
 
@@ -177,7 +180,7 @@
                                 <label for="company_name" class="{{ $labelClass }}">Nom de l’entreprise / garage</label>
                                 <input id="company_name" name="company_name" type="text" value="{{ old('company_name', $profile?->company_name) }}" class="{{ $inputClass }}">
                                 @error('company_name')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -185,7 +188,7 @@
                                 <label for="siret" class="{{ $labelClass }}">SIRET</label>
                                 <input id="siret" name="siret" type="text" value="{{ old('siret', $profile?->siret) }}" class="{{ $inputClass }}">
                                 @error('siret')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -193,7 +196,7 @@
                                 <label for="city" class="{{ $labelClass }}">Ville</label>
                                 <input id="city" name="city" type="text" value="{{ old('city', $profile?->city) }}" class="{{ $inputClass }}">
                                 @error('city')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -201,7 +204,7 @@
                                 <label for="postal_code" class="{{ $labelClass }}">Code postal</label>
                                 <input id="postal_code" name="postal_code" type="text" value="{{ old('postal_code', $profile?->postal_code) }}" class="{{ $inputClass }}">
                                 @error('postal_code')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -209,7 +212,7 @@
                                 <label for="address" class="{{ $labelClass }}">Adresse</label>
                                 <input id="address" name="address" type="text" value="{{ old('address', $profile?->address) }}" class="{{ $inputClass }}">
                                 @error('address')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -223,12 +226,12 @@
 
                     <x-ui.card as="section" padding="p-4 sm:p-5">
                         <div class="flex items-start gap-3">
-                            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+                            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-900">
                                 <x-ui.icon name="shield" class="h-5 w-5" />
                             </span>
                             <div>
-                                <h2 class="text-lg font-black text-zinc-950">Modifier mon mot de passe</h2>
-                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600">
+                                <h2 class="text-lg font-black text-zinc-950 dark:text-zinc-50">Modifier mon mot de passe</h2>
+                                <p class="mt-1 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                                     Utilisez votre mot de passe actuel pour valider le changement.
                                 </p>
                             </div>
@@ -242,7 +245,7 @@
                                 <label for="current_password" class="{{ $labelClass }}">Mot de passe actuel</label>
                                 <input id="current_password" name="current_password" type="password" autocomplete="current-password" class="{{ $inputClass }}">
                                 @error('current_password')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -250,7 +253,7 @@
                                 <label for="password" class="{{ $labelClass }}">Nouveau mot de passe</label>
                                 <input id="password" name="password" type="password" autocomplete="new-password" class="{{ $inputClass }}">
                                 @error('password')
-                                    <p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>
+                                    <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-300">{{ $message }}</p>
                                 @enderror
                             </div>
 
