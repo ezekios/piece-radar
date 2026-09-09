@@ -49,6 +49,10 @@
                                     <a href="{{ route('client.requests.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
                                         Mes demandes
                                     </a>
+
+                                    <a href="{{ route('notifications.index') }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                        Notifications
+                                    </a>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="text-sm font-bold text-zinc-500 hover:text-zinc-900">

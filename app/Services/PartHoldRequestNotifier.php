@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\PartHoldRequest;
 use App\Models\Scrapyard;
+use App\Notifications\Application\PartHoldRequestAcceptedNotification as ApplicationPartHoldRequestAcceptedNotification;
+use App\Notifications\Application\PartHoldRequestExpiredNotification as ApplicationPartHoldRequestExpiredNotification;
+use App\Notifications\Application\PartHoldRequestRefusedNotification as ApplicationPartHoldRequestRefusedNotification;
 use App\Notifications\PartHoldRequests\NewPartHoldRequestNotification;
 use App\Notifications\PartHoldRequests\PartHoldRequestAcceptedNotification;
 use App\Notifications\PartHoldRequests\PartHoldRequestCancelledNotification;
@@ -31,11 +34,13 @@ class PartHoldRequestNotifier
     public function accepted(PartHoldRequest $partHoldRequest): void
     {
         $this->notifyClient($partHoldRequest, new PartHoldRequestAcceptedNotification($partHoldRequest));
+        $this->notifyClient($partHoldRequest, new ApplicationPartHoldRequestAcceptedNotification($partHoldRequest));
     }
 
     public function refused(PartHoldRequest $partHoldRequest): void
     {
         $this->notifyClient($partHoldRequest, new PartHoldRequestRefusedNotification($partHoldRequest));
+        $this->notifyClient($partHoldRequest, new ApplicationPartHoldRequestRefusedNotification($partHoldRequest));
     }
 
     public function cancelled(PartHoldRequest $partHoldRequest): void
@@ -51,6 +56,7 @@ class PartHoldRequestNotifier
     public function expired(PartHoldRequest $partHoldRequest): void
     {
         $this->notifyClient($partHoldRequest, new PartHoldRequestExpiredNotification($partHoldRequest));
+        $this->notifyClient($partHoldRequest, new ApplicationPartHoldRequestExpiredNotification($partHoldRequest));
     }
 
     private function notifyClient(PartHoldRequest $partHoldRequest, Notification $notification): void

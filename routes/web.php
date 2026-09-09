@@ -9,6 +9,7 @@ use App\Http\Controllers\EmailVerificationNotificationController;
 use App\Http\Controllers\EmailVerificationPromptController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewPasswordController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\ScrapyardAccountController;
@@ -76,6 +77,23 @@ Route::post('/verification-email/renvoyer', [EmailVerificationNotificationContro
 
 Route::get('/pieces', [ClientPartController::class, 'index'])
     ->name('client.parts.index');
+
+Route::middleware('auth')->group(function (): void {
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::patch('/notifications/{notification}/lue', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.mark-read');
+
+    Route::get('/notifications/{notification}/ouvrir', [NotificationController::class, 'open'])
+        ->name('notifications.open');
+
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])
+        ->name('notifications.destroy');
+
+    Route::post('/notifications/tout-marquer-lu', [NotificationController::class, 'markAllAsRead'])
+        ->name('notifications.mark-all-read');
+});
 
 Route::middleware(['auth', 'client', 'verified'])->group(function (): void {
     Route::get('/mon-compte', [ClientAccountController::class, 'show'])

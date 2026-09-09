@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Models\Part;
 use App\Models\SavedPartSearch;
+use App\Notifications\Application\SavedPartSearchMatchedNotification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ArrivalMatchingService
 {
@@ -33,6 +36,8 @@ class ArrivalMatchingService
                         'matched_part_id' => $part->id,
                         'matched_at' => now(),
                     ])->save();
+
+                    $this->notifyMatchedSearch($savedSearch->fresh());
 
                     $matchedCount++;
                 }
@@ -93,5 +98,23 @@ class ArrivalMatchingService
         $value = Str::lower(trim($value));
 
         return preg_replace('/\s+/', ' ', $value) ?? '';
+    }
+
+    private function notifyMatchedSearch(SavedPartSearch $savedPartSearch): void
+    {
+        $savedPartSearch->loadMissing(['user', 'matchedPart']);
+
+        if (! $savedPartSearch->user) {
+            return;
+        }
+
+        try {
+            $savedPartSearch->user->notify(new SavedPartSearchMatchedNotification($savedPartSearch));
+        } catch (Throwable $exception) {
+            Log::warning('Saved part search notification could not be sent.', [
+                'saved_part_search_id' => $savedPartSearch->id,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 }
