@@ -17,7 +17,7 @@
             $buyerAccountRoute = $isProfessional ? route('professional.account.show') : route('client.account.show');
         @endphp
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="mb-4">
                     <a href="{{ route('pieces.show', $part) }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="min-w-0 flex-1">
-                            <div class="flex items-start justify-between gap-3">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                                 <div class="min-w-0">
                                     <h2 class="truncate text-base font-black text-zinc-950">{{ $part->name }}</h2>
                                     <p class="mt-1 truncate text-xs font-semibold text-zinc-700">
@@ -150,5 +150,7 @@
                 </form>
             </div>
         </main>
+
+        <x-client.mobile-navigation active="search" />
     </body>
 </html>

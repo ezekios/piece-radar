@@ -65,16 +65,16 @@
                             </p>
                         </div>
 
-                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                             <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-600 ring-1 ring-zinc-200">
                                 {{ $vehicle->parts->count() }} pièce{{ $vehicle->parts->count() > 1 ? 's' : '' }}
                             </span>
 
-                            <a href="{{ route('scrapyard.vehicles.edit', $vehicle) }}" class="inline-flex items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                            <a href="{{ route('scrapyard.vehicles.edit', $vehicle) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                 Modifier le véhicule
                             </a>
 
-                            <a href="{{ route('scrapyard.vehicles.parts.create', $vehicle) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                            <a href="{{ route('scrapyard.vehicles.parts.create', $vehicle) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                 Ajouter une pièce
                             </a>
                         </div>
@@ -83,7 +83,7 @@
 
                 <div class="mt-4 space-y-3">
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <h2 class="text-xl font-black text-zinc-950">
                                     {{ $vehicle->brand }} {{ $vehicle->model }}
@@ -94,7 +94,7 @@
                             </div>
 
                             @if ($vehicle->year)
-                                <span class="rounded-full bg-[#FC8505]/10 px-3 py-1 text-xs font-black text-[#C96504]">
+                                <span class="w-fit rounded-full bg-[#FC8505]/10 px-3 py-1 text-xs font-black text-[#C96504]">
                                     {{ $vehicle->year }}
                                 </span>
                             @endif

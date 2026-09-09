@@ -29,7 +29,7 @@
                 : route('client.account.show');
         @endphp
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <a href="{{ route('client.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
@@ -159,7 +159,7 @@
                                     </p>
 
                                     @if ($isMatchedPartVisible)
-                                        <a href="{{ route('pieces.show', $matchedPart) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                        <a href="{{ route('pieces.show', $matchedPart) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                             Voir la pièce
                                         </a>
                                     @endif
@@ -171,21 +171,6 @@
             </div>
         </main>
 
-        <nav class="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden">
-            <div class="mx-auto grid max-w-md grid-cols-4 gap-2 text-center text-[11px] font-bold">
-                <a href="{{ route('home') }}" class="text-zinc-500">
-                    Accueil
-                </a>
-                <a href="{{ route('client.parts.index') }}" class="text-zinc-500">
-                    Recherche
-                </a>
-                <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
-                    Demandes
-                </a>
-                <a href="{{ $buyerAccountRoute }}" class="text-zinc-500">
-                    Compte
-                </a>
-            </div>
-        </nav>
+        <x-client.mobile-navigation active="search" />
     </body>
 </html>

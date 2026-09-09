@@ -17,7 +17,7 @@
                 : route('client.account.show');
         @endphp
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -369,7 +369,7 @@
                                     </div>
 
                                     <div class="min-w-0 flex-1">
-                                        <div class="flex gap-3">
+                                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div class="min-w-0 flex-1">
                                                 <h2 class="truncate text-base font-black leading-5 text-zinc-950">
                                                     {{ $part->name }}
@@ -394,7 +394,7 @@
                                                 </p>
                                             </div>
 
-                                            <div class="shrink-0 text-right">
+                                            <div class="shrink-0 text-left sm:text-right">
                                                 <p class="text-base font-black text-[#FC8505] sm:text-lg">
                                                     @if ($part->price !== null)
                                                         {{ number_format((float) $part->price, 2, ',', ' ') }} €
@@ -424,41 +424,6 @@
             </div>
         </main>
 
-        <nav class="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden">
-            <div class="mx-auto grid max-w-md grid-cols-4 gap-2 text-center text-[11px] font-bold">
-                <a href="{{ route('home') }}" class="text-zinc-500">
-                    Accueil
-                </a>
-                <a href="{{ route('client.parts.index') }}" class="text-[#FC8505]" aria-current="page">
-                    Recherche
-                </a>
-                <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
-                    Demandes
-                </a>
-                @auth
-                    @if (auth()->user()->role === 'scrapyard')
-                        <a href="{{ route('scrapyard.dashboard') }}" class="text-zinc-500">
-                            Compte
-                        </a>
-                    @elseif (auth()->user()->role === 'admin')
-                        <a href="{{ route('admin.dashboard') }}" class="text-zinc-500">
-                            Compte
-                        </a>
-                    @elseif (auth()->user()->role === 'professional')
-                        <a href="{{ route('professional.account.show') }}" class="text-zinc-500">
-                            Compte
-                        </a>
-                    @else
-                        <a href="{{ route('client.account.show') }}" class="text-zinc-500">
-                            Compte
-                        </a>
-                    @endif
-                @else
-                    <a href="{{ route('login') }}" class="text-zinc-500">
-                        Compte
-                    </a>
-                @endauth
-            </div>
-        </nav>
+        <x-client.mobile-navigation active="search" />
     </body>
 </html>

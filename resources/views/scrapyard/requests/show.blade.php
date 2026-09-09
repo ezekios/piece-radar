@@ -89,7 +89,7 @@
                             </p>
                         </div>
 
-                        <span class="rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$partHoldRequest->status] ?? 'bg-zinc-100 text-zinc-600' }}">
+                        <span class="w-fit rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$partHoldRequest->status] ?? 'bg-zinc-100 text-zinc-600' }}">
                             {{ $statusLabels[$partHoldRequest->status] ?? $partHoldRequest->status }}
                         </span>
                     </div>
@@ -126,7 +126,7 @@
                     </section>
 
                     <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div class="min-w-0">
                                 <h2 class="text-base font-black text-zinc-950">Pièce</h2>
                                 <p class="mt-2 text-lg font-black text-zinc-950">{{ $part?->name ?? 'Pièce non renseignée' }}</p>
@@ -135,7 +135,7 @@
                                 </p>
                             </div>
 
-                            <div class="text-right">
+                            <div class="text-left sm:text-right">
                                 <p class="text-2xl font-black text-[#FC8505]">
                                     @if ($part?->price !== null)
                                         {{ number_format((float) $part->price, 2, ',', ' ') }} €

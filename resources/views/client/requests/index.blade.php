@@ -35,7 +35,7 @@
                 : route('client.account.show');
         @endphp
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <a href="{{ route('client.parts.index') }}" class="inline-flex items-center text-sm font-black text-[#FC8505] hover:text-[#E87804]">
@@ -104,7 +104,7 @@
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                <div class="flex items-start justify-between gap-3">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                                     <div class="min-w-0">
                                         <h2 class="truncate text-base font-black text-zinc-950">
                                             {{ $part?->name ?? 'Pièce non renseignée' }}
@@ -120,12 +120,12 @@
                                         </p>
                                     </div>
 
-                                    <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">
+                                    <span class="w-fit shrink-0 rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">
                                         {{ $statusLabels[$status] ?? $status }}
                                     </span>
                                 </div>
 
-                                <div class="mt-4 flex items-end justify-between gap-4 rounded-xl bg-zinc-50 p-3">
+                                <div class="mt-4 flex flex-col gap-3 rounded-xl bg-zinc-50 p-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
                                     <div>
                                         <p class="text-xs font-bold text-zinc-500">Date de la demande</p>
                                         <p class="mt-1 text-sm font-black text-zinc-950">
@@ -172,7 +172,7 @@
                                 @endif
 
                                 <div class="mt-3 flex justify-end border-t border-zinc-100 pt-3">
-                                    <a href="{{ route('client.requests.show', $holdRequest) }}" class="text-sm font-black text-[#FC8505] hover:text-[#E87804]">
+                                    <a href="{{ route('client.requests.show', $holdRequest) }}" class="inline-flex w-full items-center justify-center rounded-xl border border-[#FC8505]/30 bg-white px-4 py-2.5 text-sm font-black text-[#FC8505] transition hover:bg-[#FC8505]/10 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                         Voir la demande
                                     </a>
                                 </div>
@@ -182,5 +182,7 @@
                 @endif
             </div>
         </main>
+
+        <x-client.mobile-navigation active="requests" />
     </body>
 </html>

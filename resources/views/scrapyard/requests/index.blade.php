@@ -69,7 +69,7 @@
                 </header>
 
                 <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                    <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div class="min-w-0">
                             <p class="text-xs font-black uppercase text-[#FC8505]">Casse automobile</p>
                             <h2 class="mt-1 truncate text-lg font-black text-zinc-950">
@@ -80,7 +80,7 @@
                             </p>
                         </div>
 
-                        <div class="shrink-0 rounded-2xl bg-[#FC8505]/10 px-4 py-3 text-center">
+                        <div class="w-full shrink-0 rounded-2xl bg-[#FC8505]/10 px-4 py-3 text-center sm:w-auto">
                             <p class="text-2xl font-black text-[#FC8505]">{{ $pendingRequestsCount }}</p>
                             <p class="text-xs font-black text-[#C96504]">En attente</p>
                         </div>
@@ -90,7 +90,7 @@
                 <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                     <p class="text-xs font-black uppercase text-[#FC8505]">Filtres</p>
 
-                    <div class="mt-3 flex flex-wrap gap-2">
+                    <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                         @foreach ($filterItems as $filter)
                             @php
                                 $isActive = $activeStatus === $filter['status'];
@@ -101,7 +101,7 @@
 
                             <a
                                 href="{{ $filterUrl }}"
-                                class="inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                                class="inline-flex h-10 w-full items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
                             >
                                 {{ $filter['label'] }}
                             </a>
@@ -129,7 +129,7 @@
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                <div class="flex items-start justify-between gap-3">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                                     <div class="min-w-0">
                                         <h2 class="truncate text-base font-black text-zinc-950">
                                             {{ $part?->name ?? 'Pièce non renseignée' }}
@@ -148,7 +148,7 @@
                                         </p>
                                     </div>
 
-                                    <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">
+                                    <span class="w-fit shrink-0 rounded-full px-3 py-1 text-xs font-black {{ $statusClasses[$status] ?? 'bg-zinc-100 text-zinc-600' }}">
                                         {{ $statusLabels[$status] ?? $status }}
                                     </span>
                                 </div>
@@ -215,7 +215,7 @@
 
                                                     <button
                                                         type="submit"
-                                                        class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-black text-zinc-700 transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto"
+                                                        class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-black text-zinc-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 sm:w-auto"
                                                     >
                                                         Refuser
                                                     </button>

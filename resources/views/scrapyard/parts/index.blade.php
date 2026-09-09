@@ -120,7 +120,7 @@
                     <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                         <p class="text-xs font-black uppercase text-[#FC8505]">Publication</p>
 
-                        <div class="mt-3 flex flex-wrap gap-2">
+                        <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                             @foreach ($publicationFilters as $filter)
                                 @php
                                     $isActive = $activePublication === $filter['value'];
@@ -131,7 +131,7 @@
 
                                 <a
                                     href="{{ route('scrapyard.parts.index', $filterParameters) }}"
-                                    class="inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
+                                    class="inline-flex h-10 w-full items-center justify-center rounded-xl border px-3 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto {{ $isActive ? 'border-[#FC8505] bg-[#FC8505] text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505]' }}"
                                 >
                                     {{ $filter['label'] }}
                                 </a>

@@ -36,11 +36,13 @@ class ClientAccountTest extends TestCase
             ->assertSee('0696000000')
             ->assertSee('Client')
             ->assertSee('Mes demandes')
-            ->assertSee('fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden', false)
+            ->assertSee('aria-label="Navigation mobile client"', false)
+            ->assertSee('fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 px-3 py-2', false)
             ->assertSee(route('home'), false)
             ->assertSee(route('client.parts.index'), false)
             ->assertSee(route('client.requests.index'), false)
-            ->assertSee('href="' . route('client.account.show') . '" class="text-[#FC8505]" aria-current="page"', false);
+            ->assertSee(route('client.account.show'), false)
+            ->assertSee('aria-current="page"', false);
 
         $html = $response->getContent();
 

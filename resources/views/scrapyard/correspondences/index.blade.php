@@ -59,8 +59,8 @@
                             @endphp
 
                             <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                                <div class="flex gap-3">
-                                    <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                                <div class="flex flex-col gap-3 sm:flex-row">
+                                    <div class="flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-20 sm:w-20">
                                         @if ($partImage)
                                             <img src="{{ $partImage->url }}" alt="Photo {{ $matchedPart->name }}" class="h-full w-full object-cover">
                                         @else
@@ -80,7 +80,7 @@
                                                 </p>
                                             </div>
 
-                                            <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+                                            <span class="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
                                                 Correspondance trouvée
                                             </span>
                                         </div>
@@ -105,7 +105,7 @@
                                             </div>
 
                                             @if ($matchedPart)
-                                                <a href="{{ route('scrapyard.parts.show', $matchedPart) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                                <a href="{{ route('scrapyard.parts.show', $matchedPart) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                                     Voir la pièce
                                                 </a>
                                             @endif

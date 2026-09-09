@@ -9,7 +9,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="flex flex-wrap items-center justify-between gap-2">
@@ -208,13 +208,6 @@
             </div>
         </main>
 
-        <nav class="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden">
-            <div class="mx-auto grid max-w-md grid-cols-4 gap-2 text-center text-[11px] font-bold">
-                <a href="{{ route('home') }}" class="text-zinc-500">Accueil</a>
-                <a href="{{ route('client.parts.index') }}" class="text-zinc-500">Recherche</a>
-                <a href="{{ route('client.requests.index') }}" class="text-zinc-500">Demandes</a>
-                <a href="{{ route('professional.account.show') }}" class="text-[#FC8505]" aria-current="page">Compte</a>
-            </div>
-        </nav>
+        <x-client.mobile-navigation active="account" />
     </body>
 </html>

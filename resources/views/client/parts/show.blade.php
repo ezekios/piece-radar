@@ -26,7 +26,7 @@
             ];
         @endphp
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 @if (session('success'))
                     <div class="mb-4 rounded-2xl border border-orange-200 bg-white p-4 text-sm font-bold text-[#C96504] shadow-sm">
@@ -70,8 +70,8 @@
                     </div>
 
                     <div class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-                        <div class="flex gap-4">
-                            <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-32 sm:w-32">
+                        <div class="flex flex-col gap-4 sm:flex-row">
+                            <div class="flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200 sm:h-32 sm:w-32">
                                 @if ($mainImage)
                                     <img src="{{ $mainImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
                                 @else
@@ -88,12 +88,12 @@
                                         </h1>
                                     </div>
 
-                                    <span class="rounded-full bg-[#FC8505]/10 px-3 py-1 text-xs font-black text-[#C96504]">
+                                    <span class="w-fit rounded-full bg-[#FC8505]/10 px-3 py-1 text-xs font-black text-[#C96504]">
                                         Disponible
                                     </span>
                                 </div>
 
-                                <p class="mt-4 text-3xl font-black text-[#FC8505]">
+                                <p class="mt-4 text-2xl font-black text-[#FC8505] sm:text-3xl">
                                     @if ($part->price !== null)
                                         {{ number_format((float) $part->price, 2, ',', ' ') }} €
                                     @else
@@ -233,5 +233,7 @@
                 </div>
             </div>
         </main>
+
+        <x-client.mobile-navigation active="search" />
     </body>
 </html>

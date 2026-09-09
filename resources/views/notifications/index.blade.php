@@ -19,7 +19,7 @@
             $displayTimezone = config('app.display_timezone', 'UTC');
         @endphp
 
-        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-20 pt-5 sm:px-6 sm:pb-10 lg:px-8">
+        <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
                 <header class="border-b border-zinc-200/80 pb-4">
                     <div class="flex flex-wrap items-center justify-between gap-2">
@@ -118,7 +118,7 @@
 
                                 <div class="mt-3 flex flex-col gap-2 border-t border-zinc-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
                                     @if (! empty($data['url']))
-                                        <a href="{{ route('notifications.open', $notification) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                        <a href="{{ route('notifications.open', $notification) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
                                             Ouvrir
                                         </a>
                                     @endif
@@ -126,7 +126,7 @@
                                     <form method="POST" action="{{ route('notifications.destroy', $notification) }}" onsubmit="return confirm('Supprimer cette notification ?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm font-black text-zinc-700 shadow-sm transition hover:border-red-200 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm font-black text-zinc-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 sm:w-auto">
                                             Supprimer
                                         </button>
                                     </form>
@@ -139,22 +139,7 @@
         </main>
 
         @if ($isBuyer)
-            <nav class="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-2 backdrop-blur sm:hidden">
-                <div class="mx-auto grid max-w-md grid-cols-4 gap-2 text-center text-[11px] font-bold">
-                    <a href="{{ route('home') }}" class="text-zinc-500">
-                        Accueil
-                    </a>
-                    <a href="{{ route('client.parts.index') }}" class="text-zinc-500">
-                        Recherche
-                    </a>
-                    <a href="{{ route('client.requests.index') }}" class="text-zinc-500">
-                        Demandes
-                    </a>
-                    <a href="{{ $buyerAccountRoute }}" class="text-zinc-500">
-                        Compte
-                    </a>
-                </div>
-            </nav>
+            <x-client.mobile-navigation active="account" />
         @endif
     </body>
 </html>
