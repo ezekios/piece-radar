@@ -13,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
     'user_id',
     'name',
     'slug',
+    'siret',
     'phone',
     'email',
     'address',

@@ -100,6 +100,11 @@
                     Nouveau client ?
                     <a href="{{ route('client.register.create') }}" class="font-black text-[#FC8505] hover:text-[#E87804]">Créer un compte client</a>
                 </p>
+
+                <p class="mt-2 text-center text-sm font-medium text-zinc-600">
+                    Vous êtes une casse ?
+                    <a href="{{ route('scrapyard.register.create') }}" class="font-black text-[#FC8505] hover:text-[#E87804]">Créer un compte professionnel</a>
+                </p>
             </section>
         </main>
 

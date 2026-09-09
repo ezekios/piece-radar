@@ -59,11 +59,22 @@ class AuthenticatedSessionController extends Controller
             'professional' => $user?->hasVerifiedEmail()
                 ? route('professional.account.show')
                 : route('verification.notice'),
-            'scrapyard' => route('scrapyard.dashboard'),
+            'scrapyard' => $this->scrapyardHomePath($user),
             'client' => $user?->hasVerifiedEmail()
                 ? route('client.requests.index')
                 : route('verification.notice'),
             default => Route::has('client.parts.index') ? route('client.parts.index') : '/',
         };
+    }
+
+    private function scrapyardHomePath(mixed $user): string
+    {
+        if (! $user?->hasVerifiedEmail()) {
+            return route('verification.notice');
+        }
+
+        return $user->scrapyard?->is_active === false
+            ? route('scrapyard.pending')
+            : route('scrapyard.dashboard');
     }
 }

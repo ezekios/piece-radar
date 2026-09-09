@@ -18,8 +18,14 @@ class VerifyEmailController extends Controller
 
     private function homePathFor(?string $role): string
     {
-        return $role === 'professional'
-            ? route('professional.account.show')
-            : route('client.requests.index');
+        $user = request()->user();
+
+        return match ($role) {
+            'professional' => route('professional.account.show'),
+            'scrapyard' => $user?->scrapyard?->is_active
+                ? route('scrapyard.dashboard')
+                : route('scrapyard.pending'),
+            default => route('client.requests.index'),
+        };
     }
 }

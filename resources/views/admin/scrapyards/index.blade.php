@@ -29,8 +29,18 @@
                     </div>
                 @endif
 
+                @if (session('error'))
+                    <div class="rounded-2xl border border-red-200 bg-white p-4 text-sm font-bold text-red-700 shadow-sm">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <section class="grid gap-3">
                     @foreach ($scrapyards as $scrapyard)
+                        @php
+                            $emailVerified = (bool) $scrapyard->user?->hasVerifiedEmail();
+                        @endphp
+
                         <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                             <div class="flex flex-wrap items-start justify-between gap-3">
                                 <div>
@@ -38,8 +48,8 @@
                                     <p class="mt-1 text-sm font-semibold text-zinc-600">{{ $scrapyard->city ?: 'Ville non renseignée' }}</p>
                                 </div>
 
-                                <span class="rounded-full px-3 py-1 text-xs font-black {{ $scrapyard->is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-600' }}">
-                                    {{ $scrapyard->is_active ? 'Active' : 'Inactive' }}
+                                <span class="rounded-full px-3 py-1 text-xs font-black {{ $scrapyard->is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-[#FC8505]/10 text-[#C96504]' }}">
+                                    {{ $scrapyard->is_active ? 'Active' : 'En attente' }}
                                 </span>
                             </div>
 
@@ -47,6 +57,16 @@
                                 <div class="rounded-xl bg-zinc-50 p-3">
                                     <dt class="text-xs font-bold text-zinc-500">Email</dt>
                                     <dd class="mt-1 break-words font-black text-zinc-950">{{ $scrapyard->email ?: $scrapyard->user?->email ?: 'Non renseigné' }}</dd>
+                                </div>
+                                <div class="rounded-xl bg-zinc-50 p-3">
+                                    <dt class="text-xs font-bold text-zinc-500">Statut email</dt>
+                                    <dd class="mt-1 font-black {{ $emailVerified ? 'text-emerald-700' : 'text-[#C96504]' }}">
+                                        {{ $emailVerified ? 'Vérifié' : 'Non vérifié' }}
+                                    </dd>
+                                </div>
+                                <div class="rounded-xl bg-zinc-50 p-3">
+                                    <dt class="text-xs font-bold text-zinc-500">SIRET déclaré</dt>
+                                    <dd class="mt-1 font-black text-zinc-950">{{ $scrapyard->siret ?: 'Non renseigné' }}</dd>
                                 </div>
                                 <div class="rounded-xl bg-zinc-50 p-3">
                                     <dt class="text-xs font-bold text-zinc-500">Téléphone</dt>

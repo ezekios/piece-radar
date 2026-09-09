@@ -13,7 +13,7 @@ class VerifyEmailNotification extends VerifyEmail
             ->subject('Vérifiez votre adresse email')
             ->greeting('Bonjour,')
             ->line('Bienvenue sur Pièce Radar.')
-            ->line('Veuillez confirmer votre adresse email pour accéder à votre espace client.')
+            ->line('Veuillez confirmer votre adresse email pour accéder à votre espace Pièce Radar.')
             ->action('Vérifier mon adresse email', $url)
             ->line('Si vous n’avez pas créé de compte, aucune action n’est nécessaire.')
             ->salutation("Cordialement,\nL'équipe Pièce Radar");

@@ -16,10 +16,12 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\ProfessionalAccountController;
 use App\Http\Controllers\RegisteredClientController;
+use App\Http\Controllers\RegisteredScrapyardController;
 use App\Http\Controllers\ScrapyardAccountController;
 use App\Http\Controllers\ScrapyardCorrespondenceController;
 use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
+use App\Http\Controllers\ScrapyardPendingController;
 use App\Http\Controllers\ScrapyardRequestController;
 use App\Http\Controllers\ScrapyardVehicleController;
 use App\Http\Controllers\ScrapyardVehiclePartController;
@@ -67,16 +69,24 @@ Route::post('/inscription', [RegisteredClientController::class, 'store'])
     ->middleware('guest')
     ->name('client.register.store');
 
+Route::get('/inscription-casse', [RegisteredScrapyardController::class, 'create'])
+    ->middleware('guest')
+    ->name('scrapyard.register.create');
+
+Route::post('/inscription-casse', [RegisteredScrapyardController::class, 'store'])
+    ->middleware('guest')
+    ->name('scrapyard.register.store');
+
 Route::get('/verification-email', EmailVerificationPromptController::class)
-    ->middleware(['auth', 'buyer'])
+    ->middleware('auth')
     ->name('verification.notice');
 
 Route::get('/verification-email/{id}/{hash}', VerifyEmailController::class)
-    ->middleware(['auth', 'buyer', 'signed', 'throttle:6,1'])
+    ->middleware(['auth', 'signed', 'throttle:6,1'])
     ->name('verification.verify');
 
 Route::post('/verification-email/renvoyer', [EmailVerificationNotificationController::class, 'store'])
-    ->middleware(['auth', 'buyer', 'throttle:6,1'])
+    ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
 
 Route::get('/pieces', [ClientPartController::class, 'index'])
@@ -162,6 +172,9 @@ Route::middleware(['auth', 'admin'])->group(function (): void {
 });
 
 Route::middleware(['auth', 'scrapyard'])->group(function (): void {
+    Route::get('/casse/en-attente', ScrapyardPendingController::class)
+        ->name('scrapyard.pending');
+
     Route::get('/casse', [ScrapyardDashboardController::class, 'index'])
         ->name('scrapyard.dashboard');
 

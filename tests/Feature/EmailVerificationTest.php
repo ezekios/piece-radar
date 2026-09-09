@@ -60,7 +60,7 @@ class EmailVerificationTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_scrapyard_cannot_use_client_verification_notice(): void
+    public function test_unverified_scrapyard_can_open_verification_notice(): void
     {
         $scrapyard = $this->createScrapyardUserWithScrapyard([
             'email_verified_at' => null,
@@ -68,7 +68,9 @@ class EmailVerificationTest extends TestCase
 
         $this->actingAs($scrapyard)
             ->get(route('verification.notice'))
-            ->assertForbidden();
+            ->assertOk()
+            ->assertSee('Vérifiez votre email')
+            ->assertSee($scrapyard->email);
     }
 
     public function test_unverified_client_can_resend_verification_notification(): void
@@ -256,7 +258,7 @@ class EmailVerificationTest extends TestCase
             ->assertRedirect(route('client.requests.index'));
     }
 
-    public function test_scrapyard_with_unverified_email_can_still_access_scrapyard_dashboard(): void
+    public function test_scrapyard_with_unverified_email_is_redirected_to_verification_notice(): void
     {
         $scrapyard = $this->createScrapyardUserWithScrapyard([
             'email_verified_at' => null,
@@ -264,8 +266,7 @@ class EmailVerificationTest extends TestCase
 
         $this->actingAs($scrapyard)
             ->get(route('scrapyard.dashboard'))
-            ->assertOk()
-            ->assertSee('Tableau de bord casse');
+            ->assertRedirect(route('verification.notice'));
     }
 
     public function test_existing_unverified_client_keeps_requests_and_recovers_them_after_verification(): void
@@ -358,6 +359,7 @@ class EmailVerificationTest extends TestCase
             'user_id' => $user->id,
             'name' => 'Casse Martinique',
             'slug' => 'casse-' . uniqid(),
+            'siret' => (string) fake()->unique()->numerify('##############'),
             'city' => 'Fort-de-France',
             'is_active' => true,
         ]);

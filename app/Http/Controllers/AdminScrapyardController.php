@@ -25,6 +25,12 @@ class AdminScrapyardController extends Controller
             'is_active' => ['required', 'boolean'],
         ]);
 
+        if ((bool) $validated['is_active'] && ! $scrapyard->user?->hasVerifiedEmail()) {
+            return redirect()
+                ->route('admin.scrapyards.index')
+                ->with('error', 'Impossible d’activer cette casse tant que l’adresse email du compte n’a pas été vérifiée.');
+        }
+
         $scrapyard->forceFill([
             'is_active' => (bool) $validated['is_active'],
         ])->save();
