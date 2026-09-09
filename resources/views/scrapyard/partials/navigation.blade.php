@@ -20,6 +20,11 @@
             'url' => route('scrapyard.requests.index'),
             'active' => request()->routeIs('scrapyard.requests.*'),
         ],
+        [
+            'label' => 'Mon compte',
+            'url' => route('scrapyard.account.show'),
+            'active' => request()->routeIs('scrapyard.account.*'),
+        ],
     ];
 @endphp
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewPasswordController;
 use App\Http\Controllers\PasswordResetLinkController;
 use App\Http\Controllers\RegisteredClientController;
+use App\Http\Controllers\ScrapyardAccountController;
 use App\Http\Controllers\ScrapyardDashboardController;
 use App\Http\Controllers\ScrapyardPartController;
 use App\Http\Controllers\ScrapyardRequestController;
@@ -103,6 +104,18 @@ Route::get('/pieces/{part}', [ClientPartController::class, 'show'])
 Route::middleware(['auth', 'scrapyard'])->group(function (): void {
     Route::get('/casse', [ScrapyardDashboardController::class, 'index'])
         ->name('scrapyard.dashboard');
+
+    Route::get('/casse/mon-compte', [ScrapyardAccountController::class, 'show'])
+        ->name('scrapyard.account.show');
+
+    Route::patch('/casse/mon-compte', [ScrapyardAccountController::class, 'update'])
+        ->name('scrapyard.account.update');
+
+    Route::patch('/casse/mon-compte/casse', [ScrapyardAccountController::class, 'updateScrapyard'])
+        ->name('scrapyard.account.scrapyard.update');
+
+    Route::patch('/casse/mon-compte/mot-de-passe', [ScrapyardAccountController::class, 'updatePassword'])
+        ->name('scrapyard.account.password.update');
 
     Route::get('/casse/vehicules', [ScrapyardVehicleController::class, 'index'])
         ->name('scrapyard.vehicles.index');
