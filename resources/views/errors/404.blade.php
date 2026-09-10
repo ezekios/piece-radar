@@ -1,26 +1,17 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<x-layouts.auth title="Page introuvable - Pièce Radar" card-width="max-w-md">
+    <x-slot:heading>
+        Page introuvable
+    </x-slot:heading>
 
-        <title>Page introuvable - Pièce Radar</title>
+    <x-slot:description>
+        La page que vous recherchez n'existe pas ou n'est plus disponible.
+    </x-slot:description>
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
-        <main class="mx-auto flex min-h-screen w-full max-w-5xl items-center px-4 py-8 sm:px-6 lg:px-8">
-            <section class="mx-auto w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 text-center shadow-sm sm:p-6">
-                <x-brand-logo :href="route('home')" class="justify-center" image-class="h-12 w-auto max-w-[180px] object-contain" />
-                <p class="mt-4 text-xs font-black uppercase text-zinc-500">Erreur 404</p>
-                <h1 class="mt-2 text-2xl font-black leading-tight text-zinc-950">Page introuvable</h1>
-                <p class="mt-2 text-sm font-medium leading-6 text-zinc-600">
-                    La page que vous recherchez n'existe pas ou n'est plus disponible.
-                </p>
-                <a href="{{ route('home') }}" class="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
-                    Retour à l'accueil
-                </a>
-            </section>
-        </main>
-    </body>
-</html>
+    <div class="mt-5 text-center">
+        <x-ui.badge variant="orange">Erreur 404</x-ui.badge>
+    </div>
+
+    <x-ui.button :href="route('home')" class="mt-5 w-full">
+        Retour à l'accueil
+    </x-ui.button>
+</x-layouts.auth>
