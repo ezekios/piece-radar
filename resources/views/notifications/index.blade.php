@@ -5,10 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Notifications - Pièce Radar</title>
-
+        <x-ui.theme-script />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
+    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased dark:bg-zinc-950 dark:text-zinc-50">
         @php
             $user = auth()->user();
             $isClient = $user?->role === 'client';
@@ -21,30 +21,32 @@
 
         <main class="mx-auto min-h-screen w-full max-w-5xl px-4 pb-24 pt-5 sm:px-6 sm:pb-10 lg:px-8">
             <div class="mx-auto w-full max-w-3xl">
-                <header class="border-b border-zinc-200/80 pb-4">
+                <header class="border-b border-zinc-200/80 pb-4 dark:border-zinc-800">
                     <div class="flex flex-wrap items-center justify-between gap-2">
-                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" theme-aware />
 
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="{{ $isBuyer ? 'hidden sm:flex' : 'flex' }} flex-wrap items-center gap-2">
+                            <x-ui.theme-toggle />
+
                             @if ($isBuyer)
-                                <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                <a href="{{ route('client.saved-searches.index') }}" class="rounded-full bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 dark:ring-[#FC8505]/30 hover:text-[#E87804]">
                                     Mes recherches
                                 </a>
-                                <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                <a href="{{ route('client.requests.index') }}" class="rounded-full bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 dark:ring-[#FC8505]/30 hover:text-[#E87804]">
                                     Mes demandes
                                 </a>
-                                <a href="{{ $buyerAccountRoute }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                <a href="{{ $buyerAccountRoute }}" class="rounded-full bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 dark:ring-[#FC8505]/30 hover:text-[#E87804]">
                                     {{ $isProfessional ? 'Espace pro' : 'Mon compte' }}
                                 </a>
                             @elseif ($isScrapyard)
-                                <a href="{{ route('scrapyard.dashboard') }}" class="rounded-full bg-white px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 hover:text-[#E87804]">
+                                <a href="{{ route('scrapyard.dashboard') }}" class="rounded-full bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-black text-[#FC8505] ring-1 ring-orange-100 dark:ring-[#FC8505]/30 hover:text-[#E87804]">
                                     Espace casse
                                 </a>
                             @endif
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="rounded-full bg-white px-3 py-1 text-xs font-black text-zinc-600 ring-1 ring-zinc-200 hover:text-zinc-900">
+                                <button type="submit" class="rounded-full bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-black text-zinc-600 dark:text-zinc-400 ring-1 ring-zinc-200 dark:ring-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100">
                                     Déconnexion
                                 </button>
                             </form>
@@ -53,8 +55,8 @@
 
                     <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">Notifications</h1>
-                            <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
+                            <h1 class="text-2xl font-black leading-tight text-zinc-950 dark:text-zinc-50 sm:text-3xl">Notifications</h1>
+                            <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                                 {{ $notifications->count() }} notification{{ $notifications->count() > 1 ? 's' : '' }}
                             </p>
                         </div>
@@ -62,7 +64,7 @@
                         @if ($notifications->whereNull('read_at')->isNotEmpty())
                             <form method="POST" action="{{ route('notifications.mark-all-read') }}">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center justify-center rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2">
+                                <button type="submit" class="inline-flex items-center justify-center rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-black text-zinc-700 dark:text-zinc-300 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950">
                                     Tout marquer comme lu
                                 </button>
                             </form>
@@ -71,15 +73,15 @@
                 </header>
 
                 @if (session('success'))
-                    <div class="mt-4 rounded-2xl border border-orange-200 bg-white p-4 text-sm font-bold text-[#C96504] shadow-sm">
+                    <div class="mt-4 rounded-2xl border border-orange-200 bg-white dark:border-[#FC8505]/30 dark:bg-zinc-900 p-4 text-sm font-bold text-[#C96504] dark:text-orange-200 shadow-sm">
                         {{ session('success') }}
                     </div>
                 @endif
 
                 @if ($notifications->isEmpty())
-                    <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white p-6 text-center shadow-sm">
-                        <h2 class="text-base font-black text-zinc-950">Aucune notification.</h2>
-                        <p class="mt-1.5 text-sm leading-6 text-zinc-600">
+                    <section class="mt-5 rounded-2xl border border-dashed border-orange-200 bg-white dark:border-[#FC8505]/30 dark:bg-zinc-900 p-6 text-center shadow-sm">
+                        <h2 class="text-base font-black text-zinc-950 dark:text-zinc-50">Aucune notification.</h2>
+                        <p class="mt-1.5 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
                             Les informations importantes liées à vos recherches et demandes apparaîtront ici.
                         </p>
                     </section>
@@ -91,34 +93,34 @@
                                 $createdAtDisplay = $notification->created_at?->copy()->timezone($displayTimezone);
                             @endphp
 
-                            <article class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm {{ $notification->read_at ? '' : 'ring-1 ring-orange-100' }}">
+                            <article class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm {{ $notification->read_at ? '' : 'ring-1 ring-orange-100 dark:ring-[#FC8505]/30' }}">
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <h2 class="text-base font-black text-zinc-950">
+                                            <h2 class="text-base font-black text-zinc-950 dark:text-zinc-50">
                                                 {{ $data['title'] ?? 'Notification' }}
                                             </h2>
 
                                             @if (! $notification->read_at)
-                                                <span class="rounded-full bg-[#FC8505]/10 px-2.5 py-1 text-[11px] font-black text-[#C96504]">
+                                                <span class="rounded-full bg-[#FC8505]/10 px-2.5 py-1 text-[11px] font-black text-[#C96504] dark:text-orange-200">
                                                     Non lue
                                                 </span>
                                             @endif
                                         </div>
 
-                                        <p class="mt-2 text-sm font-medium leading-6 text-zinc-700">
+                                        <p class="mt-2 text-sm font-medium leading-6 text-zinc-700 dark:text-zinc-300">
                                             {{ $data['message'] ?? '' }}
                                         </p>
 
-                                        <p class="mt-2 text-xs font-bold text-zinc-500">
+                                        <p class="mt-2 text-xs font-bold text-zinc-500 dark:text-zinc-400">
                                             {{ $createdAtDisplay?->format('d/m/Y à H:i') }}
                                         </p>
                                     </div>
                                 </div>
 
-                                <div class="mt-3 flex flex-col gap-2 border-t border-zinc-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="mt-3 flex flex-col gap-2 border-t border-zinc-100 dark:border-zinc-800 pt-3 sm:flex-row sm:items-center sm:justify-between">
                                     @if (! empty($data['url']))
-                                        <a href="{{ route('notifications.open', $notification) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 sm:w-auto">
+                                        <a href="{{ route('notifications.open', $notification) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950 sm:w-auto">
                                             Ouvrir
                                         </a>
                                     @endif
@@ -126,7 +128,7 @@
                                     <form method="POST" action="{{ route('notifications.destroy', $notification) }}" onsubmit="return confirm('Supprimer cette notification ?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm font-black text-zinc-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 sm:w-auto">
+                                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-black text-zinc-700 dark:text-zinc-300 shadow-sm transition hover:border-red-200 dark:hover:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 dark:focus:ring-offset-zinc-950 sm:w-auto">
                                             Supprimer
                                         </button>
                                     </form>
@@ -139,7 +141,7 @@
         </main>
 
         @if ($isBuyer)
-            <x-client.mobile-navigation active="account" />
+            <x-client.mobile-navigation active="notifications" />
         @endif
     </body>
 </html>

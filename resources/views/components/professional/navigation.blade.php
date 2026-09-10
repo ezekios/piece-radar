@@ -47,8 +47,10 @@
     ];
 
     $mobileActive = match ($active) {
+        'saved-searches' => 'saved-searches',
         'requests' => 'requests',
-        'account', 'notifications' => 'account',
+        'notifications' => 'notifications',
+        'account' => 'account',
         default => 'search',
     };
 @endphp

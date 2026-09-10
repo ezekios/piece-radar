@@ -10,6 +10,38 @@
     $isProfessional = $user?->role === 'professional';
     $isBuyer = in_array($user?->role, ['client', 'professional'], true);
     $accountRoute = $isProfessional ? route('professional.account.show') : route('client.account.show');
+    $navigationItems = [
+        [
+            'key' => 'search',
+            'label' => 'Recherche',
+            'url' => route('client.parts.index'),
+        ],
+        [
+            'key' => 'saved-searches',
+            'label' => 'Mes recherches',
+            'url' => route('client.saved-searches.index'),
+            'auth' => true,
+        ],
+        [
+            'key' => 'requests',
+            'label' => 'Mes demandes',
+            'url' => route('client.requests.index'),
+            'auth' => true,
+        ],
+        [
+            'key' => 'notifications',
+            'label' => 'Notifications',
+            'url' => route('notifications.index'),
+            'auth' => true,
+        ],
+        [
+            'key' => 'account',
+            'label' => $isProfessional ? 'Espace pro' : 'Mon compte',
+            'url' => $accountRoute,
+            'auth' => true,
+            'primary' => true,
+        ],
+    ];
 @endphp
 
 @if ($isProfessional)
@@ -48,28 +80,28 @@
                             <nav class="hidden flex-wrap items-center gap-2 sm:flex" aria-label="Navigation acheteur">
                                 <x-ui.theme-toggle />
 
-                                <a href="{{ route('client.parts.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:focus:ring-offset-zinc-950 dark:hover:border-[#FC8505]/40 dark:hover:text-[#FC8505]">
-                                    Recherche
-                                </a>
+                                @foreach ($navigationItems as $item)
+                                    @continue(($item['auth'] ?? false) && (! auth()->check() || ! $isBuyer))
+
+                                    @php($isActive = $active === $item['key'])
+
+                                    <a
+                                        href="{{ $item['url'] }}"
+                                        @if ($isActive) aria-current="page" @endif
+                                        class="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-black shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950 {{ ($item['primary'] ?? false) || $isActive ? 'bg-[#FC8505] text-white hover:bg-[#E87804]' : 'border border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:text-[#FC8505] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-[#FC8505]/40 dark:hover:text-[#FC8505]' }}"
+                                    >
+                                        {{ $item['label'] }}
+                                    </a>
+                                @endforeach
+
+                                @guest
+                                    <a href="{{ route('login') }}" class="inline-flex h-10 items-center justify-center rounded-xl bg-[#FC8505] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950">
+                                        Connexion
+                                    </a>
+                                @endguest
 
                                 @auth
                                     @if ($isBuyer)
-                                        <a href="{{ route('client.saved-searches.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:focus:ring-offset-zinc-950 dark:hover:border-[#FC8505]/40 dark:hover:text-[#FC8505]">
-                                            Mes recherches
-                                        </a>
-
-                                        <a href="{{ route('client.requests.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:focus:ring-offset-zinc-950 dark:hover:border-[#FC8505]/40 dark:hover:text-[#FC8505]">
-                                            Mes demandes
-                                        </a>
-
-                                        <a href="{{ route('notifications.index') }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:focus:ring-offset-zinc-950 dark:hover:border-[#FC8505]/40 dark:hover:text-[#FC8505]">
-                                            Notifications
-                                        </a>
-
-                                        <a href="{{ $accountRoute }}" class="inline-flex h-10 items-center justify-center rounded-xl bg-[#FC8505] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950">
-                                            Mon compte
-                                        </a>
-
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
                                             <button type="submit" class="inline-flex h-10 cursor-pointer items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-black text-zinc-700 shadow-sm transition hover:border-orange-200 hover:text-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:focus:ring-offset-zinc-950 dark:hover:border-[#FC8505]/40 dark:hover:text-[#FC8505]">
@@ -77,10 +109,6 @@
                                             </button>
                                         </form>
                                     @endif
-                                @else
-                                    <a href="{{ route('login') }}" class="inline-flex h-10 items-center justify-center rounded-xl bg-[#FC8505] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950">
-                                        Connexion
-                                    </a>
                                 @endauth
                             </nav>
                         </div>

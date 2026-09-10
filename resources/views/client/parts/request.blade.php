@@ -5,10 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Demande de mise de côté - Pièce Radar</title>
-
+        <x-ui.theme-script />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased">
+    <body class="bg-[#F8F7F4] font-sans text-zinc-950 antialiased dark:bg-zinc-950 dark:text-zinc-50">
         @php
             $vehicle = $part->vehicle;
             $scrapyard = $vehicle?->scrapyard;
@@ -25,37 +25,37 @@
                     </a>
 
                     <div class="mt-4">
-                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" />
-                        <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 sm:text-3xl">
+                        <x-brand-logo :href="route('home')" image-class="h-10 w-auto max-w-[160px] object-contain" theme-aware />
+                        <h1 class="mt-1 text-2xl font-black leading-tight text-zinc-950 dark:text-zinc-50 sm:text-3xl">
                             Demande de mise de côté
                         </h1>
-                        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600">
+                        <p class="mt-1.5 text-sm font-medium leading-6 text-zinc-600 dark:text-zinc-400">
                             Votre compte client sera associé à cette demande.
                         </p>
                     </div>
                 </header>
 
-                <section class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <section class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm">
                     <div class="flex gap-3">
-                        <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+                        <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200 dark:ring-zinc-700">
                             @if ($partImage)
                                 <img src="{{ $partImage->url }}" alt="Photo {{ $part->name }}" class="h-full w-full object-cover">
                             @else
-                                <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white shadow-inner"></div>
+                                <div class="h-10 w-14 rounded-md border border-[#FC8505]/50 bg-white dark:bg-zinc-900 shadow-inner"></div>
                             @endif
                         </div>
 
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                                 <div class="min-w-0">
-                                    <h2 class="truncate text-base font-black text-zinc-950">{{ $part->name }}</h2>
-                                    <p class="mt-1 truncate text-xs font-semibold text-zinc-700">
+                                    <h2 class="truncate text-base font-black text-zinc-950 dark:text-zinc-50">{{ $part->name }}</h2>
+                                    <p class="mt-1 truncate text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                                         {{ $vehicle?->brand ?? 'Marque inconnue' }} {{ $vehicle?->model ?? '' }}
                                         @if ($vehicle?->year)
                                             · {{ $vehicle->year }}
                                         @endif
                                     </p>
-                                    <p class="mt-1 truncate text-xs text-zinc-500">
+                                    <p class="mt-1 truncate text-xs text-zinc-500 dark:text-zinc-400">
                                         {{ $scrapyard?->name ?? 'Casse non renseignée' }}
                                         @if ($scrapyard?->city)
                                             · {{ $scrapyard->city }}
@@ -75,11 +75,11 @@
                     </div>
                 </section>
 
-                <section class="mt-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <section class="mt-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <h2 class="text-base font-black text-zinc-950">{{ $isProfessional ? 'Compte professionnel' : 'Compte client' }}</h2>
-                            <p class="mt-1 text-sm font-medium text-zinc-600">
+                            <h2 class="text-base font-black text-zinc-950 dark:text-zinc-50">{{ $isProfessional ? 'Compte professionnel' : 'Compte client' }}</h2>
+                            <p class="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">
                                 Ces coordonnées proviennent de votre compte connecté.
                             </p>
                         </div>
@@ -107,33 +107,33 @@
                     </div>
 
                     <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-                        <div class="rounded-xl bg-zinc-50 p-3">
-                            <dt class="text-xs font-bold text-zinc-500">Nom</dt>
-                            <dd class="mt-1 font-black text-zinc-950">{{ $client?->name }}</dd>
+                        <div class="rounded-xl bg-zinc-50 dark:bg-zinc-800 p-3">
+                            <dt class="text-xs font-bold text-zinc-500 dark:text-zinc-400">Nom</dt>
+                            <dd class="mt-1 font-black text-zinc-950 dark:text-zinc-50">{{ $client?->name }}</dd>
                         </div>
 
-                        <div class="rounded-xl bg-zinc-50 p-3">
-                            <dt class="text-xs font-bold text-zinc-500">Téléphone</dt>
-                            <dd class="mt-1 font-black text-zinc-950">{{ $client?->phone ?? 'Non renseigné' }}</dd>
+                        <div class="rounded-xl bg-zinc-50 dark:bg-zinc-800 p-3">
+                            <dt class="text-xs font-bold text-zinc-500 dark:text-zinc-400">Téléphone</dt>
+                            <dd class="mt-1 font-black text-zinc-950 dark:text-zinc-50">{{ $client?->phone ?? 'Non renseigné' }}</dd>
                         </div>
 
-                        <div class="rounded-xl bg-zinc-50 p-3">
-                            <dt class="text-xs font-bold text-zinc-500">Email</dt>
-                            <dd class="mt-1 break-words font-black text-zinc-950">{{ $client?->email }}</dd>
+                        <div class="rounded-xl bg-zinc-50 dark:bg-zinc-800 p-3">
+                            <dt class="text-xs font-bold text-zinc-500 dark:text-zinc-400">Email</dt>
+                            <dd class="mt-1 break-words font-black text-zinc-950 dark:text-zinc-50">{{ $client?->email }}</dd>
                         </div>
                     </dl>
                 </section>
 
-                <form method="POST" action="{{ route('pieces.request.store', $part) }}" class="mt-4 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <form method="POST" action="{{ route('pieces.request.store', $part) }}" class="mt-4 space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm">
                     @csrf
 
                     <div>
-                        <label for="customer_message" class="text-sm font-black text-zinc-900">Message à la casse</label>
+                        <label for="customer_message" class="text-sm font-black text-zinc-900 dark:text-zinc-100">Message à la casse</label>
                         <textarea
                             id="customer_message"
                             name="customer_message"
                             rows="5"
-                            class="mt-2 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
+                            class="mt-2 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 px-3 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-[#FC8505] focus:outline-none focus:ring-2 focus:ring-[#FC8505]/20"
                             placeholder="Bonjour, je souhaite mettre cette pièce de côté."
                         >{{ old('customer_message') }}</textarea>
                         @error('customer_message')
@@ -143,7 +143,7 @@
 
                     <button
                         type="submit"
-                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2"
+                        class="inline-flex w-full items-center justify-center rounded-2xl bg-[#FC8505] px-5 py-4 text-sm font-black text-white shadow-sm transition hover:bg-[#E87804] focus:outline-none focus:ring-2 focus:ring-[#FC8505] focus:ring-offset-2 dark:focus:ring-offset-zinc-950"
                     >
                         Envoyer la demande
                     </button>
