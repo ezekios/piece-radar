@@ -20,14 +20,16 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__.'/../app/Console/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'admin' => EnsureUserIsAdmin::class,
-            'buyer' => EnsureUserIsBuyer::class,
-            'client' => EnsureUserIsClient::class,
-            'professional' => EnsureUserIsProfessional::class,
-            'scrapyard' => EnsureUserIsScrapyard::class,
-        ]);
-    })
+    $middleware->trustProxies(at: '*');
+
+    $middleware->alias([
+        'admin' => EnsureUserIsAdmin::class,
+        'buyer' => EnsureUserIsBuyer::class,
+        'client' => EnsureUserIsClient::class,
+        'professional' => EnsureUserIsProfessional::class,
+        'scrapyard' => EnsureUserIsScrapyard::class,
+    ]);
+})
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
